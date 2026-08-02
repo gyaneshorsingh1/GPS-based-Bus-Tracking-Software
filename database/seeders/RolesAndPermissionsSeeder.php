@@ -10,29 +10,31 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Create Permissions
-        Permission::create(['name' => 'bus.view']);
-        Permission::create(['name' => 'bus.create']);
-        Permission::create(['name' => 'bus.update']);
-        Permission::create(['name' => 'bus.delete']);
+        Permission::findOrCreate('bus.view');
+        Permission::findOrCreate('bus.create');
+        Permission::findOrCreate('bus.update');
+        Permission::findOrCreate('bus.delete');
 
-        Permission::create(['name' => 'student.view']);
-        Permission::create(['name' => 'student.create']);
-        Permission::create(['name' => 'student.update']);
-        Permission::create(['name' => 'student.delete']);
+        Permission::findOrCreate('student.view');
+        Permission::findOrCreate('student.create');
+        Permission::findOrCreate('student.update');
+        Permission::findOrCreate('student.delete');
 
         // Create Roles
-        $superAdmin = Role::create(['name' => 'Super Admin']);
-        $schoolAdmin = Role::create(['name' => 'School Admin']);
-        $driver = Role::create(['name' => 'Driver']);
+        $superAdmin = Role::findOrCreate('Super Admin');
+        $schoolAdmin = Role::findOrCreate('School Admin');
+        $driver = Role::findOrCreate('Driver');
+
+        // New Role
+        $parent = Role::findOrCreate('Parent');
 
         // Assign permissions
-        $superAdmin->givePermissionTo(Permission::all());
+        $superAdmin->syncPermissions(Permission::all());
 
-        $schoolAdmin->givePermissionTo([
+        $schoolAdmin->syncPermissions([
             'bus.view',
             'bus.create',
             'bus.update',
@@ -43,8 +45,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'student.delete',
         ]);
 
-        $driver->givePermissionTo([
+        $driver->syncPermissions([
             'bus.view',
+        ]);
+
+        $parent->syncPermissions([
+            // Add parent permissions here when needed
         ]);
     }
 }
