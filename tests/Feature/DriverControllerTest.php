@@ -22,6 +22,7 @@ class DriverControllerTest extends TestCase
 
         $school = School::create([
             'name' => 'Bright Future School',
+            'code' => 'SCH001',
             'email' => 'admin@brightfuture.com',
             'phone' => '9800000000',
             'address' => 'Kathmandu',

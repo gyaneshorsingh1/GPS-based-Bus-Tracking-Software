@@ -69,6 +69,7 @@ class ParentProfileController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => $validated['password'],
+                    'school_id' => $validated['school_id'],
                 ]);
 
                 $user->assignRole('Parent');
@@ -140,6 +141,7 @@ class ParentProfileController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => $validated['password'] ?? $parentProfile->user->password,
+                    'school_id' => $validated['school_id'],
                 ]);
 
                 $parentProfile->update([

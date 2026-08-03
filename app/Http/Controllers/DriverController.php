@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Driver;
 use App\Models\School;
+use App\Models\SchoolAdmin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -508,6 +509,12 @@ class DriverController extends Controller
 
         if (! empty($user->school_id)) {
             return (int) $user->school_id;
+        }
+
+        $schoolAdmin = SchoolAdmin::where('user_id', $user->id)->first();
+
+        if ($schoolAdmin && ! empty($schoolAdmin->school_id)) {
+            return (int) $schoolAdmin->school_id;
         }
 
         $school = School::where('principal_name', $user->name)

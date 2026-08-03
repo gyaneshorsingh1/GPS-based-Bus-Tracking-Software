@@ -12,7 +12,6 @@ class RoleSeeder extends Seeder
      * Modules a School Admin cannot manage.
      */
     private const SCHOOL_ADMIN_EXCLUDED_MODULES = [
-        'school-admin',
         'role',
         'permission',
     ];
