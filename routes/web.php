@@ -14,6 +14,8 @@
         })->middleware('verified', 'permission:dashboard.view')->name('dashboard');
 
         Route::get('/schools', [SchoolController::class, 'index'])->middleware('permission:school.view')->name('schools.index');
+        Route::get('/schools/create', [SchoolController::class, 'create'])->middleware('permission:school.create')->name('schools.create');
+        Route::post('/schools', [SchoolController::class, 'store'])->middleware('permission:school.create')->name('schools.store');
 
         Route::get('/buttons', function () {
             return view('buttons');

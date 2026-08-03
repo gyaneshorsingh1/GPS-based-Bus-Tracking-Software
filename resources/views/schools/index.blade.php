@@ -1,29 +1,96 @@
 <x-app-layout page="school-management">
     <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
-<form action="{{ route('schools.index') }}" method="GET" class="mb-4">
-    <div class="flex gap-2">
-        <input
-            type="text"
-            name="search"
-            value="{{ request('search') }}"
-            placeholder="Search schools..."
-            class="w-full rounded-lg border px-4 py-2"
-        >
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Schools</h1>
+            <a
+                href="{{ route('schools.create') }}"
+                class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+            >
+                Create School
+            </a>
+        </div>
 
-        <button
-            type="submit"
-            class="rounded-lg bg-blue-600 px-4 py-2 text-white"
-        >
-            Search
-        </button>
+        @if (session('success'))
+            <div class="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                {{ session('success') }}
+            </div>
+        @endif
 
-        <a
-            href="{{ route('schools.index') }}"
-            class="rounded-lg bg-gray-500 px-4 py-2 text-white"
-        >
-            Reset
-        </a>
-    </div>
-</form>
+        <form action="{{ route('schools.index') }}" method="GET" class="mb-4">
+            <div class="flex gap-2">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search schools..."
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                >
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                >
+                    Search
+                </button>
+
+                <a
+                    href="{{ route('schools.index') }}"
+                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                    Reset
+                </a>
+            </div>
+        </form>
+
+        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-gray-200 dark:border-gray-800">
+                    <tr class="text-gray-500 dark:text-gray-400">
+                        <th class="px-5 py-3 font-medium">Name</th>
+                        <th class="px-5 py-3 font-medium">Code</th>
+                        <th class="px-5 py-3 font-medium">Email</th>
+                        <th class="px-5 py-3 font-medium">Phone</th>
+                        <th class="px-5 py-3 font-medium">Status</th>
+                        <th class="px-5 py-3 font-medium">Created</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    @forelse ($schools as $school)
+                        <tr class="text-gray-700 dark:text-gray-200">
+                            <td class="px-5 py-3 font-medium">{{ $school->name }}</td>
+                            <td class="px-5 py-3">{{ $school->code }}</td>
+                            <td class="px-5 py-3">{{ $school->email }}</td>
+                            <td class="px-5 py-3">{{ $school->phone ?? '—' }}</td>
+                            <td class="px-5 py-3">
+                                <span
+                                    class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium
+                                        @if ($school->status === 'active')
+                                            bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400
+                                        @elseif ($school->status === 'inactive')
+                                            bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400
+                                        @else
+                                            bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400
+                                        @endif
+                                    "
+                                >
+                                    {{ ucfirst($school->status) }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3">{{ $school->created_at->format('M d, Y') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                                No schools found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-6">
+            {{ $schools->links() }}
+        </div>
     </div>
 </x-app-layout>
