@@ -86,6 +86,7 @@ class SchoolAdminController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => $validated['password'],
+                    'school_id' => $schoolId,
                 ]);
 
                 $user->assignRole('School Admin');
@@ -167,6 +168,7 @@ class SchoolAdminController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => $validated['password'] ?? $schoolAdmin->user->password,
+                    'school_id' => $schoolId,
                 ]);
 
                 $schoolAdmin->update([
