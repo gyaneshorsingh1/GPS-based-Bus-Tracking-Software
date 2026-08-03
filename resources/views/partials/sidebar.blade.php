@@ -27,186 +27,219 @@
      *               Browse names at https://blade-ui-kit.com/blade-icons?set=1
      *   dropdown -> optional array of ['label' => ..., 'route' => ..., 'page' => ...]
      */
-    $menu = [
+    $superAdminMenu = [
         [
             'title' => 'Dashboard',
             'items' => [
-                [
-                    'key'        => 'overview',
-                    'label'      => 'Overview',
-                    'route'      => 'dashboard',
-                    'active'     => ['overview', 'dashboard'],
-                    'icon'       => 'heroicon-o-home',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'statistics',
-                    'label'      => 'Statistics',
-                    'route'      => 'dashboard',
-                    'active'     => 'statistics',
-                    'icon'       => 'heroicon-o-chart-bar',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'live-summary',
-                    'label'      => 'Live Summary',
-                    'route'      => 'dashboard',
-                    'active'     => 'live-summary',
-                    'icon'       => 'heroicon-o-signal',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
+                ['key' => 'overview', 'label' => 'Overview', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'statistics', 'label' => 'Statistics', 'route' => 'dashboard', 'active' => 'statistics', 'icon' => 'heroicon-o-chart-bar', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-summary', 'label' => 'Live Summary', 'route' => 'dashboard', 'active' => 'live-summary', 'icon' => 'heroicon-o-signal', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Management',
             'items' => [
-                [
-                    'key'        => 'user-management',
-                    'label'      => 'User Management',
-                    'route'      => 'dashboard',
-                    'active'     => 'user-management',
-                    'icon'       => 'heroicon-o-user-group',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'school-management',
-                    'label'      => 'School Management',
-                    'route'      => 'dashboard',
-                    'active'     => 'school-management',
-                    'icon'       => 'heroicon-o-building-library',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'fleet-management',
-                    'label'      => 'Fleet Management',
-                    'route'      => 'dashboard',
-                    'active'     => 'fleet-management',
-                    'icon'       => 'heroicon-o-truck',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'route-management',
-                    'label'      => 'Route Management',
-                    'route'      => 'dashboard',
-                    'active'     => 'route-management',
-                    'icon'       => 'heroicon-o-map',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'trip-management',
-                    'label'      => 'Trip Management',
-                    'route'      => 'dashboard',
-                    'active'     => 'trip-management',
-                    'icon'       => 'heroicon-o-clipboard-document-list',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
+                ['key' => 'user-management', 'label' => 'User Management', 'route' => 'dashboard', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
+                ['key' => 'school-management', 'label' => 'School Management', 'route' => 'dashboard', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
+                ['key' => 'fleet-management', 'label' => 'Fleet Management', 'route' => 'dashboard', 'active' => 'fleet-management', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
+                ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'dashboard', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Monitoring',
             'items' => [
-                [
-                    'key'        => 'live-tracking',
-                    'label'      => 'Live Tracking',
-                    'route'      => 'dashboard',
-                    'active'     => 'live-tracking',
-                    'icon'       => 'heroicon-o-eye',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'notifications',
-                    'label'      => 'Notifications',
-                    'route'      => 'dashboard',
-                    'active'     => 'notifications',
-                    'icon'       => 'heroicon-o-bell',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Reports',
             'items' => [
-                [
-                    'key'        => 'attendance',
-                    'label'      => 'Attendance',
-                    'route'      => 'dashboard',
-                    'active'     => 'attendance',
-                    'icon'       => 'heroicon-o-document-check',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'trips',
-                    'label'      => 'Trips',
-                    'route'      => 'dashboard',
-                    'active'     => 'trips',
-                    'icon'       => 'heroicon-o-document-text',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'drivers',
-                    'label'      => 'Drivers',
-                    'route'      => 'dashboard',
-                    'active'     => 'drivers',
-                    'icon'       => 'heroicon-o-user-circle',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'bus-usage',
-                    'label'      => 'Bus Usage',
-                    'route'      => 'dashboard',
-                    'active'     => 'bus-usage',
-                    'icon'       => 'heroicon-o-truck',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'gps-history',
-                    'label'      => 'GPS History',
-                    'route'      => 'dashboard',
-                    'active'     => 'gps-history',
-                    'icon'       => 'heroicon-o-map',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trips', 'label' => 'Trips', 'route' => 'dashboard', 'active' => 'trips', 'icon' => 'heroicon-o-document-text', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-usage', 'label' => 'Bus Usage', 'route' => 'dashboard', 'active' => 'bus-usage', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
+                ['key' => 'gps-history', 'label' => 'GPS History', 'route' => 'dashboard', 'active' => 'gps-history', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Administration',
             'items' => [
-                [
-                    'key'        => 'roles-permissions',
-                    'label'      => 'Roles & Permissions',
-                    'route'      => 'dashboard',
-                    'active'     => 'roles-permissions',
-                    'icon'       => 'heroicon-o-shield-check',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
-                [
-                    'key'        => 'settings',
-                    'label'      => 'Settings',
-                    'route'      => 'dashboard',
-                    'active'     => 'settings',
-                    'icon'       => 'heroicon-o-cog-6-tooth',
-                    'permission' => 'dashboard.view',
-                    'dropdown'   => null,
-                ],
+                ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'dashboard', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'settings', 'label' => 'Settings', 'route' => 'dashboard', 'active' => 'settings', 'icon' => 'heroicon-o-cog-6-tooth', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
             ],
         ],
     ];
+
+    $principalMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Overview', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'statistics', 'label' => 'Statistics', 'route' => 'dashboard', 'active' => 'statistics', 'icon' => 'heroicon-o-chart-bar', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Management',
+            'items' => [
+                ['key' => 'students', 'label' => 'Students', 'route' => 'dashboard', 'active' => 'students', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
+                ['key' => 'parents', 'label' => 'Parents', 'route' => 'dashboard', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
+                ['key' => 'classes', 'label' => 'Classes', 'route' => 'dashboard', 'active' => 'classes', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Trip Management',
+            'items' => [
+                ['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Monitoring',
+            'items' => [
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Reports',
+            'items' => [
+                ['key' => 'student-attendance', 'label' => 'Student Attendance', 'route' => 'dashboard', 'active' => 'student-attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trip-reports', 'label' => 'Trip Reports', 'route' => 'dashboard', 'active' => 'trip-reports', 'icon' => 'heroicon-o-document-text', 'permission' => null, 'dropdown' => null],
+                ['key' => 'driver-reports', 'label' => 'Driver Reports', 'route' => 'dashboard', 'active' => 'driver-reports', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
+
+    $driverMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Trip Management',
+            'items' => [
+                ['key' => 'today-trip', 'label' => "Today's Trip", 'route' => 'dashboard', 'active' => 'today-trip', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
+                ['key' => 'start-trip', 'label' => 'Start Trip', 'route' => 'dashboard', 'active' => 'start-trip', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                ['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
+                ['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'dashboard', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'dashboard', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Monitoring',
+            'items' => [
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
+
+    $parentMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'dashboard', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Live Tracking',
+            'items' => [
+                ['key' => 'track-bus', 'label' => 'Track Bus', 'route' => 'dashboard', 'active' => 'track-bus', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'dashboard', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Attendance',
+            'items' => [
+                ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+                ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Notifications',
+            'items' => [
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
+
+    $studentMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Tracking',
+            'items' => [
+                ['key' => 'bus-tracking', 'label' => 'Bus Tracking', 'route' => 'dashboard', 'active' => 'bus-tracking', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Attendance',
+            'items' => [
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Notifications',
+            'items' => [
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
+
+    $menu = $superAdminMenu;
+    $user = auth()->user();
+    $roleNames = $user ? array_map('strtolower', $user->getRoleNames()->all()) : [];
+
+    if ($user && (in_array('school admin', $roleNames, true) || in_array('principal', $roleNames, true))) {
+        $menu = $principalMenu;
+    } elseif ($user && in_array('driver', $roleNames, true)) {
+        $menu = $driverMenu;
+    } elseif ($user && in_array('parent', $roleNames, true)) {
+        $menu = $parentMenu;
+    } elseif ($user && in_array('student', $roleNames, true)) {
+        $menu = $studentMenu;
+    }
 
     /**
      * PERMISSION-AWARE FILTERING
