@@ -10,7 +10,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body
-        x-data="{ page: '{{ $page }}', loaded: true, darkMode: false, sidebarToggle: false }"
+        x-data="{ page: '{{ $page ?? 'dashboard' }}', loaded: true, darkMode: false, sidebarToggle: false }"
         x-init="darkMode = JSON.parse(localStorage.getItem('darkMode')); $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
         :class="{ 'dark bg-gray-900': darkMode === true }"
     >
@@ -26,7 +26,11 @@
                 @include('partials.header')
 
                 <main>
-                    {{ $slot }}
+                    @hasSection('content')
+                        @yield('content')
+                    @else
+                        {{ $slot ?? '' }}
+                    @endif
                 </main>
             </div>
         </div>

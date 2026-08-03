@@ -3,7 +3,12 @@
     use App\Http\Controllers\ProfileController;
     use App\Http\Controllers\SchoolController;
     use Illuminate\Support\Facades\Route;
+    use App\Http\Controllers\DriverController;
 
+    Route::middleware(['auth'])->group(function () {
+
+        Route::resource('drivers', DriverController::class);
+    });
     Route::get('/', function () {
         return view('welcome');
     });
@@ -30,4 +35,4 @@
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-    require __DIR__.'/auth.php';
+    require __DIR__ . '/auth.php';

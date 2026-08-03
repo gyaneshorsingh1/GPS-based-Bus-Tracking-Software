@@ -21,4 +21,9 @@ class School extends Model
         'logo',
         'status',
     ];
+
+    public function getSchoolNameAttribute(): string
+    {
+        return $this->attributes['school_name'] ?? $this->attributes['name'] ?? '';
+    }
 }
