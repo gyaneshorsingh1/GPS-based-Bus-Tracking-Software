@@ -13,7 +13,7 @@
             return view('dashboard');
         })->middleware('verified', 'permission:dashboard.view')->name('dashboard');
 
-        Route::get('/schools', [SchoolController::class, 'index'])->middleware('verified')->name('schools.index');
+        Route::get('/schools', [SchoolController::class, 'index'])->middleware('permission:school.view')->name('schools.index');
 
         Route::get('/buttons', function () {
             return view('buttons');
