@@ -32,11 +32,12 @@
             'title' => 'MENU',
             'items' => [
                 [
-                    'key'    => 'Dashboard',
-                    'label'  => 'Dashboard',
-                    'route'  => 'dashboard',
-                    'active' => 'ecommerce',
-                    'icon'   => 'heroicon-o-squares-2x2',
+                    'key'        => 'Dashboard',
+                    'label'      => 'Dashboard',
+                    'route'      => 'dashboard',
+                    'active'     => 'ecommerce',
+                    'icon'       => 'heroicon-o-squares-2x2',
+                    'permission' => 'dashboard.view',
                     // 'dropdown' => [
                     //     ['label' => 'eCommerce', 'route' => 'dashboard', 'page' => 'ecommerce'],
                     //     ['label' => 'manoj', 'route' => 'dashboard', 'page' => 'manoj'],
@@ -82,6 +83,48 @@
         // ---> To add a whole new section/group, append another array here. <---
     ];
 
+    /**
+     * PERMISSION-AWARE FILTERING
+     * ----------------------------------------------------------------
+     * Each menu item can declare a `permission` key. Items (and dropdown
+     * sub-items) the current user is not allowed to view are hidden.
+     * Leave the key off for items that require no permission.
+     */
+    $can = function ($permission) {
+        if (empty($permission)) {
+            return true;
+        }
+        return auth()->check() && auth()->user()->can($permission);
+    };
+
+    $menu = array_values(array_filter(array_map(function ($group) use ($can) {
+        $items = array_values(array_filter($group['items'], function ($item) use ($can) {
+            if (! $can($item['permission'] ?? null)) {
+                return false;
+            }
+
+            if (! empty($item['dropdown'])) {
+                $item['dropdown'] = array_values(array_filter(
+                    $item['dropdown'],
+                    fn ($sub) => $can($sub['permission'] ?? null)
+                ));
+
+                return count($item['dropdown']) > 0;
+            }
+
+            return true;
+        }));
+
+        $group['items'] = $items;
+
+        return $group;
+    }, $menu), fn ($group) => count($group['items']) > 0));
+
+    // Fallback link for the logo when the user cannot view the dashboard
+    $homeRoute = auth()->check() && auth()->user()->can('dashboard.view')
+        ? route('dashboard')
+        : route('profile.edit');
+
     // Helper: is this item "active" given the current $page variable?
     $isActive = function ($item) use ($page) {
         $active = $item['active'] ?? null;
@@ -101,7 +144,7 @@
         :class="sidebarToggle ? 'justify-center' : 'justify-between'"
         class="sidebar-header flex items-center gap-2 pb-7 pt-8"
     >
-        <a href="{{ route('dashboard') }}">
+        <a href="{{ $homeRoute }}">
             <span class="logo" :class="sidebarToggle ? 'hidden' : ''">
                 <img class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
                 <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
