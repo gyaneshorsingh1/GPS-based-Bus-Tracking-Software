@@ -9,7 +9,13 @@
 
     Route::middleware(['auth'])->group(function () {
 
-        Route::resource('drivers', DriverController::class);
+        Route::get('/drivers', [DriverController::class, 'index'])->middleware('permission:driver.view')->name('drivers.index');
+        Route::get('/drivers/create', [DriverController::class, 'create'])->middleware('permission:driver.create')->name('drivers.create');
+        Route::post('/drivers', [DriverController::class, 'store'])->middleware('permission:driver.create')->name('drivers.store');
+        Route::get('/drivers/{driver}', [DriverController::class, 'show'])->middleware('permission:driver.view')->name('drivers.show');
+        Route::get('/drivers/{driver}/edit', [DriverController::class, 'edit'])->middleware('permission:driver.update')->name('drivers.edit');
+        Route::put('/drivers/{driver}', [DriverController::class, 'update'])->middleware('permission:driver.update')->name('drivers.update');
+        Route::delete('/drivers/{driver}', [DriverController::class, 'destroy'])->middleware('permission:driver.delete')->name('drivers.destroy');
     });
     Route::get('/', function () {
         return view('welcome');

@@ -60,7 +60,7 @@
             'items' => [
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
                 ['key' => 'trips', 'label' => 'Trips', 'route' => 'dashboard', 'active' => 'trips', 'icon' => 'heroicon-o-document-text', 'permission' => null, 'dropdown' => null],
-                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'drivers.index', 'active' => 'drivers', 'icon' => 'heroicon-o-user-circle', 'permission' => 'driver.view', 'dropdown' => null],
                 ['key' => 'bus-usage', 'label' => 'Bus Usage', 'route' => 'dashboard', 'active' => 'bus-usage', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
                 ['key' => 'gps-history', 'label' => 'GPS History', 'route' => 'dashboard', 'active' => 'gps-history', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
             ],
@@ -93,7 +93,7 @@ $principalMenu = [
             'items' => [
                 ['key' => 'students', 'label' => 'Students', 'route' => 'dashboard', 'active' => 'students', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
                 ['key' => 'parents', 'label' => 'Parents', 'route' => 'dashboard', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
-                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'drivers.index', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => 'driver.view', 'dropdown' => null],
                 ['key' => 'classes', 'label' => 'Classes', 'route' => 'dashboard', 'active' => 'classes', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
             ],
