@@ -41,6 +41,7 @@
             'items' => [
                 ['key' => 'user-management', 'label' => 'User Management', 'route' => 'dashboard', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
                 ['key' => 'school-management', 'label' => 'School Management', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
+                ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
                 ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
                 ['key' => 'fleet-management', 'label' => 'Fleet Management', 'route' => 'dashboard', 'active' => 'fleet-management', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
                 ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'dashboard', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
@@ -87,15 +88,16 @@ $principalMenu = [
 ['key' => 'statistics', 'label' => 'Statistics', 'route' => 'dashboard', 'active' => 'statistics', 'icon' => 'heroicon-o-chart-bar', 'permission' => null, 'dropdown' => null],
 ],
 ],
-[
-'title' => 'Management',
-'items' => [
-['key' => 'students', 'label' => 'Students', 'route' => 'dashboard', 'active' => 'students', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
-['key' => 'parents', 'label' => 'Parents', 'route' => 'dashboard', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
-['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
-['key' => 'classes', 'label' => 'Classes', 'route' => 'dashboard', 'active' => 'classes', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
-],
-],
+        [
+            'title' => 'Management',
+            'items' => [
+                ['key' => 'students', 'label' => 'Students', 'route' => 'dashboard', 'active' => 'students', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
+                ['key' => 'parents', 'label' => 'Parents', 'route' => 'dashboard', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
+                ['key' => 'classes', 'label' => 'Classes', 'route' => 'dashboard', 'active' => 'classes', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
+                ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
+            ],
+        ],
 [
 'title' => 'Trip Management',
 'items' => [

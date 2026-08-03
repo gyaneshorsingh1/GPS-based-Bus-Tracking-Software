@@ -2,6 +2,7 @@
 
     use App\Http\Controllers\ParentProfileController;
     use App\Http\Controllers\ProfileController;
+    use App\Http\Controllers\SchoolAdminController;
     use App\Http\Controllers\SchoolController;
     use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\DriverController;
@@ -34,6 +35,14 @@
         Route::get('/parents/{parentProfile}/edit', [ParentProfileController::class, 'edit'])->middleware('permission:parent.update')->name('parents.edit');
         Route::put('/parents/{parentProfile}', [ParentProfileController::class, 'update'])->middleware('permission:parent.update')->name('parents.update');
         Route::delete('/parents/{parentProfile}', [ParentProfileController::class, 'destroy'])->middleware('permission:parent.delete')->name('parents.destroy');
+
+        Route::get('/school-admins', [SchoolAdminController::class, 'index'])->middleware('permission:school-admin.view')->name('school-admins.index');
+        Route::get('/school-admins/create', [SchoolAdminController::class, 'create'])->middleware('permission:school-admin.create')->name('school-admins.create');
+        Route::post('/school-admins', [SchoolAdminController::class, 'store'])->middleware('permission:school-admin.create')->name('school-admins.store');
+        Route::get('/school-admins/{schoolAdmin}', [SchoolAdminController::class, 'show'])->middleware('permission:school-admin.view')->name('school-admins.show');
+        Route::get('/school-admins/{schoolAdmin}/edit', [SchoolAdminController::class, 'edit'])->middleware('permission:school-admin.update')->name('school-admins.edit');
+        Route::put('/school-admins/{schoolAdmin}', [SchoolAdminController::class, 'update'])->middleware('permission:school-admin.update')->name('school-admins.update');
+        Route::delete('/school-admins/{schoolAdmin}', [SchoolAdminController::class, 'destroy'])->middleware('permission:school-admin.delete')->name('school-admins.destroy');
 
         Route::get('/buttons', function () {
             return view('buttons');
