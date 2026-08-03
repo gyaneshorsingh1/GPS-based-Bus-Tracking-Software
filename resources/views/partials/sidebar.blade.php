@@ -7,76 +7,77 @@
      mini set prefix: heroicon-m-)
 --}}
 @php
-/**
-* SIDEBAR CONFIG
-* ----------------------------------------------------------------
-* This is the ONLY place you need to touch to add/remove/reorder
-* sidebar items. Each group is a section (e.g. "MENU", "others").
-* Each item can optionally have a "dropdown" of sub-links.
-*
-* item keys:
-* key -> unique string, used for the Alpine `selected` state
-* label -> text shown to the user
-* route -> Laravel route name (used if no dropdown, or as the
-* link on the parent item itself)
-* active -> string|array of `page` value(s) that should mark
-* this item as active
-* icon -> Blade Heroicons component name (requires
-* "composer require blade-ui-kit/blade-heroicons")
-* e.g. 'heroicon-o-squares-2x2', 'heroicon-o-user'
-* Browse names at https://blade-ui-kit.com/blade-icons?set=1
-* dropdown -> optional array of ['label' => ..., 'route' => ..., 'page' => ...]
-*/
-$superAdminMenu = [
-[
-'title' => 'Dashboard',
-'items' => [
-['key' => 'overview', 'label' => 'Overview', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-['key' => 'statistics', 'label' => 'Statistics', 'route' => 'dashboard', 'active' => 'statistics', 'icon' => 'heroicon-o-chart-bar', 'permission' => null, 'dropdown' => null],
-['key' => 'live-summary', 'label' => 'Live Summary', 'route' => 'dashboard', 'active' => 'live-summary', 'icon' => 'heroicon-o-signal', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Management',
-'items' => [
-['key' => 'user-management', 'label' => 'User Management', 'route' => 'dashboard', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
-['key' => 'school-management', 'label' => 'School Management', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
-['key' => 'fleet-management', 'label' => 'Fleet Management', 'route' => 'dashboard', 'active' => 'fleet-management', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
-['key' => 'route-management', 'label' => 'Route Management', 'route' => 'dashboard', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Monitoring',
-'items' => [
-['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Reports',
-'items' => [
-['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
-['key' => 'trips', 'label' => 'Trips', 'route' => 'dashboard', 'active' => 'trips', 'icon' => 'heroicon-o-document-text', 'permission' => null, 'dropdown' => null],
-['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
-['key' => 'bus-usage', 'label' => 'Bus Usage', 'route' => 'dashboard', 'active' => 'bus-usage', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
-['key' => 'gps-history', 'label' => 'GPS History', 'route' => 'dashboard', 'active' => 'gps-history', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Administration',
-'items' => [
-['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'dashboard', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => null, 'dropdown' => null],
-['key' => 'settings', 'label' => 'Settings', 'route' => 'dashboard', 'active' => 'settings', 'icon' => 'heroicon-o-cog-6-tooth', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Account',
-'items' => [
-['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
-],
-],
-];
+    /**
+     * SIDEBAR CONFIG
+     * ----------------------------------------------------------------
+     * This is the ONLY place you need to touch to add/remove/reorder
+     * sidebar items. Each group is a section (e.g. "MENU", "others").
+     * Each item can optionally have a "dropdown" of sub-links.
+     *
+     * item keys:
+     *   key      -> unique string, used for the Alpine `selected` state
+     *   label    -> text shown to the user
+     *   route    -> Laravel route name (used if no dropdown, or as the
+     *               link on the parent item itself)
+     *   active   -> string|array of `page` value(s) that should mark
+     *               this item as active
+     *   icon     -> Blade Heroicons component name (requires
+     *               "composer require blade-ui-kit/blade-heroicons")
+     *               e.g. 'heroicon-o-squares-2x2', 'heroicon-o-user'
+     *               Browse names at https://blade-ui-kit.com/blade-icons?set=1
+     *   dropdown -> optional array of ['label' => ..., 'route' => ..., 'page' => ...]
+     */
+    $superAdminMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Overview', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'statistics', 'label' => 'Statistics', 'route' => 'dashboard', 'active' => 'statistics', 'icon' => 'heroicon-o-chart-bar', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-summary', 'label' => 'Live Summary', 'route' => 'dashboard', 'active' => 'live-summary', 'icon' => 'heroicon-o-signal', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Management',
+            'items' => [
+                ['key' => 'user-management', 'label' => 'User Management', 'route' => 'dashboard', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
+                ['key' => 'school-management', 'label' => 'School Management', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
+                ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'fleet-management', 'label' => 'Fleet Management', 'route' => 'dashboard', 'active' => 'fleet-management', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
+                ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'dashboard', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Monitoring',
+            'items' => [
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Reports',
+            'items' => [
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trips', 'label' => 'Trips', 'route' => 'dashboard', 'active' => 'trips', 'icon' => 'heroicon-o-document-text', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'dashboard', 'active' => 'drivers', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-usage', 'label' => 'Bus Usage', 'route' => 'dashboard', 'active' => 'bus-usage', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
+                ['key' => 'gps-history', 'label' => 'GPS History', 'route' => 'dashboard', 'active' => 'gps-history', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Administration',
+            'items' => [
+                ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'dashboard', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'settings', 'label' => 'Settings', 'route' => 'dashboard', 'active' => 'settings', 'icon' => 'heroicon-o-cog-6-tooth', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
 
 $principalMenu = [
 [
