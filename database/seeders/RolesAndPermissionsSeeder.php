@@ -13,6 +13,8 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Create Permissions
+        Permission::findOrCreate('dashboard.view');
+
         Permission::findOrCreate('bus.view');
         Permission::findOrCreate('bus.create');
         Permission::findOrCreate('bus.update');
