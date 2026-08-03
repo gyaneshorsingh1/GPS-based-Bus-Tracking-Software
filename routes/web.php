@@ -9,7 +9,7 @@
     });
 
     Route::middleware('auth')->group(function () {
-        Route::get('/dashboard', function () {
+        Route::get('/systemadmin/dashboard', function () {
             return view('dashboard');
         })->middleware('verified', 'permission:dashboard.view')->name('dashboard');
 
