@@ -1,6 +1,7 @@
     <?php
 
     use App\Http\Controllers\ProfileController;
+    use App\Http\Controllers\SchoolController;
     use Illuminate\Support\Facades\Route;
 
     Route::get('/', function () {
@@ -11,6 +12,8 @@
         Route::get('/dashboard', function () {
             return view('dashboard');
         })->middleware('verified', 'permission:dashboard.view')->name('dashboard');
+
+        Route::get('/schools', [SchoolController::class, 'index'])->name('schools.index');
 
         Route::get('/buttons', function () {
             return view('buttons');
