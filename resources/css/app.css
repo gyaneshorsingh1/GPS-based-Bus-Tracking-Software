@@ -330,13 +330,6 @@ layer(base);
 .tableCheckbox:checked ~ span {
   @apply border-brand-500 bg-brand-500;
 }
-
-/* Show a small loader on the clicked navigation link while the page loads */
-a.nav-loading::after {
-  content: "";
-  @apply ml-auto h-3.5 w-3.5 shrink-0 rounded-full border-2 border-brand-500 border-t-transparent animate-spin;
-}
-
 /* third-party libraries CSS */
 .apexcharts-legend-text {
   @apply text-gray-700! dark:text-gray-400!;
