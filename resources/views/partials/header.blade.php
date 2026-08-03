@@ -67,7 +67,7 @@
             </button>
             <!-- Hamburger Toggle BTN -->
 
-            <a href="{{ route('dashboard') }}" class="lg:hidden">
+            <a href="{{ auth()->user()->can('dashboard.view') ? route('dashboard') : route('profile.edit') }}" class="lg:hidden">
                 <img class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
                 <img
                     class="hidden dark:block"

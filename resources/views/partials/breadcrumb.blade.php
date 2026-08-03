@@ -9,7 +9,7 @@
             <li>
                 <a
                     class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-                    href="{{ route('dashboard') }}"
+                    href="{{ auth()->user()->can('dashboard.view') ? route('dashboard') : route('profile.edit') }}"
                 >
                     Home
                     <svg

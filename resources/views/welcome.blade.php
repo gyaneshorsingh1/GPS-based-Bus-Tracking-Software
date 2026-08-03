@@ -35,8 +35,8 @@
                 <div class="hidden items-center gap-3 lg:flex">
                     @if (Route::has('login'))
                         @auth
-                            <a href="{{ url('/dashboard') }}" class="inline-flex items-center justify-center rounded-full bg-brand-500 px-5 py-2.5 text-theme-sm font-semibold text-white shadow-theme-md transition hover:bg-brand-600">
-                                Go to dashboard
+                            <a href="{{ auth()->user()->can('dashboard.view') ? url('/dashboard') : route('profile.edit') }}" class="inline-flex items-center justify-center rounded-full bg-brand-500 px-5 py-2.5 text-theme-sm font-semibold text-white shadow-theme-md transition hover:bg-brand-600">
+                                {{ auth()->user()->can('dashboard.view') ? 'Go to dashboard' : 'My account' }}
                             </a>
                         @else
                             <a href="{{ route('login') }}" class="rounded-full px-4 py-2.5 text-theme-sm font-semibold text-gray-700 transition hover:text-gray-900">Log in</a>
@@ -65,7 +65,7 @@
                     <div class="mt-3 flex gap-3 border-t border-gray-100 pt-4">
                         @if (Route::has('login'))
                             @auth
-                                <a href="{{ url('/dashboard') }}" class="flex-1 rounded-full bg-brand-500 px-5 py-2.5 text-center text-theme-sm font-semibold text-white">Dashboard</a>
+                                <a href="{{ auth()->user()->can('dashboard.view') ? url('/dashboard') : route('profile.edit') }}" class="flex-1 rounded-full bg-brand-500 px-5 py-2.5 text-center text-theme-sm font-semibold text-white">{{ auth()->user()->can('dashboard.view') ? 'Dashboard' : 'My account' }}</a>
                             @else
                                 <a href="{{ route('login') }}" class="flex-1 rounded-full border border-gray-200 px-5 py-2.5 text-center text-theme-sm font-semibold text-gray-700">Log in</a>
                                 @if (Route::has('register'))
