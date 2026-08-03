@@ -1,3 +1,5 @@
+<x-app-layout page="school-management">
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
 <form action="{{ route('schools.index') }}" method="GET" class="mb-4">
     <div class="flex gap-2">
         <input
@@ -23,3 +25,5 @@
         </a>
     </div>
 </form>
+    </div>
+</x-app-layout>
