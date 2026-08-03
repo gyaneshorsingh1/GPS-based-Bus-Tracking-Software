@@ -16,6 +16,10 @@
         Route::get('/schools', [SchoolController::class, 'index'])->middleware('permission:school.view')->name('schools.index');
         Route::get('/schools/create', [SchoolController::class, 'create'])->middleware('permission:school.create')->name('schools.create');
         Route::post('/schools', [SchoolController::class, 'store'])->middleware('permission:school.create')->name('schools.store');
+        Route::get('/schools/{school}', [SchoolController::class, 'show'])->middleware('permission:school.view')->name('schools.show');
+        Route::get('/schools/{school}/edit', [SchoolController::class, 'edit'])->middleware('permission:school.update')->name('schools.edit');
+        Route::put('/schools/{school}', [SchoolController::class, 'update'])->middleware('permission:school.update')->name('schools.update');
+        Route::delete('/schools/{school}', [SchoolController::class, 'destroy'])->middleware('permission:school.delete')->name('schools.destroy');
 
         Route::get('/buttons', function () {
             return view('buttons');

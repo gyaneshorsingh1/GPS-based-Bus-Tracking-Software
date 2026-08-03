@@ -52,6 +52,7 @@
                         <th class="px-5 py-3 font-medium">Phone</th>
                         <th class="px-5 py-3 font-medium">Status</th>
                         <th class="px-5 py-3 font-medium">Created</th>
+                        <th class="px-5 py-3 text-right font-medium">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -77,10 +78,40 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3">{{ $school->created_at->format('M d, Y') }}</td>
+                            <td class="px-5 py-3">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a
+                                        href="{{ route('schools.show', $school) }}"
+                                        class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    >
+                                        View
+                                    </a>
+                                    <a
+                                        href="{{ route('schools.edit', $school) }}"
+                                        class="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600"
+                                    >
+                                        Edit
+                                    </a>
+                                    <form
+                                        action="{{ route('schools.destroy', $school) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete {{ $school->name }}?');"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            class="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="7" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
                                 No schools found.
                             </td>
                         </tr>
