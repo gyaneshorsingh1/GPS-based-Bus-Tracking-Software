@@ -7,7 +7,6 @@ use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use Illuminate\Support\Facades\Route;
 
-
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -17,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -43,7 +41,6 @@ Route::middleware('auth')->group(function () {
         ])
         ->name('dashboard');
 
-
     /*
     |--------------------------------------------------------------------------
     | Principal Dashboard
@@ -51,14 +48,13 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get('/principal/dashboard', function () {
-        return view('dashboard');
+        return view('principalDashboard');
     })
         ->middleware([
             'permission:dashboard.view',
             'role:School Admin',
         ])
         ->name('principal.dashboard');
-
 
     /*
     |--------------------------------------------------------------------------
@@ -75,7 +71,6 @@ Route::middleware('auth')->group(function () {
         ])
         ->name('driver.dashboard');
 
-
     /*
     |--------------------------------------------------------------------------
     | Parent Dashboard
@@ -90,7 +85,6 @@ Route::middleware('auth')->group(function () {
             'role:Parent',
         ])
         ->name('parent.dashboard');
-
 
     /*
     |--------------------------------------------------------------------------
@@ -126,7 +120,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:driver.delete')
         ->name('drivers.destroy');
 
-
     /*
     |--------------------------------------------------------------------------
     | Schools
@@ -160,7 +153,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/schools/{school}', [SchoolController::class, 'destroy'])
         ->middleware('permission:school.delete')
         ->name('schools.destroy');
-
 
     /*
     |--------------------------------------------------------------------------
@@ -196,7 +188,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:parent.delete')
         ->name('parents.destroy');
 
-
     /*
     |--------------------------------------------------------------------------
     | School Admins
@@ -231,7 +222,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:school-admin.delete')
         ->name('school-admins.destroy');
 
-
     /*
     |--------------------------------------------------------------------------
     | Profile
@@ -250,7 +240,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:profile.update')
         ->name('profile.destroy');
 
-
     /*
     |--------------------------------------------------------------------------
     | Temporary UI Test Pages
@@ -266,11 +255,10 @@ Route::middleware('auth')->group(function () {
     })->name('images');
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
