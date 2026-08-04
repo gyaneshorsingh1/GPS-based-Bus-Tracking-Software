@@ -26,4 +26,9 @@ class School extends Model
     {
         return $this->attributes['school_name'] ?? $this->attributes['name'] ?? '';
     }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
 }
