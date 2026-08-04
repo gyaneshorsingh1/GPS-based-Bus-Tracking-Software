@@ -7,6 +7,7 @@ use App\Http\Controllers\RouteController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\BusController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -310,6 +311,38 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:profile.update')
         ->name('profile.destroy');
 
+
+
+
+
+    Route::get('/buses', [BusController::class, 'index'])
+        ->middleware('permission:bus.view')
+        ->name('buses.index');
+
+    Route::get('/buses/create', [BusController::class, 'create'])
+        ->middleware('permission:bus.create')
+        ->name('buses.create');
+
+    Route::post('/buses', [BusController::class, 'store'])
+        ->middleware('permission:bus.create')
+        ->name('buses.store');
+
+    Route::get('/buses/{bus}', [BusController::class, 'show'])
+        ->middleware('permission:bus.view')
+        ->name('buses.show');
+
+    Route::get('/buses/{bus}/edit', [BusController::class, 'edit'])
+        ->middleware('permission:bus.edit')
+        ->name('buses.edit');
+
+    Route::put('/buses/{bus}', [BusController::class, 'update'])
+        ->middleware('permission:bus.edit')
+        ->name('buses.update');
+
+    Route::delete('/buses/{bus}', [BusController::class, 'destroy'])
+        ->middleware('permission:bus.delete')
+        ->name('buses.destroy');
+
     /*
     |--------------------------------------------------------------------------
     | Temporary UI Test Pages
@@ -325,10 +358,12 @@ Route::middleware('auth')->group(function () {
     })->name('images');
 });
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
