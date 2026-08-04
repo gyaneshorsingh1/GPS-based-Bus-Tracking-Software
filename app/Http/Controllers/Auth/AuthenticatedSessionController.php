@@ -24,11 +24,56 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Authenticate the user.
         $request->authenticate();
 
+        // Regenerate session to prevent session fixation.
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Get the authenticated user.
+        $user = $request->user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Role-Based Dashboard Redirect
+        |--------------------------------------------------------------------------
+        */
+
+        // Super Admin
+        if ($user->hasRole('Super Admin')) {
+            return redirect()->route('dashboard');
+        }
+
+        // Principal / School Admin
+        if ($user->hasRole('School Admin')) {
+            return redirect()->route('principal.dashboard');
+        }
+
+        // Driver
+        if ($user->hasRole('Driver')) {
+            return redirect()->route('driver.dashboard');
+        }
+
+        // Parent
+        if ($user->hasRole('Parent')) {
+            return redirect()->route('parent.dashboard');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Invalid / Missing Role
+        |--------------------------------------------------------------------------
+        */
+
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')
+            ->withErrors([
+                'email' => 'Your account does not have a valid system role.',
+            ]);
     }
 
     /**
