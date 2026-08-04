@@ -36,7 +36,7 @@
                 ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
                 ['key' => 'student-management', 'label' => 'Student Management', 'route' => 'students.index', 'active' => 'student-management', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
                 ['key' => 'fleet-management', 'label' => 'Fleet Management', 'route' => 'dashboard', 'active' => 'fleet-management', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
-                ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'dashboard', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
                 ['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
             ],
         ],
@@ -77,6 +77,7 @@ $principalMenu = [
                 ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'drivers.index', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => 'driver.view', 'dropdown' => null],
                 ['key' => 'classes', 'label' => 'Classes', 'route' => 'dashboard', 'active' => 'classes', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
+                ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
             ],
         ],
 [

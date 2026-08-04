@@ -1,0 +1,200 @@
+<x-app-layout page="route-management">
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Create Route</h1>
+            <a
+                href="{{ route('routes.index') }}"
+                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
+                Back to Routes
+            </a>
+        </div>
+
+        @if ($errors->any())
+            <div class="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                <ul class="list-inside list-disc">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form
+            action="{{ route('routes.store') }}"
+            method="POST"
+            class="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]"
+        >
+            @csrf
+
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
+                    Route Details
+                </h2>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Route Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value="{{ old('name') }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="route_code" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Route Code</label>
+                        <input
+                            type="text"
+                            id="route_code"
+                            name="route_code"
+                            value="{{ old('route_code') }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('route_code')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="start_location" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Start Location</label>
+                        <input
+                            type="text"
+                            id="start_location"
+                            name="start_location"
+                            value="{{ old('start_location') }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('start_location')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="end_location" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">End Location</label>
+                        <input
+                            type="text"
+                            id="end_location"
+                            name="end_location"
+                            value="{{ old('end_location') }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('end_location')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="estimated_distance" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Estimated Distance (km)</label>
+                        <input
+                            type="number"
+                            id="estimated_distance"
+                            name="estimated_distance"
+                            value="{{ old('estimated_distance') }}"
+                            step="0.01"
+                            min="0"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('estimated_distance')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="estimated_duration" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Estimated Duration (minutes)</label>
+                        <input
+                            type="number"
+                            id="estimated_duration"
+                            name="estimated_duration"
+                            value="{{ old('estimated_duration') }}"
+                            min="0"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('estimated_duration')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
+                    School & Status
+                </h2>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    @if (isset($school) && $school)
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <input
+                                type="text"
+                                value="{{ $school->name }}"
+                                readonly
+                                class="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400"
+                            >
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                The route will automatically be assigned to your school.
+                            </p>
+                        </div>
+                    @else
+                        <div>
+                            <label for="school_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <select
+                                id="school_id"
+                                name="school_id"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            >
+                                <option value="" disabled @selected(old('school_id') === null)>Select School</option>
+                                @foreach ($schools as $school)
+                                    <option value="{{ $school->id }}" @selected(old('school_id') == $school->id)>{{ $school->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('school_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
+
+                    <div class="md:col-span-2">
+                        <label for="is_active" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <input
+                                type="checkbox"
+                                id="is_active"
+                                name="is_active"
+                                value="1"
+                                checked
+                                class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                            >
+                            Active
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-800">
+                <a
+                    href="{{ route('routes.index') }}"
+                    class="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                    Cancel
+                </a>
+                <button
+                    type="submit"
+                    class="rounded-lg bg-brand-500 px-5 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                >
+                    Create Route
+                </button>
+            </div>
+        </form>
+    </div>
+</x-app-layout>

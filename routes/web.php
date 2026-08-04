@@ -3,6 +3,7 @@
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RouteController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
@@ -256,6 +257,40 @@ Route::middleware('auth')->group(function () {
     Route::delete('/students/{student}', [StudentController::class, 'destroy'])
         ->middleware('permission:student.delete')
         ->name('students.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/routes', [RouteController::class, 'index'])
+        ->middleware('permission:route.view')
+        ->name('routes.index');
+
+    Route::get('/routes/create', [RouteController::class, 'create'])
+        ->middleware('permission:route.create')
+        ->name('routes.create');
+
+    Route::post('/routes', [RouteController::class, 'store'])
+        ->middleware('permission:route.create')
+        ->name('routes.store');
+
+    Route::get('/routes/{route}', [RouteController::class, 'show'])
+        ->middleware('permission:route.view')
+        ->name('routes.show');
+
+    Route::get('/routes/{route}/edit', [RouteController::class, 'edit'])
+        ->middleware('permission:route.update')
+        ->name('routes.edit');
+
+    Route::put('/routes/{route}', [RouteController::class, 'update'])
+        ->middleware('permission:route.update')
+        ->name('routes.update');
+
+    Route::delete('/routes/{route}', [RouteController::class, 'destroy'])
+        ->middleware('permission:route.delete')
+        ->name('routes.destroy');
 
     /*
     |--------------------------------------------------------------------------
