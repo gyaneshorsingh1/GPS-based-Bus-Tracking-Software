@@ -5,6 +5,7 @@ use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -221,6 +222,40 @@ Route::middleware('auth')->group(function () {
     Route::delete('/school-admins/{schoolAdmin}', [SchoolAdminController::class, 'destroy'])
         ->middleware('permission:school-admin.delete')
         ->name('school-admins.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Students
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/students', [StudentController::class, 'index'])
+        ->middleware('permission:student.view')
+        ->name('students.index');
+
+    Route::get('/students/create', [StudentController::class, 'create'])
+        ->middleware('permission:student.create')
+        ->name('students.create');
+
+    Route::post('/students', [StudentController::class, 'store'])
+        ->middleware('permission:student.create')
+        ->name('students.store');
+
+    Route::get('/students/{student}', [StudentController::class, 'show'])
+        ->middleware('permission:student.view')
+        ->name('students.show');
+
+    Route::get('/students/{student}/edit', [StudentController::class, 'edit'])
+        ->middleware('permission:student.update')
+        ->name('students.edit');
+
+    Route::put('/students/{student}', [StudentController::class, 'update'])
+        ->middleware('permission:student.update')
+        ->name('students.update');
+
+    Route::delete('/students/{student}', [StudentController::class, 'destroy'])
+        ->middleware('permission:student.delete')
+        ->name('students.destroy');
 
     /*
     |--------------------------------------------------------------------------
