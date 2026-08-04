@@ -5,86 +5,177 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleSeeder extends Seeder
 {
     /**
-     * Modules a School Admin cannot manage.
+     * Modules that School Admin cannot manage.
      */
     private const SCHOOL_ADMIN_EXCLUDED_MODULES = [
+        'school-admin',
         'role',
         'permission',
     ];
 
     /**
-     * Permissions assigned to the Driver role.
+     * Driver permissions.
      */
     private const DRIVER_PERMISSIONS = [
+
         'dashboard.view',
+
+        // Profile
         'profile.view',
         'profile.update',
+
+        // Trips
         'trip.view',
         'trip.start',
         'trip.end',
+
+        // GPS
+        'gps.view',
         'gps.track',
+
+        // Attendance
+        'attendance.view',
         'attendance.mark',
+
+        // Pickup
+        'pickup.view',
         'pickup.mark',
+
+        // Drop
+        'drop.view',
         'drop.mark',
+
+        // Notifications
         'notification.view',
+
+        // Emergency
+        'emergency.view',
         'emergency.create',
     ];
 
     /**
-     * Permissions assigned to the Parent role.
+     * Parent permissions.
      */
     private const PARENT_PERMISSIONS = [
+
         'dashboard.view',
+
+        // Profile
         'profile.view',
         'profile.update',
+
+        // Children
         'student.view',
-        'gps.view',
+
+        // Transport
+        'bus.view',
+        'route.view',
+        'stop.view',
         'trip.view',
+
+        // GPS
+        'gps.view',
+
+        // Attendance
         'attendance.view',
+
+        // Pickup / Drop
+        'pickup.view',
+        'drop.view',
+
+        // Notifications
         'notification.view',
+
+        // Reports
+        'report.view',
     ];
 
     /**
-     * Seed the application's roles and their permissions.
+     * Seed roles and permissions.
      */
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        // Clear permission cache
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Super Admin: every permission.
+        /*
+        |--------------------------------------------------------------------------
+        | SUPER ADMIN
+        |--------------------------------------------------------------------------
+        */
+
         $superAdmin = Role::firstOrCreate([
             'name' => 'Super Admin',
             'guard_name' => 'web',
         ]);
-        $superAdmin->syncPermissions(Permission::all());
 
-        // School Admin: everything except school-admin.*, role.* and permission.*.
+        // Super Admin gets every permission.
+        $superAdmin->syncPermissions(
+            Permission::all()
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | SCHOOL ADMIN / PRINCIPAL
+        |--------------------------------------------------------------------------
+        */
+
         $schoolAdmin = Role::firstOrCreate([
             'name' => 'School Admin',
             'guard_name' => 'web',
         ]);
+
+        /*
+         * School Admin gets all school-management permissions,
+         * except:
+         *
+         * school-admin.*
+         * role.*
+         * permission.*
+         */
+
         $schoolAdmin->syncPermissions(
-            PermissionSeeder::names(self::SCHOOL_ADMIN_EXCLUDED_MODULES)
+            PermissionSeeder::names(
+                self::SCHOOL_ADMIN_EXCLUDED_MODULES
+            )
         );
 
-        // Driver: trip execution and emergency reporting.
+        /*
+        |--------------------------------------------------------------------------
+        | DRIVER
+        |--------------------------------------------------------------------------
+        */
+
         $driver = Role::firstOrCreate([
             'name' => 'Driver',
             'guard_name' => 'web',
         ]);
-        $driver->syncPermissions(self::DRIVER_PERMISSIONS);
 
-        // Parent: monitoring their children.
+        $driver->syncPermissions(
+            self::DRIVER_PERMISSIONS
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | PARENT
+        |--------------------------------------------------------------------------
+        */
+
         $parent = Role::firstOrCreate([
             'name' => 'Parent',
             'guard_name' => 'web',
         ]);
-        $parent->syncPermissions(self::PARENT_PERMISSIONS);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        $parent->syncPermissions(
+            self::PARENT_PERMISSIONS
+        );
+
+        // Clear permission cache
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }
