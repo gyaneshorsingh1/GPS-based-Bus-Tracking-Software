@@ -65,7 +65,7 @@
         [
             'title' => 'Dashboard',
             'items' => [
-                ['key' => 'overview', 'label' => 'Overview', 'route' => 'principal.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'dashboard', 'label' => 'Dashboard', 'route' => 'principal.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -84,7 +84,7 @@
                     'dropdown' => null
                 ],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
-                ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'route-management', 'label' => 'Routes', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [

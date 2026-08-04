@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\BusController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ParentProfileController;
+use App\Http\Controllers\PrincipalDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
-use App\Http\Controllers\BusController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,9 +51,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/principal/dashboard', function () {
-        return view('principalDashboard');
-    })
+    Route::get('/principal/dashboard', [PrincipalDashboardController::class, 'index'])
         ->middleware([
             'permission:dashboard.view',
             'role:School Admin',
@@ -311,10 +310,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:profile.update')
         ->name('profile.destroy');
 
-
-
-
-
     Route::get('/buses', [BusController::class, 'index'])
         ->middleware('permission:bus.view')
         ->name('buses.index');
@@ -358,12 +353,10 @@ Route::middleware('auth')->group(function () {
     })->name('images');
 });
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
