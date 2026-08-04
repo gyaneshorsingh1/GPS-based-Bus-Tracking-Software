@@ -227,7 +227,7 @@
                         for="email"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                        Email
+                        Email <span class="text-red-500">*</span>
                     </label>
 
                     <input
@@ -236,8 +236,36 @@
                         name="email"
                         value="{{ old('email') }}"
                         placeholder="driver@example.com"
+                        required
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
                     >
+
+                </div>
+
+
+                {{-- PASSWORD --}}
+                <div>
+
+                    <label
+                        for="password"
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                        Password <span class="text-red-500">*</span>
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        minlength="8"
+                        placeholder="Minimum 8 characters"
+                        required
+                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+                    >
+
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Used to log in to the driver account.
+                    </p>
 
                 </div>
 

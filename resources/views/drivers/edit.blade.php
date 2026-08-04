@@ -265,15 +265,38 @@
                 <div>
 
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Email
+                        Email <span class="text-red-500">*</span>
                     </label>
 
                     <input
                         type="email"
                         name="email"
                         value="{{ old('email', $driver->email) }}"
+                        required
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     >
+
+                </div>
+
+
+                {{-- PASSWORD --}}
+                <div>
+
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        minlength="8"
+                        placeholder="Leave blank to keep current password"
+                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    >
+
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Leave blank to keep the current password.
+                    </p>
 
                 </div>
 

@@ -8,8 +8,10 @@ use App\Models\SchoolAdmin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 class DriverController extends Controller
 {
@@ -74,7 +76,6 @@ class DriverController extends Controller
         return view('drivers.index', compact('drivers'));
     }
 
-
     /**
      * Show create form.
      */
@@ -101,7 +102,6 @@ class DriverController extends Controller
         return view('drivers.create', compact('school', 'schools'));
     }
 
-
     /**
      * Store driver.
      */
@@ -124,7 +124,9 @@ class DriverController extends Controller
 
             'phone' => 'required|digits_between:10,15',
 
-            'email' => 'nullable|email|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+
+            'password' => 'required|min:8',
 
             'address' => 'required|string',
 
@@ -171,7 +173,6 @@ class DriverController extends Controller
             'remarks' => 'nullable|string',
         ];
 
-
         /*
         |--------------------------------------------------------------------------
         | School validation
@@ -186,9 +187,7 @@ class DriverController extends Controller
             ];
         }
 
-
         $validated = $request->validate($rules);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -221,7 +220,7 @@ class DriverController extends Controller
             }
         }
 
-        $validated['employee_id'] = $request->input('employee_id') ?: 'DRV-' . now()->format('YmdHis') . '-' . random_int(1000, 9999);
+        $validated['employee_id'] = $request->input('employee_id') ?: 'DRV-'.now()->format('YmdHis').'-'.random_int(1000, 9999);
 
         /*
         |--------------------------------------------------------------------------
@@ -236,7 +235,6 @@ class DriverController extends Controller
                     ->store('drivers', 'public');
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Created by
@@ -245,15 +243,38 @@ class DriverController extends Controller
 
         $validated['created_by'] = $user->id;
 
+        /*
+        |--------------------------------------------------------------------------
+        | Create login account and link it to the driver
+        |--------------------------------------------------------------------------
+        */
 
-        Driver::create($validated);
+        try {
+            DB::transaction(function () use ($validated) {
+                $user = User::create([
+                    'name' => trim($validated['first_name'].' '.$validated['last_name']),
+                    'email' => $validated['email'],
+                    'password' => $validated['password'],
+                    'school_id' => $validated['school_id'],
+                ]);
 
+                $user->assignRole('Driver');
+
+                Driver::create([
+                    ...$validated,
+                    'user_id' => $user->id,
+                ]);
+            });
+        } catch (Throwable $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to create driver.']);
+        }
 
         return redirect()
             ->route('drivers.index')
             ->with('success', 'Driver added successfully.');
     }
-
 
     /**
      * Display driver.
@@ -269,7 +290,6 @@ class DriverController extends Controller
 
         return view('drivers.show', compact('driver'));
     }
-
 
     /**
      * Show edit form.
@@ -300,7 +320,6 @@ class DriverController extends Controller
             'schools'
         ));
     }
-
 
     /**
      * Update driver.
@@ -334,7 +353,12 @@ class DriverController extends Controller
 
             'phone' => 'required|digits_between:10,15',
 
-            'email' => 'nullable|email|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$driver->user_id,
+
+            'password' => [
+                Rule::requiredIf(! $driver->user),
+                'min:8',
+            ],
 
             'address' => 'required|string',
 
@@ -381,7 +405,6 @@ class DriverController extends Controller
             'remarks' => 'nullable|string',
         ];
 
-
         if (! $this->isSchoolLevelAdmin($user)) {
 
             $rules['school_id'] = [
@@ -390,9 +413,7 @@ class DriverController extends Controller
             ];
         }
 
-
         $validated = $request->validate($rules);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -416,7 +437,6 @@ class DriverController extends Controller
             $validated['school_id'] = $request->input('school_id');
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Replace profile photo
@@ -438,15 +458,48 @@ class DriverController extends Controller
                     ->store('drivers', 'public');
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Create or sync the login account linked to the driver
+        |--------------------------------------------------------------------------
+        */
 
-        $driver->update($validated);
+        try {
+            DB::transaction(function () use ($driver, $validated) {
+                $name = trim($validated['first_name'].' '.$validated['last_name']);
 
+                if (! $driver->user) {
+                    $user = User::create([
+                        'name' => $name,
+                        'email' => $validated['email'],
+                        'password' => $validated['password'],
+                        'school_id' => $validated['school_id'],
+                    ]);
+
+                    $user->assignRole('Driver');
+
+                    $validated['user_id'] = $user->id;
+                } else {
+                    $driver->user->update([
+                        'name' => $name,
+                        'email' => $validated['email'],
+                        'password' => $validated['password'] ?? $driver->user->password,
+                        'school_id' => $validated['school_id'],
+                    ]);
+                }
+
+                $driver->update($validated);
+            });
+        } catch (Throwable $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to update driver.']);
+        }
 
         return redirect()
             ->route('drivers.index')
             ->with('success', 'Driver updated successfully.');
     }
-
 
     /**
      * Delete driver.
@@ -454,7 +507,6 @@ class DriverController extends Controller
     public function destroy(Driver $driver)
     {
         $this->authorizeDriver($driver);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -470,15 +522,20 @@ class DriverController extends Controller
                 ->delete($driver->profile_photo);
         }
 
-
-        $driver->delete();
-
+        try {
+            DB::transaction(function () use ($driver) {
+                $driver->user?->delete();
+                $driver->delete();
+            });
+        } catch (Throwable $e) {
+            return back()
+                ->withErrors(['error' => 'Failed to delete driver.']);
+        }
 
         return redirect()
             ->route('drivers.index')
             ->with('success', 'Driver deleted successfully.');
     }
-
 
     /**
      * Make sure Principal can only access their own school drivers.
