@@ -8,6 +8,7 @@ class Driver extends Model
 {
     protected $fillable = [
         'school_id',
+        'user_id',
         'employee_id',
         'first_name',
         'last_name',
@@ -51,8 +52,13 @@ class Driver extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function getFullNameAttribute(): string
     {
-        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
+        return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
     }
 }

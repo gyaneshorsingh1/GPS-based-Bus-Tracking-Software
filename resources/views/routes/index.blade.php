@@ -1,12 +1,12 @@
-<x-app-layout page="drivers">
+<x-app-layout page="route-management">
     <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
         <div class="mb-6 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Drivers</h1>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Routes</h1>
             <a
-                href="{{ route('drivers.create') }}"
+                href="{{ route('routes.create') }}"
                 class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
             >
-                Create Driver
+                Create Route
             </a>
         </div>
 
@@ -26,13 +26,13 @@
             </div>
         @endif
 
-        <form action="{{ route('drivers.index') }}" method="GET" class="mb-4">
+        <form action="{{ route('routes.index') }}" method="GET" class="mb-4">
             <div class="flex gap-2">
                 <input
                     type="text"
                     name="search"
                     value="{{ request('search') }}"
-                    placeholder="Search drivers..."
+                    placeholder="Search routes..."
                     class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 >
 
@@ -44,7 +44,7 @@
                 </button>
 
                 <a
-                    href="{{ route('drivers.index') }}"
+                    href="{{ route('routes.index') }}"
                     class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                     Reset
@@ -56,45 +56,30 @@
             <table class="w-full text-left text-sm">
                 <thead class="border-b border-gray-200 dark:border-gray-800">
                     <tr class="text-gray-500 dark:text-gray-400">
-                        <th class="px-5 py-3 font-medium">Photo</th>
-                        <th class="px-5 py-3 font-medium">Employee ID</th>
                         <th class="px-5 py-3 font-medium">Name</th>
+                        <th class="px-5 py-3 font-medium">Route Code</th>
+                        <th class="px-5 py-3 font-medium">Start Location</th>
+                        <th class="px-5 py-3 font-medium">End Location</th>
+                        <th class="px-5 py-3 font-medium">Distance</th>
+                        <th class="px-5 py-3 font-medium">Duration</th>
                         <th class="px-5 py-3 font-medium">School</th>
-                        <th class="px-5 py-3 font-medium">Phone</th>
-                        <th class="px-5 py-3 font-medium">License No.</th>
                         <th class="px-5 py-3 font-medium">Status</th>
                         <th class="px-5 py-3 text-right font-medium">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    @forelse ($drivers as $driver)
+                    @forelse ($routes as $route)
                         <tr class="text-gray-700 dark:text-gray-200">
+                            <td class="px-5 py-3 font-medium">{{ $route->name }}</td>
+                            <td class="px-5 py-3">{{ $route->route_code }}</td>
+                            <td class="px-5 py-3">{{ $route->start_location }}</td>
+                            <td class="px-5 py-3">{{ $route->end_location }}</td>
+                            <td class="px-5 py-3">{{ $route->estimated_distance ? $route->estimated_distance . ' km' : '—' }}</td>
+                            <td class="px-5 py-3">{{ $route->estimated_duration ? $route->estimated_duration . ' min' : '—' }}</td>
+                            <td class="px-5 py-3">{{ $route->school->name ?? '—' }}</td>
                             <td class="px-5 py-3">
-                                @if ($driver->profile_photo)
-                                    <img
-                                        src="{{ asset('storage/' . $driver->profile_photo) }}"
-                                        alt="{{ $driver->full_name }}"
-                                        class="h-10 w-10 rounded-full object-cover"
-                                    >
-                                @else
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-500 dark:bg-gray-700 dark:text-gray-300">
-                                        {{ strtoupper(substr($driver->first_name, 0, 1)) }}
-                                    </div>
-                                @endif
-                            </td>
-                            <td class="px-5 py-3 font-medium">{{ $driver->employee_id }}</td>
-                            <td class="px-5 py-3">
-                                <div>{{ $driver->full_name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $driver->gender }}</div>
-                            </td>
-                            <td class="px-5 py-3">{{ $driver->school->name ?? '—' }}</td>
-                            <td class="px-5 py-3">{{ $driver->phone }}</td>
-                            <td class="px-5 py-3">{{ $driver->license_number }}</td>
-                            <td class="px-5 py-3">
-                                @if ($driver->status === 'Active')
+                                @if ($route->is_active)
                                     <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">Active</span>
-                                @elseif ($driver->status === 'Suspended')
-                                    <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/20 dark:text-red-400">Suspended</span>
                                 @else
                                     <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">Inactive</span>
                                 @endif
@@ -102,21 +87,21 @@
                             <td class="px-5 py-3">
                                 <div class="flex items-center justify-end gap-2">
                                     <a
-                                        href="{{ route('drivers.show', $driver) }}"
+                                        href="{{ route('routes.show', $route) }}"
                                         class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                                     >
                                         View
                                     </a>
                                     <a
-                                        href="{{ route('drivers.edit', $driver) }}"
+                                        href="{{ route('routes.edit', $route) }}"
                                         class="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600"
                                     >
                                         Edit
                                     </a>
                                     <form
-                                        action="{{ route('drivers.destroy', $driver) }}"
+                                        action="{{ route('routes.destroy', $route) }}"
                                         method="POST"
-                                        onsubmit="return confirm('Are you sure you want to delete {{ $driver->full_name }}?');"
+                                        onsubmit="return confirm('Are you sure you want to delete {{ $route->name }}?');"
                                     >
                                         @csrf
                                         @method('DELETE')
@@ -132,8 +117,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
-                                No drivers found.
+                            <td colspan="9" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                                No routes found.
                             </td>
                         </tr>
                     @endforelse
@@ -142,7 +127,7 @@
         </div>
 
         <div class="mt-6">
-            {{ $drivers->links() }}
+            {{ $routes->links() }}
         </div>
     </div>
 </x-app-layout>
