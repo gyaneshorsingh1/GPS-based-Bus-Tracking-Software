@@ -1,743 +1,504 @@
-@php($page = 'drivers')
-
 <x-app-layout page="drivers">
-
-```
-<div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
-
-    {{-- PAGE HEADER --}}
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-        <div>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-                Edit Driver
-            </h1>
-
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Update driver information — {{ $driver->employee_id }}
-            </p>
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Edit Driver</h1>
+            <a
+                href="{{ route('drivers.index') }}"
+                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
+                Back to Drivers
+            </a>
         </div>
 
-        <a
-            href="{{ route('drivers.show', $driver) }}"
-            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+        @if ($errors->any())
+            <div class="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                <ul class="list-inside list-disc">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <form
+            action="{{ route('drivers.update', $driver) }}"
+            method="POST"
+            enctype="multipart/form-data"
+            class="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]"
         >
-            Back
-        </a>
+            @csrf
+            @method('PUT')
 
-    </div>
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
+                    Account Details
+                </h2>
 
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ old('email', $driver->email) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-    {{-- VALIDATION ERRORS --}}
-    @if ($errors->any())
+                    <div>
+                        <label for="password" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            minlength="8"
+                            placeholder="Leave blank to keep current password"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Leave blank to keep the current password.
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
-
-            <p class="font-medium">
-                Please fix the following errors:
-            </p>
-
-            <ul class="mt-2 list-inside list-disc">
-
-                @foreach ($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    {{-- SUCCESS MESSAGE --}}
-    @if (session('success'))
-
-        <div class="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
-            {{ session('success') }}
-        </div>
-
-    @endif
-
-
-    {{-- FORM --}}
-    <form
-        action="{{ route('drivers.update', $driver) }}"
-        method="POST"
-        enctype="multipart/form-data"
-    >
-
-        @csrf
-        @method('PUT')
-
-
-        {{-- PERSONAL INFORMATION --}}
-        <div class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-
-            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
                     Personal Information
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Update the driver's personal details.
-                </p>
-
-            </div>
-
-
-            <div class="grid grid-cols-1 gap-5 p-6 md:grid-cols-2 lg:grid-cols-3">
-
-
-                {{-- PROFILE PHOTO --}}
-                <div class="md:col-span-2 lg:col-span-3">
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Profile Photo
-                    </label>
-
-
-                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-
-                        @if($driver->profile_photo)
-
-                            <img
-                                src="{{ asset('storage/' . $driver->profile_photo) }}"
-                                alt="{{ $driver->full_name }}"
-                                class="h-20 w-20 rounded-full object-cover"
-                            >
-
-                        @else
-
-                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-2xl font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-300">
-                                {{ strtoupper(substr($driver->first_name, 0, 1)) }}
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div class="md:col-span-2">
+                        <label for="profile_photo" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Photo</label>
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                            @if($driver->profile_photo)
+                                <img
+                                    src="{{ asset('storage/' . $driver->profile_photo) }}"
+                                    alt="{{ $driver->full_name }}"
+                                    class="h-20 w-20 rounded-full object-cover"
+                                >
+                            @else
+                                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-2xl font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-300">
+                                    {{ strtoupper(substr($driver->first_name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <div class="flex-1">
+                                <input
+                                    type="file"
+                                    id="profile_photo"
+                                    name="profile_photo"
+                                    accept="image/*"
+                                    class="block w-full rounded-lg border border-gray-300 bg-white text-sm text-gray-900 file:mr-4 file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:file:bg-gray-700 dark:file:text-gray-200"
+                                >
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    Leave empty to keep the current photo.
+                                </p>
                             </div>
-
-                        @endif
-
-
-                        <div class="flex-1">
-
-                            <input
-                                type="file"
-                                name="profile_photo"
-                                accept="image/*"
-                                class="block w-full rounded-lg border border-gray-300 bg-white text-sm text-gray-900 file:mr-4 file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:file:bg-gray-700 dark:file:text-gray-200"
-                            >
-
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                Leave empty to keep the current photo.
-                            </p>
-
                         </div>
-
+                        @error('profile_photo')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
+                    <div>
+                        <label for="employee_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Employee ID</label>
+                        <input
+                            type="text"
+                            id="employee_id"
+                            name="employee_id"
+                            value="{{ old('employee_id', $driver->employee_id) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('employee_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="first_name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
+                        <input
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            value="{{ old('first_name', $driver->first_name) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('first_name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="last_name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
+                        <input
+                            type="text"
+                            id="last_name"
+                            name="last_name"
+                            value="{{ old('last_name', $driver->last_name) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('last_name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="gender" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Gender</label>
+                        <select
+                            id="gender"
+                            name="gender"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                            <option value="">Select Gender</option>
+                            <option value="Male" @selected(old('gender', $driver->gender) === 'Male')>Male</option>
+                            <option value="Female" @selected(old('gender', $driver->gender) === 'Female')>Female</option>
+                            <option value="Other" @selected(old('gender', $driver->gender) === 'Other')>Other</option>
+                        </select>
+                        @error('gender')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="date_of_birth" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Date of Birth</label>
+                        <input
+                            type="date"
+                            id="date_of_birth"
+                            name="date_of_birth"
+                            value="{{ old('date_of_birth', $driver->date_of_birth?->format('Y-m-d')) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('date_of_birth')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="phone" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
+                        <input
+                            type="text"
+                            id="phone"
+                            name="phone"
+                            value="{{ old('phone', $driver->phone) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('phone')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="address" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
+                        <textarea
+                            id="address"
+                            name="address"
+                            rows="3"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >{{ old('address', $driver->address) }}</textarea>
+                        @error('address')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="city" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">City</label>
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            value="{{ old('city', $driver->city) }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('city')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="state" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">State</label>
+                        <input
+                            type="text"
+                            id="state"
+                            name="state"
+                            value="{{ old('state', $driver->state) }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('state')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="country" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Country</label>
+                        <input
+                            type="text"
+                            id="country"
+                            name="country"
+                            value="{{ old('country', $driver->country ?? 'Nepal') }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('country')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="postal_code" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Postal Code</label>
+                        <input
+                            type="text"
+                            id="postal_code"
+                            name="postal_code"
+                            value="{{ old('postal_code', $driver->postal_code) }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('postal_code')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
-
-
-                {{-- EMPLOYEE ID --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Employee ID <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="employee_id"
-                        value="{{ old('employee_id', $driver->employee_id) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- FIRST NAME --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        First Name <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="first_name"
-                        value="{{ old('first_name', $driver->first_name) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- LAST NAME --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Last Name <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="last_name"
-                        value="{{ old('last_name', $driver->last_name) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- GENDER --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Gender <span class="text-red-500">*</span>
-                    </label>
-
-                    <select
-                        name="gender"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                        <option value="">Select Gender</option>
-
-                        <option value="Male" {{ old('gender', $driver->gender) === 'Male' ? 'selected' : '' }}>
-                            Male
-                        </option>
-
-                        <option value="Female" {{ old('gender', $driver->gender) === 'Female' ? 'selected' : '' }}>
-                            Female
-                        </option>
-
-                        <option value="Other" {{ old('gender', $driver->gender) === 'Other' ? 'selected' : '' }}>
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- DATE OF BIRTH --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Date of Birth <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="date"
-                        name="date_of_birth"
-                        value="{{ old('date_of_birth', $driver->date_of_birth?->format('Y-m-d')) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- PHONE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Phone Number <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="phone"
-                        value="{{ old('phone', $driver->phone) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- EMAIL --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Email <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="email"
-                        name="email"
-                        value="{{ old('email', $driver->email) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- PASSWORD --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        name="password"
-                        minlength="8"
-                        placeholder="Leave blank to keep current password"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Leave blank to keep the current password.
-                    </p>
-
-                </div>
-
-
-                {{-- ADDRESS --}}
-                <div class="md:col-span-2 lg:col-span-3">
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Address <span class="text-red-500">*</span>
-                    </label>
-
-                    <textarea
-                        name="address"
-                        rows="3"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >{{ old('address', $driver->address) }}</textarea>
-
-                </div>
-
-
-                {{-- CITY --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        City
-                    </label>
-
-                    <input
-                        type="text"
-                        name="city"
-                        value="{{ old('city', $driver->city) }}"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- STATE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        State
-                    </label>
-
-                    <input
-                        type="text"
-                        name="state"
-                        value="{{ old('state', $driver->state) }}"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- COUNTRY --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Country
-                    </label>
-
-                    <input
-                        type="text"
-                        name="country"
-                        value="{{ old('country', $driver->country ?? 'Nepal') }}"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- POSTAL CODE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Postal Code
-                    </label>
-
-                    <input
-                        type="text"
-                        name="postal_code"
-                        value="{{ old('postal_code', $driver->postal_code) }}"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
             </div>
 
-        </div>
-
-
-        {{-- LICENSE INFORMATION --}}
-        <div class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-
-            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
                     License Information
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Update the driver's driving license details.
-                </p>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="license_number" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">License Number</label>
+                        <input
+                            type="text"
+                            id="license_number"
+                            name="license_number"
+                            value="{{ old('license_number', $driver->license_number) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('license_number')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
+                    <div>
+                        <label for="license_type" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">License Type</label>
+                        <select
+                            id="license_type"
+                            name="license_type"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                            <option value="">Select License Type</option>
+                            <option value="Heavy Vehicle" @selected(old('license_type', $driver->license_type) === 'Heavy Vehicle')>Heavy Vehicle</option>
+                            <option value="Bus" @selected(old('license_type', $driver->license_type) === 'Bus')>Bus</option>
+                            <option value="Other" @selected(old('license_type', $driver->license_type) === 'Other')>Other</option>
+                        </select>
+                        @error('license_type')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="experience_years" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Driving Experience (Years)</label>
+                        <input
+                            type="number"
+                            id="experience_years"
+                            name="experience_years"
+                            value="{{ old('experience_years', $driver->experience_years) }}"
+                            min="0"
+                            max="80"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('experience_years')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="license_issue_date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">License Issue Date</label>
+                        <input
+                            type="date"
+                            id="license_issue_date"
+                            name="license_issue_date"
+                            value="{{ old('license_issue_date', $driver->license_issue_date?->format('Y-m-d')) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('license_issue_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="license_expiry_date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">License Expiry Date</label>
+                        <input
+                            type="date"
+                            id="license_expiry_date"
+                            name="license_expiry_date"
+                            value="{{ old('license_expiry_date', $driver->license_expiry_date?->format('Y-m-d')) }}"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('license_expiry_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
-
-            <div class="grid grid-cols-1 gap-5 p-6 md:grid-cols-2 lg:grid-cols-3">
-
-
-                {{-- LICENSE NUMBER --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        License Number <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="license_number"
-                        value="{{ old('license_number', $driver->license_number) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- LICENSE TYPE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        License Type <span class="text-red-500">*</span>
-                    </label>
-
-                    <select
-                        name="license_type"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                        <option value="">Select License Type</option>
-
-                        <option value="Heavy Vehicle" {{ old('license_type', $driver->license_type) === 'Heavy Vehicle' ? 'selected' : '' }}>
-                            Heavy Vehicle
-                        </option>
-
-                        <option value="Bus" {{ old('license_type', $driver->license_type) === 'Bus' ? 'selected' : '' }}>
-                            Bus
-                        </option>
-
-                        <option value="Other" {{ old('license_type', $driver->license_type) === 'Other' ? 'selected' : '' }}>
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- EXPERIENCE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Driving Experience (Years)
-                    </label>
-
-                    <input
-                        type="number"
-                        name="experience_years"
-                        value="{{ old('experience_years', $driver->experience_years) }}"
-                        min="0"
-                        max="80"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- ISSUE DATE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        License Issue Date <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="date"
-                        name="license_issue_date"
-                        value="{{ old('license_issue_date', $driver->license_issue_date?->format('Y-m-d')) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- EXPIRY DATE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        License Expiry Date <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="date"
-                        name="license_expiry_date"
-                        value="{{ old('license_expiry_date', $driver->license_expiry_date?->format('Y-m-d')) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- EMPLOYMENT INFORMATION --}}
-        <div class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-
-            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
                     Employment Information
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Update school assignment and employment status.
-                </p>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    @if(auth()->user()->hasAnyRole(['School Admin', 'Principal']))
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <input
+                                type="text"
+                                value="{{ $driver->school->name ?? 'School not assigned' }}"
+                                readonly
+                                class="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400"
+                            >
+                        </div>
+                    @else
+                        <div>
+                            <label for="school_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <select
+                                id="school_id"
+                                name="school_id"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            >
+                                <option value="">Select School</option>
+                                @foreach($schools as $school)
+                                    <option value="{{ $school->id }}" @selected(old('school_id', $driver->school_id) == $school->id)>{{ $school->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('school_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
 
-            </div>
-
-
-            <div class="grid grid-cols-1 gap-5 p-6 md:grid-cols-2 lg:grid-cols-3">
-
-
-                {{-- SCHOOL --}}
-                @if(auth()->user()->hasAnyRole(['School Admin', 'Principal']))
-
-                    <div class="lg:col-span-1">
-
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            School
-                        </label>
-
+                    <div>
+                        <label for="joining_date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Joining Date</label>
                         <input
-                            type="text"
-                            value="{{ $driver->school->name ?? 'School not assigned' }}"
-                            readonly
-                            class="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-600 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                        >
-
-                    </div>
-
-                @else
-
-                    <div class="lg:col-span-1">
-
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            School <span class="text-red-500">*</span>
-                        </label>
-
-                        <select
-                            name="school_id"
+                            type="date"
+                            id="joining_date"
+                            name="joining_date"
+                            value="{{ old('joining_date', $driver->joining_date?->format('Y-m-d')) }}"
                             required
-                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
-
-                            <option value="">
-                                Select School
-                            </option>
-
-                            @foreach($schools as $school)
-
-                                <option
-                                    value="{{ $school->id }}"
-                                    {{ old('school_id', $driver->school_id) == $school->id ? 'selected' : '' }}
-                                >
-                                    {{ $school->name }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
+                        @error('joining_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                @endif
+                    <div>
+                        <label for="status" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                        <select
+                            id="status"
+                            name="status"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                            <option value="Active" @selected(old('status', $driver->status) === 'Active')>Active</option>
+                            <option value="Inactive" @selected(old('status', $driver->status) === 'Inactive')>Inactive</option>
+                            <option value="Suspended" @selected(old('status', $driver->status) === 'Suspended')>Suspended</option>
+                        </select>
+                        @error('status')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-
-                {{-- JOINING DATE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Joining Date <span class="text-red-500">*</span>
-                    </label>
-
-                    <input
-                        type="date"
-                        name="joining_date"
-                        value="{{ old('joining_date', $driver->joining_date?->format('Y-m-d')) }}"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
+                    <div class="md:col-span-2">
+                        <label for="remarks" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
+                        <textarea
+                            id="remarks"
+                            name="remarks"
+                            rows="3"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >{{ old('remarks', $driver->remarks) }}</textarea>
+                        @error('remarks')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
-
-
-                {{-- STATUS --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Status <span class="text-red-500">*</span>
-                    </label>
-
-                    <select
-                        name="status"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                        <option value="Active" {{ old('status', $driver->status) === 'Active' ? 'selected' : '' }}>
-                            Active
-                        </option>
-
-                        <option value="Inactive" {{ old('status', $driver->status) === 'Inactive' ? 'selected' : '' }}>
-                            Inactive
-                        </option>
-
-                        <option value="Suspended" {{ old('status', $driver->status) === 'Suspended' ? 'selected' : '' }}>
-                            Suspended
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- REMARKS --}}
-                <div class="md:col-span-2 lg:col-span-3">
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Remarks
-                    </label>
-
-                    <textarea
-                        name="remarks"
-                        rows="3"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >{{ old('remarks', $driver->remarks) }}</textarea>
-
-                </div>
-
             </div>
 
-        </div>
-
-
-        {{-- EMERGENCY CONTACT --}}
-        <div class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-
-            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
                     Emergency Contact
                 </h2>
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Update emergency contact information.
-                </p>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="emergency_contact_name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Name</label>
+                        <input
+                            type="text"
+                            id="emergency_contact_name"
+                            name="emergency_contact_name"
+                            value="{{ old('emergency_contact_name', $driver->emergency_contact_name) }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('emergency_contact_name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
+                    <div>
+                        <label for="emergency_contact_phone" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Number</label>
+                        <input
+                            type="text"
+                            id="emergency_contact_phone"
+                            name="emergency_contact_phone"
+                            value="{{ old('emergency_contact_phone', $driver->emergency_contact_phone) }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('emergency_contact_phone')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
-
-            <div class="grid grid-cols-1 gap-5 p-6 md:grid-cols-2">
-
-
-                {{-- CONTACT NAME --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Contact Name
-                    </label>
-
-                    <input
-                        type="text"
-                        name="emergency_contact_name"
-                        value="{{ old('emergency_contact_name', $driver->emergency_contact_name) }}"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
-
-                {{-- CONTACT PHONE --}}
-                <div>
-
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Contact Number
-                    </label>
-
-                    <input
-                        type="text"
-                        name="emergency_contact_phone"
-                        value="{{ old('emergency_contact_phone', $driver->emergency_contact_phone) }}"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    >
-
-                </div>
-
+            <div class="flex items-center justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-800">
+                <a
+                    href="{{ route('drivers.index') }}"
+                    class="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                    Cancel
+                </a>
+                <button
+                    type="submit"
+                    class="rounded-lg bg-brand-500 px-5 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                >
+                    Update Driver
+                </button>
             </div>
-
-        </div>
-
-
-        {{-- ACTION BUTTONS --}}
-        <div class="mb-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-
-            <a
-                href="{{ route('drivers.show', $driver) }}"
-                class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-            >
-                Cancel
-            </a>
-
-            <button
-                type="submit"
-                class="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600"
-            >
-                Update Driver
-            </button>
-
-        </div>
-
-    </form>
-
-</div>
-```
-
+        </form>
+    </div>
 </x-app-layout>

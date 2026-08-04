@@ -1,9 +1,5 @@
-@php($page = 'drivers')
-
 <x-app-layout page="drivers">
-
-```
-<div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
 
     {{-- PAGE HEADER --}}
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -734,8 +730,4 @@
         </div>
 
     </div>
-
-</div>
-```
-
 </x-app-layout>
