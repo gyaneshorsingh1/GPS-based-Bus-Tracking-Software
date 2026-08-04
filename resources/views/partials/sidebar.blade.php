@@ -1,11 +1,3 @@
-{{--
-    SETUP (one-time):
-        composer require blade-ui-kit/blade-heroicons
-
-    Icon names come from https://blade-ui-kit.com/blade-icons?set=1
-    (outline set prefix: heroicon-o-, solid set prefix: heroicon-s-,
-     mini set prefix: heroicon-m-)
---}}
 @php
     /**
      * SIDEBAR CONFIG
@@ -32,7 +24,6 @@
             'title' => 'Dashboard',
             'items' => [
                 ['key' => 'overview', 'label' => 'Overview', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-                ['key' => 'statistics', 'label' => 'Statistics', 'route' => 'dashboard', 'active' => 'statistics', 'icon' => 'heroicon-o-chart-bar', 'permission' => null, 'dropdown' => null],
                 ['key' => 'live-summary', 'label' => 'Live Summary', 'route' => 'dashboard', 'active' => 'live-summary', 'icon' => 'heroicon-o-signal', 'permission' => null, 'dropdown' => null],
             ],
         ],
@@ -56,16 +47,6 @@
             ],
         ],
         [
-            'title' => 'Reports',
-            'items' => [
-                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
-                ['key' => 'trips', 'label' => 'Trips', 'route' => 'dashboard', 'active' => 'trips', 'icon' => 'heroicon-o-document-text', 'permission' => null, 'dropdown' => null],
-                ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'drivers.index', 'active' => 'drivers', 'icon' => 'heroicon-o-user-circle', 'permission' => 'driver.view', 'dropdown' => null],
-                ['key' => 'bus-usage', 'label' => 'Bus Usage', 'route' => 'dashboard', 'active' => 'bus-usage', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
-                ['key' => 'gps-history', 'label' => 'GPS History', 'route' => 'dashboard', 'active' => 'gps-history', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-            ],
-        ],
-        [
             'title' => 'Administration',
             'items' => [
                 ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'dashboard', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => null, 'dropdown' => null],
@@ -85,7 +66,6 @@ $principalMenu = [
 'title' => 'Dashboard',
 'items' => [
 ['key' => 'overview', 'label' => 'Overview', 'route' => 'principal.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-['key' => 'statistics', 'label' => 'Statistics', 'route' => 'dashboard', 'active' => 'statistics', 'icon' => 'heroicon-o-chart-bar', 'permission' => null, 'dropdown' => null],
 ],
 ],
         [
@@ -111,14 +91,6 @@ $principalMenu = [
 'items' => [
 ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
 ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Reports',
-'items' => [
-['key' => 'student-attendance', 'label' => 'Student Attendance', 'route' => 'dashboard', 'active' => 'student-attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
-['key' => 'trip-reports', 'label' => 'Trip Reports', 'route' => 'dashboard', 'active' => 'trip-reports', 'icon' => 'heroicon-o-document-text', 'permission' => null, 'dropdown' => null],
-['key' => 'driver-reports', 'label' => 'Driver Reports', 'route' => 'dashboard', 'active' => 'driver-reports', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
 ],
 ],
 [
@@ -391,24 +363,5 @@ return $active !== null && $page === $active;
 
         </nav>
 
-        <!-- Promo Box -->
-        <div
-            :class="sidebarToggle ? 'lg:hidden' : ''"
-            class="mx-auto mb-10 w-full max-w-60 rounded-2xl bg-gray-50 px-4 py-5 text-center dark:bg-white/[0.03]">
-            <h3 class="mb-2 font-semibold text-gray-900 dark:text-white">
-                #1 Tailwind CSS Dashboard
-            </h3>
-            <p class="text-theme-sm mb-4 text-gray-500 dark:text-gray-400">
-                Leading Tailwind CSS Admin Template with 400+ UI Component and Pages.
-            </p>
-            <a
-                href="https://tailadmin.com/pricing"
-                target="_blank"
-                rel="nofollow"
-                class="text-theme-sm flex items-center justify-center rounded-lg bg-brand-500 p-3 font-medium text-white hover:bg-brand-600">
-                Purchase Plan
-            </a>
-        </div>
-        <!-- Promo Box -->
     </div>
 </aside>
