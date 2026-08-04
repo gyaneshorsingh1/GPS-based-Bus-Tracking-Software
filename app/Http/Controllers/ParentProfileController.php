@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\ParentProfile;
 use App\Models\School;
+use App\Models\SchoolAdmin;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -16,10 +18,27 @@ class ParentProfileController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+
+        $query = ParentProfile::query()->with(['user', 'school']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | School-level admins can only see parents from their school.
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $query->where('school_id', $schoolId);
+            }
+        }
+
         $search = $request->search;
 
-        $parents = ParentProfile::query()
-            ->with(['user', 'school'])
+        $parents = $query
             ->when($search, function ($query) use ($search) {
                 $query->whereHas('user', function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
@@ -40,9 +59,25 @@ class ParentProfileController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+        $school = null;
         $schools = School::orderBy('name')->get();
 
-        return view('parents.create', compact('schools'));
+        /*
+        |--------------------------------------------------------------------------
+        | School-level admins automatically get their school.
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $school = School::find($schoolId);
+            }
+        }
+
+        return view('parents.create', compact('school', 'schools'));
     }
 
     /**
@@ -50,7 +85,9 @@ class ParentProfileController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $user = Auth::user();
+
+        $rules = [
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
@@ -61,7 +98,24 @@ class ParentProfileController extends Controller
             'alternate_phone' => 'nullable|max:20',
             'address' => 'required',
             'occupation' => 'nullable|max:255',
-        ]);
+        ];
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $rules['school_id'] = [
+                'nullable',
+                'exists:schools,id',
+            ];
+        }
+
+        $validated = $request->validate($rules);
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $validated['school_id'] = $schoolId;
+            }
+        }
 
         try {
             DB::transaction(function () use ($validated) {
@@ -101,6 +155,8 @@ class ParentProfileController extends Controller
      */
     public function show(ParentProfile $parentProfile)
     {
+        $this->authorizeParent($parentProfile);
+
         $parentProfile->load(['user', 'school']);
 
         return view('parents.show', compact('parentProfile'));
@@ -111,10 +167,23 @@ class ParentProfileController extends Controller
      */
     public function edit(ParentProfile $parentProfile)
     {
-        $parentProfile->load(['user', 'school']);
+        $this->authorizeParent($parentProfile);
+
+        $user = Auth::user();
+        $school = null;
         $schools = School::orderBy('name')->get();
 
-        return view('parents.edit', compact('parentProfile', 'schools'));
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $school = School::find($schoolId);
+            }
+        }
+
+        $parentProfile->load(['user', 'school']);
+
+        return view('parents.edit', compact('parentProfile', 'school', 'schools'));
     }
 
     /**
@@ -122,7 +191,11 @@ class ParentProfileController extends Controller
      */
     public function update(Request $request, ParentProfile $parentProfile)
     {
-        $validated = $request->validate([
+        $this->authorizeParent($parentProfile);
+
+        $user = Auth::user();
+
+        $rules = [
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users,email,'.$parentProfile->user_id,
             'password' => 'nullable|min:8',
@@ -133,7 +206,26 @@ class ParentProfileController extends Controller
             'alternate_phone' => 'nullable|max:20',
             'address' => 'required',
             'occupation' => 'nullable|max:255',
-        ]);
+        ];
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $rules['school_id'] = [
+                'nullable',
+                'exists:schools,id',
+            ];
+        }
+
+        $validated = $request->validate($rules);
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $validated['school_id'] = $schoolId;
+            } else {
+                $validated['school_id'] = $parentProfile->school_id;
+            }
+        }
 
         try {
             DB::transaction(function () use ($validated, $parentProfile) {
@@ -170,6 +262,8 @@ class ParentProfileController extends Controller
      */
     public function destroy(ParentProfile $parentProfile)
     {
+        $this->authorizeParent($parentProfile);
+
         try {
             DB::transaction(function () use ($parentProfile) {
                 $parentProfile->user->delete();
@@ -183,5 +277,49 @@ class ParentProfileController extends Controller
         return redirect()
             ->route('parents.index')
             ->with('success', 'Parent profile deleted successfully.');
+    }
+
+    /**
+     * Make sure school-level admins can only access their own school's parents.
+     */
+    private function authorizeParent(ParentProfile $parentProfile): void
+    {
+        $user = Auth::user();
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId && $parentProfile->school_id != $schoolId) {
+                abort(403, 'You are not authorized to access this parent.');
+            }
+        }
+    }
+
+    private function isSchoolLevelAdmin(?User $user): bool
+    {
+        return $user && $user->hasAnyRole(['School Admin', 'Principal']);
+    }
+
+    private function getUserSchoolId(?User $user): ?int
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if (! empty($user->school_id)) {
+            return (int) $user->school_id;
+        }
+
+        $schoolAdmin = SchoolAdmin::where('user_id', $user->id)->first();
+
+        if ($schoolAdmin && ! empty($schoolAdmin->school_id)) {
+            return (int) $schoolAdmin->school_id;
+        }
+
+        $school = School::where('principal_name', $user->name)
+            ->orWhere('email', $user->email)
+            ->first();
+
+        return $school?->id;
     }
 }
