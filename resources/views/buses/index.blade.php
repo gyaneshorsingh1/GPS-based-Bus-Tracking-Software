@@ -1,778 +1,147 @@
-@php($page = 'buses')
-
-@extends('layouts.app')
-
-@section('content')
-
-<div class="container-fluid py-4">
-
-    {{-- =========================
-        HEADER
-    ========================== --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-
-        <div>
-            <h3 class="fw-bold mb-1">
-                Bus Management
-            </h3>
-
-            <p class="text-muted mb-0">
-                Manage school buses, drivers, routes and transportation.
-            </p>
-        </div>
-
-        <div class="mt-3 mt-md-0">
-
-            <a href="{{ route('buses.create') }}"
-               class="btn btn-primary px-4">
-
-                <i class="bi bi-plus-lg me-1"></i>
-
-                Add Bus
-
+<x-app-layout page="buses">
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Buses</h1>
+            <a
+                href="{{ route('buses.create') }}"
+                class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+            >
+                Create Bus
             </a>
-
         </div>
 
-    </div>
-
-
-    {{-- =========================
-        SUCCESS MESSAGE
-    ========================== --}}
-    @if(session('success'))
-
-        <div class="alert alert-success alert-dismissible fade show"
-             role="alert">
-
-            <i class="bi bi-check-circle me-2"></i>
-
-            {{ session('success') }}
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
-        </div>
-
-    @endif
-
-
-    {{-- =========================
-        VALIDATION ERRORS
-    ========================== --}}
-    @if($errors->any())
-
-        <div class="alert alert-danger">
-
-            <strong>Please fix the following errors:</strong>
-
-            <ul class="mb-0 mt-2">
-
-                @foreach($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    {{-- =========================
-        STATISTICS
-    ========================== --}}
-    <div class="row g-4 mb-4">
-
-        {{-- Total Buses --}}
-        <div class="col-xl-3 col-md-6">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Total Buses
-                            </p>
-
-                            <h3 class="fw-bold mb-0">
-                                {{ $totalBuses }}
-                            </h3>
-
-                        </div>
-
-                        <div class="bg-primary bg-opacity-10
-                                    text-primary rounded-circle
-                                    d-flex align-items-center
-                                    justify-content-center"
-                             style="width:50px;height:50px;">
-
-                            <i class="bi bi-bus-front fs-4"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+        @if (session('success'))
+            <div class="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                {{ session('success') }}
             </div>
-
-        </div>
-
-
-        {{-- Active --}}
-        <div class="col-xl-3 col-md-6">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Active Buses
-                            </p>
-
-                            <h3 class="fw-bold text-success mb-0">
-                                {{ $activeBuses }}
-                            </h3>
-
-                        </div>
-
-                        <div class="bg-success bg-opacity-10
-                                    text-success rounded-circle
-                                    d-flex align-items-center
-                                    justify-content-center"
-                             style="width:50px;height:50px;">
-
-                            <i class="bi bi-check-circle fs-4"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Maintenance --}}
-        <div class="col-xl-3 col-md-6">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Maintenance
-                            </p>
-
-                            <h3 class="fw-bold text-warning mb-0">
-                                {{ $maintenanceBuses }}
-                            </h3>
-
-                        </div>
-
-                        <div class="bg-warning bg-opacity-10
-                                    text-warning rounded-circle
-                                    d-flex align-items-center
-                                    justify-content-center"
-                             style="width:50px;height:50px;">
-
-                            <i class="bi bi-tools fs-4"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Capacity --}}
-        <div class="col-xl-3 col-md-6">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Active Capacity
-                            </p>
-
-                            <h3 class="fw-bold mb-0">
-                                {{ $totalCapacity }}
-                            </h3>
-
-                            <small class="text-muted">
-                                seats
-                            </small>
-
-                        </div>
-
-                        <div class="bg-info bg-opacity-10
-                                    text-info rounded-circle
-                                    d-flex align-items-center
-                                    justify-content-center"
-                             style="width:50px;height:50px;">
-
-                            <i class="bi bi-people fs-4"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================
-        SEARCH + FILTER
-    ========================== --}}
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body">
-
-            <form method="GET"
-                  action="{{ route('buses.index') }}">
-
-                <div class="row g-3 align-items-end">
-
-                    {{-- Search --}}
-                    <div class="col-lg-6">
-
-                        <label class="form-label fw-semibold">
-                            Search
-                        </label>
-
-                        <div class="input-group">
-
-                            <span class="input-group-text bg-white">
-                                <i class="bi bi-search"></i>
-                            </span>
-
-                            <input
-                                type="text"
-                                name="search"
-                                value="{{ request('search') }}"
-                                class="form-control"
-                                placeholder="Bus number, vehicle number, driver or route..."
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- Status --}}
-                    <div class="col-lg-3">
-
-                        <label class="form-label fw-semibold">
-                            Status
-                        </label>
-
-                        <select name="status"
-                                class="form-select">
-
-                            <option value="">
-                                All Status
-                            </option>
-
-                            <option value="active"
-                                {{ request('status') == 'active' ? 'selected' : '' }}>
-                                Active
-                            </option>
-
-                            <option value="maintenance"
-                                {{ request('status') == 'maintenance' ? 'selected' : '' }}>
-                                Maintenance
-                            </option>
-
-                            <option value="inactive"
-                                {{ request('status') == 'inactive' ? 'selected' : '' }}>
-                                Inactive
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {{-- Buttons --}}
-                    <div class="col-lg-3">
-
-                        <div class="d-flex gap-2">
-
-                            <button type="submit"
-                                    class="btn btn-primary flex-grow-1">
-
-                                <i class="bi bi-search me-1"></i>
-
-                                Search
-
-                            </button>
-
-                            <a href="{{ route('buses.index') }}"
-                               class="btn btn-light border">
-
-                                <i class="bi bi-arrow-clockwise"></i>
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================
-        BUS TABLE
-    ========================== --}}
-    <div class="card border-0 shadow-sm">
-
-        <div class="card-header bg-white border-0 py-3">
-
-            <div class="d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <h5 class="fw-bold mb-1">
-                        School Buses
-                    </h5>
-
-                    <small class="text-muted">
-                        Showing {{ $buses->count() }}
-                        of {{ $buses->total() }} buses
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="card-body p-0">
-
-            @if($buses->count())
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle mb-0">
-
-                        <thead class="table-light">
-
-                            <tr>
-
-                                <th class="px-4">
-                                    Bus
-                                </th>
-
-                                <th>
-                                    Vehicle Number
-                                </th>
-
-                                <th>
-                                    Driver
-                                </th>
-
-                                <th>
-                                    Route
-                                </th>
-
-                                <th>
-                                    Capacity
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th class="text-end px-4">
-                                    Actions
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            @foreach($buses as $bus)
-
-                                <tr>
-
-                                    {{-- Bus --}}
-                                    <td class="px-4">
-
-                                        <div class="d-flex align-items-center">
-
-                                            <div class="rounded-circle
-                                                        bg-primary
-                                                        bg-opacity-10
-                                                        text-primary
-                                                        d-flex
-                                                        align-items-center
-                                                        justify-content-center
-                                                        me-3"
-                                                 style="width:42px;height:42px;">
-
-                                                <i class="bi bi-bus-front"></i>
-
-                                            </div>
-
-                                            <div>
-
-                                                <div class="fw-semibold">
-                                                    {{ $bus->bus_number }}
-                                                </div>
-
-                                                <small class="text-muted">
-                                                    ID #{{ $bus->id }}
-                                                </small>
-
-                                            </div>
-
-                                        </div>
-
-                                    </td>
-
-
-                                    {{-- Vehicle --}}
-                                    <td>
-
-                                        <span class="fw-medium">
-                                            {{ $bus->vehicle_number }}
-                                        </span>
-
-                                    </td>
-
-
-                                    {{-- Driver --}}
-                                    <td>
-
-                                        @if($bus->driver_name)
-
-                                            <div class="fw-medium">
-                                                {{ $bus->driver_name }}
-                                            </div>
-
-                                            @if($bus->driver_phone)
-
-                                                <small class="text-muted">
-
-                                                    <i class="bi bi-telephone me-1"></i>
-
-                                                    {{ $bus->driver_phone }}
-
-                                                </small>
-
-                                            @endif
-
-                                        @else
-
-                                            <span class="text-muted">
-                                                Not assigned
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Route --}}
-                                    <td>
-
-                                        @if($bus->route)
-
-                                            <span>
-                                                {{ $bus->route }}
-                                            </span>
-
-                                        @else
-
-                                            <span class="text-muted">
-                                                Not specified
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Capacity --}}
-                                    <td>
-
-                                        <span class="fw-semibold">
-                                            {{ $bus->capacity }}
-                                        </span>
-
-                                        <small class="text-muted">
-                                            seats
-                                        </small>
-
-                                    </td>
-
-
-                                    {{-- Status --}}
-                                    <td>
-
-                                        @if($bus->status === 'active')
-
-                                            <span class="badge bg-success-subtle
-                                                         text-success px-3 py-2">
-                                                <i class="bi bi-check-circle me-1"></i>
-                                                Active
-                                            </span>
-
-                                        @elseif($bus->status === 'maintenance')
-
-                                            <span class="badge bg-warning-subtle
-                                                         text-warning px-3 py-2">
-                                                <i class="bi bi-tools me-1"></i>
-                                                Maintenance
-                                            </span>
-
-                                        @else
-
-                                            <span class="badge bg-secondary-subtle
-                                                         text-secondary px-3 py-2">
-                                                <i class="bi bi-x-circle me-1"></i>
-                                                Inactive
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    {{-- Actions --}}
-                                    <td class="text-end px-4">
-
-                                        <div class="dropdown">
-
-                                            <button
-                                                class="btn btn-sm btn-light border"
-                                                type="button"
-                                                data-bs-toggle="dropdown">
-
-                                                <i class="bi bi-three-dots-vertical"></i>
-
-                                            </button>
-
-                                            <ul class="dropdown-menu dropdown-menu-end">
-
-                                                <li>
-
-                                                    <a class="dropdown-item"
-                                                       href="{{ route('buses.show', $bus) }}">
-
-                                                        <i class="bi bi-eye me-2"></i>
-
-                                                        View Details
-
-                                                    </a>
-
-                                                </li>
-
-                                                <li>
-
-                                                    <a class="dropdown-item"
-                                                       href="{{ route('buses.edit', $bus) }}">
-
-                                                        <i class="bi bi-pencil me-2"></i>
-
-                                                        Edit Bus
-
-                                                    </a>
-
-                                                </li>
-
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
-
-                                                <li>
-
-                                                    <form
-                                                        action="{{ route('buses.destroy', $bus) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('Are you sure you want to delete this bus?');"
-                                                    >
-
-                                                        @csrf
-
-                                                        @method('DELETE')
-
-                                                        <button
-                                                            type="submit"
-                                                            class="dropdown-item text-danger">
-
-                                                            <i class="bi bi-trash me-2"></i>
-
-                                                            Delete Bus
-
-                                                        </button>
-
-                                                    </form>
-
-                                                </li>
-
-                                            </ul>
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            @endforeach
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            @else
-
-                {{-- Empty State --}}
-
-                <div class="text-center py-5">
-
-                    <div class="mb-3">
-
-                        <div class="rounded-circle
-                                    bg-light
-                                    d-inline-flex
-                                    align-items-center
-                                    justify-content-center"
-                             style="width:80px;height:80px;">
-
-                            <i class="bi bi-bus-front
-                                      text-muted
-                                      fs-1"></i>
-
-                        </div>
-
-                    </div>
-
-                    <h5 class="fw-bold">
-                        No buses found
-                    </h5>
-
-                    <p class="text-muted mb-4">
-
-                        @if(request()->filled('search') || request()->filled('status'))
-
-                            Try changing your search or filter.
-
-                        @else
-
-                            Start by adding your first school bus.
-
-                        @endif
-
-                    </p>
-
-                    @if(request()->filled('search') || request()->filled('status'))
-
-                        <a href="{{ route('buses.index') }}"
-                           class="btn btn-light border">
-
-                            Clear Filters
-
-                        </a>
-
-                    @else
-
-                        <a href="{{ route('buses.create') }}"
-                           class="btn btn-primary">
-
-                            <i class="bi bi-plus-lg me-1"></i>
-
-                            Add First Bus
-
-                        </a>
-
-                    @endif
-
-                </div>
-
-            @endif
-
-        </div>
-
-
-        {{-- Pagination --}}
-
-        @if($buses->hasPages())
-
-            <div class="card-footer bg-white border-0 py-3">
-
-                <div class="d-flex justify-content-between
-                            align-items-center flex-wrap gap-2">
-
-                    <div class="text-muted small">
-
-                        Showing
-                        {{ $buses->firstItem() }}
-                        to
-                        {{ $buses->lastItem() }}
-                        of
-                        {{ $buses->total() }}
-
-                    </div>
-
-                    <div>
-
-                        {{ $buses->links() }}
-
-                    </div>
-
-                </div>
-
-            </div>
-
         @endif
 
+        @if ($errors->any())
+            <div class="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                <ul class="list-inside list-disc">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('buses.index') }}" method="GET" class="mb-4">
+            <div class="flex gap-2">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search buses..."
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                >
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                >
+                    Search
+                </button>
+
+                <a
+                    href="{{ route('buses.index') }}"
+                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                    Reset
+                </a>
+            </div>
+        </form>
+
+        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-gray-200 dark:border-gray-800">
+                    <tr class="text-gray-500 dark:text-gray-400">
+                        <th class="px-5 py-3 font-medium">Bus Number</th>
+                        <th class="px-5 py-3 font-medium">Registration No.</th>
+                        <th class="px-5 py-3 font-medium">Make / Model</th>
+                        <th class="px-5 py-3 font-medium">Capacity</th>
+                        <th class="px-5 py-3 font-medium">Drivers</th>
+                        <th class="px-5 py-3 font-medium">School</th>
+                        <th class="px-5 py-3 font-medium">Status</th>
+                        <th class="px-5 py-3 text-right font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    @forelse ($buses as $bus)
+                        <tr class="text-gray-700 dark:text-gray-200">
+                            <td class="px-5 py-3 font-medium">{{ $bus->bus_number }}</td>
+                            <td class="px-5 py-3">{{ $bus->registration_number }}</td>
+                            <td class="px-5 py-3">
+                                @if ($bus->make || $bus->model)
+                                    {{ trim(($bus->make ?? '') . ' ' . ($bus->model ?? '')) }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td class="px-5 py-3">{{ $bus->capacity }}</td>
+                            <td class="px-5 py-3">
+                                @forelse ($bus->drivers as $driver)
+                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                        {{ $driver->full_name }}
+                                    </span>
+                                @empty
+                                    —
+                                @endforelse
+                            </td>
+                            <td class="px-5 py-3">{{ $bus->school->name ?? '—' }}</td>
+                            <td class="px-5 py-3">
+                                @if ($bus->status === 'Active')
+                                    <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">Active</span>
+                                @elseif ($bus->status === 'Maintenance')
+                                    <span class="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">Maintenance</span>
+                                @else
+                                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">Inactive</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a
+                                        href="{{ route('buses.show', $bus) }}"
+                                        class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    >
+                                        View
+                                    </a>
+                                    <a
+                                        href="{{ route('buses.edit', $bus) }}"
+                                        class="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600"
+                                    >
+                                        Edit
+                                    </a>
+                                    <form
+                                        action="{{ route('buses.destroy', $bus) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete {{ $bus->bus_number }}?');"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            class="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                                No buses found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-6">
+            {{ $buses->links() }}
+        </div>
     </div>
-
-</div>
-
-@endsection
+</x-app-layout>

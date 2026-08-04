@@ -80,7 +80,7 @@
                     'route' => 'buses.index',
                     'active' => 'buses',
                     'icon' => 'heroicon-o-truck',
-                    'permission' => null,
+                    'permission' => 'bus.view',
                     'dropdown' => null
                 ],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],

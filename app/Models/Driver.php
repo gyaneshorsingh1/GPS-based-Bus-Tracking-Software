@@ -57,6 +57,11 @@ class Driver extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function buses()
+    {
+        return $this->belongsToMany(Bus::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));

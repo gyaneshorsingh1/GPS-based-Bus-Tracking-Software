@@ -1,285 +1,319 @@
-@php($page = 'buses')
-
-@extends('layouts.app')
-
-@section('content')
-
-<div class="container-fluid py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
-        <div>
-            <h3 class="fw-bold mb-1">
-                Add Bus
-            </h3>
-
-            <p class="text-muted mb-0">
-                Add a new school bus to the transportation system.
-            </p>
+<x-app-layout page="buses">
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+        <div class="mb-6 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Create Bus</h1>
+            <a
+                href="{{ route('buses.index') }}"
+                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
+                Back to Buses
+            </a>
         </div>
 
-        <a href="{{ route('buses.index') }}"
-           class="btn btn-light border">
+        @if ($errors->any())
+            <div class="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                <ul class="list-inside list-disc">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-            <i class="bi bi-arrow-left me-1"></i>
+        <form
+            action="{{ route('buses.store') }}"
+            method="POST"
+            class="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]"
+        >
+            @csrf
 
-            Back
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
+                    Vehicle Details
+                </h2>
 
-        </a>
-
-    </div>
-
-
-    @if($errors->any())
-
-        <div class="alert alert-danger">
-
-            <ul class="mb-0">
-
-                @foreach($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    <div class="card border-0 shadow-sm">
-
-        <div class="card-body p-4">
-
-            <form action="{{ route('buses.store') }}"
-                  method="POST">
-
-                @csrf
-
-                <div class="row g-4">
-
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Bus Number *
-                        </label>
-
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="bus_number" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Bus Number</label>
                         <input
                             type="text"
+                            id="bus_number"
                             name="bus_number"
-                            class="form-control"
-                            placeholder="BUS-001"
                             value="{{ old('bus_number') }}"
+                            placeholder="BUS-001"
                             required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
-
+                        @error('bus_number')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Vehicle Number *
-                        </label>
-
+                    <div>
+                        <label for="registration_number" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Registration Number</label>
                         <input
                             type="text"
-                            name="vehicle_number"
-                            class="form-control"
+                            id="registration_number"
+                            name="registration_number"
+                            value="{{ old('registration_number') }}"
                             placeholder="BA 1 KHA 1234"
-                            value="{{ old('vehicle_number') }}"
                             required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
-
+                        @error('registration_number')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Driver Name
-                        </label>
-
+                    <div>
+                        <label for="make" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Make</label>
                         <input
                             type="text"
-                            name="driver_name"
-                            class="form-control"
-                            placeholder="Driver name"
-                            value="{{ old('driver_name') }}"
+                            id="make"
+                            name="make"
+                            value="{{ old('make') }}"
+                            placeholder="Ashok Leyland"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
-
+                        @error('make')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Driver Phone
-                        </label>
-
+                    <div>
+                        <label for="model" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Model</label>
                         <input
                             type="text"
-                            name="driver_phone"
-                            class="form-control"
-                            placeholder="98XXXXXXXX"
-                            value="{{ old('driver_phone') }}"
+                            id="model"
+                            name="model"
+                            value="{{ old('model') }}"
+                            placeholder="Viking"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
-
+                        @error('model')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-
-                    <div class="col-md-4">
-
-                        <label class="form-label fw-semibold">
-                            Capacity *
-                        </label>
-
+                    <div>
+                        <label for="year" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Year</label>
                         <input
                             type="number"
+                            id="year"
+                            name="year"
+                            value="{{ old('year') }}"
+                            min="1950"
+                            max="{{ now()->year }}"
+                            placeholder="{{ now()->year }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('year')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="capacity" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Capacity</label>
+                        <input
+                            type="number"
+                            id="capacity"
                             name="capacity"
-                            class="form-control"
+                            value="{{ old('capacity', 40) }}"
                             min="1"
                             max="200"
-                            value="{{ old('capacity', 40) }}"
                             required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
-
+                        @error('capacity')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-
-                    <div class="col-md-8">
-
-                        <label class="form-label fw-semibold">
-                            Route
-                        </label>
-
-                        <input
-                            type="text"
-                            name="route"
-                            class="form-control"
-                            placeholder="Janakpur → School"
-                            value="{{ old('route') }}"
+                    <div>
+                        <label for="fuel_type" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Fuel Type</label>
+                        <select
+                            id="fuel_type"
+                            name="fuel_type"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Pickup Location
-                        </label>
-
-                        <input
-                            type="text"
-                            name="pickup_location"
-                            class="form-control"
-                            placeholder="Main pickup point"
-                            value="{{ old('pickup_location') }}"
-                        >
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Drop Location
-                        </label>
-
-                        <input
-                            type="text"
-                            name="drop_location"
-                            class="form-control"
-                            placeholder="School / final stop"
-                            value="{{ old('drop_location') }}"
-                        >
-
-                    </div>
-
-
-                    <div class="col-md-6">
-
-                        <label class="form-label fw-semibold">
-                            Status *
-                        </label>
-
-                        <select name="status"
-                                class="form-select"
-                                required>
-
-                            <option value="active"
-                                {{ old('status', 'active') == 'active' ? 'selected' : '' }}>
-                                Active
-                            </option>
-
-                            <option value="maintenance"
-                                {{ old('status') == 'maintenance' ? 'selected' : '' }}>
-                                Maintenance
-                            </option>
-
-                            <option value="inactive"
-                                {{ old('status') == 'inactive' ? 'selected' : '' }}>
-                                Inactive
-                            </option>
-
+                            <option value="">Select Fuel Type</option>
+                            <option value="Diesel" @selected(old('fuel_type') === 'Diesel')>Diesel</option>
+                            <option value="Petrol" @selected(old('fuel_type') === 'Petrol')>Petrol</option>
+                            <option value="Electric" @selected(old('fuel_type') === 'Electric')>Electric</option>
+                            <option value="CNG" @selected(old('fuel_type') === 'CNG')>CNG</option>
+                            <option value="Hybrid" @selected(old('fuel_type') === 'Hybrid')>Hybrid</option>
                         </select>
-
+                        @error('fuel_type')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-
-                    <div class="col-12">
-
-                        <label class="form-label fw-semibold">
-                            Description
-                        </label>
-
-                        <textarea
-                            name="description"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Additional information about this bus..."
-                        >{{ old('description') }}</textarea>
-
+                    <div>
+                        <label for="gps_device_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">GPS Device ID</label>
+                        <input
+                            type="text"
+                            id="gps_device_id"
+                            name="gps_device_id"
+                            value="{{ old('gps_device_id') }}"
+                            placeholder="GPS-1001"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('gps_device_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
+                    <div>
+                        <label for="insurance_number" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Insurance Number</label>
+                        <input
+                            type="text"
+                            id="insurance_number"
+                            name="insurance_number"
+                            value="{{ old('insurance_number') }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('insurance_number')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                    <div class="col-12">
+                    <div>
+                        <label for="insurance_expiry_date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Insurance Expiry Date</label>
+                        <input
+                            type="date"
+                            id="insurance_expiry_date"
+                            name="insurance_expiry_date"
+                            value="{{ old('insurance_expiry_date') }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('insurance_expiry_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                        <hr>
+                    <div>
+                        <label for="last_service_date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Last Service Date</label>
+                        <input
+                            type="date"
+                            id="last_service_date"
+                            name="last_service_date"
+                            value="{{ old('last_service_date') }}"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                        @error('last_service_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                        <div class="d-flex justify-content-end gap-2">
+                    <div>
+                        <label for="status" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                        <select
+                            id="status"
+                            name="status"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                            <option value="Active" @selected(old('status', 'Active') === 'Active')>Active</option>
+                            <option value="Maintenance" @selected(old('status') === 'Maintenance')>Maintenance</option>
+                            <option value="Inactive" @selected(old('status') === 'Inactive')>Inactive</option>
+                        </select>
+                        @error('status')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                            <a href="{{ route('buses.index') }}"
-                               class="btn btn-light border">
-
-                                Cancel
-
-                            </a>
-
-                            <button type="submit"
-                                    class="btn btn-primary px-4">
-
-                                <i class="bi bi-check-lg me-1"></i>
-
-                                Save Bus
-
-                            </button>
-
+                    @if(auth()->user()->hasAnyRole(['School Admin', 'Principal']))
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <input
+                                type="text"
+                                value="{{ isset($school) && $school ? $school->name : 'School not assigned' }}"
+                                readonly
+                                class="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-4 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-400"
+                            >
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                The bus will automatically be assigned to your school.
+                            </p>
                         </div>
+                    @else
+                        <div>
+                            <label for="school_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <select
+                                id="school_id"
+                                name="school_id"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            >
+                                <option value="">Select School (optional)</option>
+                                @foreach($schools as $school)
+                                    <option value="{{ $school->id }}" @selected(old('school_id') == $school->id)>{{ $school->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('school_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
 
+                    <div class="md:col-span-2">
+                        <label for="notes" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+                        <textarea
+                            id="notes"
+                            name="notes"
+                            rows="3"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >{{ old('notes') }}</textarea>
+                        @error('notes')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-
                 </div>
+            </div>
 
-            </form>
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
+                    Assigned Drivers
+                </h2>
 
-        </div>
+                @if ($drivers->isEmpty())
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        No drivers available. <a href="{{ route('drivers.create') }}" class="text-brand-500 hover:text-brand-600">Create a driver</a> first to assign them to this bus.
+                    </p>
+                @else
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        @foreach ($drivers as $driver)
+                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                                <input
+                                    type="checkbox"
+                                    name="drivers[]"
+                                    value="{{ $driver->id }}"
+                                    @checked(in_array($driver->id, old('drivers', []), true))
+                                    class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                                >
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $driver->full_name }}</span>
+                                <span class="ml-auto text-xs text-gray-500 dark:text-gray-400">{{ $driver->employee_id }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('drivers')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                @endif
+            </div>
 
+            <div class="flex items-center justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-800">
+                <a
+                    href="{{ route('buses.index') }}"
+                    class="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                    Cancel
+                </a>
+                <button
+                    type="submit"
+                    class="rounded-lg bg-brand-500 px-5 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                >
+                    Create Bus
+                </button>
+            </div>
+        </form>
     </div>
-
-</div>
-
-@endsection
+</x-app-layout>

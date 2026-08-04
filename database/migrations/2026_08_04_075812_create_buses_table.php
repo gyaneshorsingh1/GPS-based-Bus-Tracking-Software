@@ -11,26 +11,26 @@ return new class extends Migration
         Schema::create('buses', function (Blueprint $table) {
             $table->id();
 
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
+
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
             $table->string('bus_number')->unique();
-            $table->string('vehicle_number')->unique();
+            $table->string('registration_number')->unique();
+            $table->unsignedSmallInteger('capacity');
 
-            $table->string('driver_name')->nullable();
-            $table->string('driver_phone')->nullable();
-
-            $table->unsignedInteger('capacity')->default(40);
-
-            $table->string('route')->nullable();
-            $table->string('pickup_location')->nullable();
-            $table->string('drop_location')->nullable();
+            $table->string('gps_device_id')->nullable()->unique();
 
             $table->enum('status', [
-                'active',
-                'maintenance',
-                'inactive'
-            ])->default('active');
+                'Active',
+                'Maintenance',
+                'Inactive',
+            ])->default('Active');
 
-            $table->text('description')->nullable();
-
+            $table->softDeletes();
             $table->timestamps();
         });
     }

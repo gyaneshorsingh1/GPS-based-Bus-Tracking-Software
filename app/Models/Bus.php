@@ -3,14 +3,48 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bus extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
+        'school_id',
         'bus_number',
-        'bus_name',
         'registration_number',
+        'make',
+        'model',
+        'year',
         'capacity',
-        'status'
+        'fuel_type',
+        'gps_device_id',
+        'insurance_number',
+        'insurance_expiry_date',
+        'last_service_date',
+        'status',
+        'notes',
+        'created_by',
     ];
+
+    protected $casts = [
+        'year' => 'integer',
+        'insurance_expiry_date' => 'date',
+        'last_service_date' => 'date',
+    ];
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function drivers()
+    {
+        return $this->belongsToMany(Driver::class);
+    }
 }

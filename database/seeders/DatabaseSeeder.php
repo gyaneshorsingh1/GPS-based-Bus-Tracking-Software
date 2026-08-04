@@ -51,5 +51,19 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
         ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Transport
+        |--------------------------------------------------------------------------
+        |
+        | Drivers, buses and routes depend on schools and users.
+        |
+        */
+        $this->call([
+            DriverSeeder::class,
+            BusSeeder::class,
+            RouteSeeder::class,
+        ]);
     }
 }
