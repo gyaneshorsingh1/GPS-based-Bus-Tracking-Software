@@ -65,7 +65,7 @@
         [
             'title' => 'Dashboard',
             'items' => [
-                ['key' => 'overview', 'label' => 'Overview', 'route' => 'principal.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'dashboard', 'label' => 'Dashboard', 'route' => 'principal.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
