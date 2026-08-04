@@ -42,6 +42,11 @@ class DatabaseSeeder extends Seeder
         | Users depend on roles, so this comes last.
         |
         */
+        $this->call([
+
+            SchoolSeeder::class,
+
+        ]);
 
         $this->call([
             UserSeeder::class,
