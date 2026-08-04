@@ -18,10 +18,6 @@ class UserSeeder extends Seeder
         |--------------------------------------------------------------------------
         | Find a school
         |--------------------------------------------------------------------------
-        |
-        | Users such as School Admin, Driver and Parent belong
-        | to a school.
-        |
         */
 
         $school = School::first();
