@@ -29,6 +29,11 @@ class Student extends Model
         'is_active',
     ];
 
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'is_active' => 'boolean',
+    ];
+
     public function school()
     {
         return $this->belongsTo(School::class);
@@ -37,6 +42,11 @@ class Student extends Model
     public function parent()
     {
         return $this->belongsTo(ParentProfile::class);
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
     }
 
     // public function bus()
