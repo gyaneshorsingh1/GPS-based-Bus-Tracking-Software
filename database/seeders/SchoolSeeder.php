@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\ParentProfile;
 use App\Models\School;
+use App\Models\SchoolAdmin;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -31,6 +32,22 @@ class SchoolSeeder extends Seeder
             'principal' => [
                 'name' => 'Dr. Jane Principal',
                 'email' => 'principal.gvhs@greenvalley.edu',
+            ],
+            'school_admins' => [
+                [
+                    'name' => 'Alice Johnson',
+                    'email' => 'admin.gvhs1@greenvalley.edu',
+                    'phone' => '+1-555-0110',
+                    'designation' => 'Vice Principal',
+                    'address' => '42 Education Lane, Springfield',
+                ],
+                [
+                    'name' => 'Mark Davis',
+                    'email' => 'admin.gvhs2@greenvalley.edu',
+                    'phone' => '+1-555-0111',
+                    'designation' => 'Office Manager',
+                    'address' => '42 Education Lane, Springfield',
+                ],
             ],
             'parents' => [
                 [
@@ -152,6 +169,22 @@ class SchoolSeeder extends Seeder
                 'name' => 'Dr. Maria Principal',
                 'email' => 'principal.sa@sunriseacademy.edu',
             ],
+            'school_admins' => [
+                [
+                    'name' => 'Emily Turner',
+                    'email' => 'admin.sa1@sunriseacademy.edu',
+                    'phone' => '+1-555-0210',
+                    'designation' => 'Administrator',
+                    'address' => '100 Bright Way, Riverside',
+                ],
+                [
+                    'name' => 'John Miller',
+                    'email' => 'admin.sa2@sunriseacademy.edu',
+                    'phone' => '+1-555-0211',
+                    'designation' => 'Office Manager',
+                    'address' => '100 Bright Way, Riverside',
+                ],
+            ],
             'parents' => [
                 [
                     'user' => ['name' => 'James Wilson', 'email' => 'james.wilson@example.com'],
@@ -241,6 +274,10 @@ class SchoolSeeder extends Seeder
 
                 $this->createPrincipal($school, $schoolData['principal'], $schoolAdminRole);
 
+                foreach ($schoolData['school_admins'] as $adminData) {
+                    $this->createSchoolAdmin($school, $adminData, $schoolAdminRole);
+                }
+
                 foreach ($schoolData['parents'] as $parentData) {
                     $parentProfile = $this->createParent($school, $parentData, $parentRole);
 
@@ -290,6 +327,36 @@ class SchoolSeeder extends Seeder
         }
 
         $school->update(['principal_name' => $principal->name]);
+    }
+
+    /**
+     * Create or update a school admin user and their profile.
+     */
+    private function createSchoolAdmin(School $school, array $data, ?Role $role): void
+    {
+        $user = User::updateOrCreate(
+            ['email' => $data['email']],
+            [
+                'name' => $data['name'],
+                'password' => Hash::make('password'),
+                'school_id' => $school->id,
+            ]
+        );
+
+        if ($role) {
+            $user->syncRoles([$role]);
+        }
+
+        SchoolAdmin::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'school_id' => $school->id,
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'designation' => $data['designation'] ?? null,
+                'address' => $data['address'] ?? null,
+            ]
+        );
     }
 
     /**
