@@ -7,17 +7,17 @@
      * Each item can optionally have a "dropdown" of sub-links.
      *
      * item keys:
-     *   key      -> unique string, used for the Alpine `selected` state
-     *   label    -> text shown to the user
-     *   route    -> Laravel route name (used if no dropdown, or as the
-     *               link on the parent item itself)
-     *   active   -> string|array of `page` value(s) that should mark
-     *               this item as active
-     *   icon     -> Blade Heroicons component name (requires
-     *               "composer require blade-ui-kit/blade-heroicons")
-     *               e.g. 'heroicon-o-squares-2x2', 'heroicon-o-user'
-     *               Browse names at https://blade-ui-kit.com/blade-icons?set=1
-     *   dropdown -> optional array of ['label' => ..., 'route' => ..., 'page' => ...]
+     * key -> unique string, used for the Alpine `selected` state
+     * label -> text shown to the user
+     * route -> Laravel route name (used if no dropdown, or as the
+     * link on the parent item itself)
+     * active -> string|array of `page` value(s) that should mark
+     * this item as active
+     * icon -> Blade Heroicons component name (requires
+     * "composer require blade-ui-kit/blade-heroicons")
+     * e.g. 'heroicon-o-squares-2x2', 'heroicon-o-user'
+     * Browse names at https://blade-ui-kit.com/blade-icons?set=1
+     * dropdown -> optional array of ['label' => ..., 'route' => ..., 'page' => ...]
      */
     $superAdminMenu = [
         [
@@ -34,7 +34,6 @@
                 ['key' => 'school-management', 'label' => 'School Management', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
                 ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
-                ['key' => 'student-management', 'label' => 'Student Management', 'route' => 'students.index', 'active' => 'student-management', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
                 ['key' => 'fleet-management', 'label' => 'Fleet Management', 'route' => 'dashboard', 'active' => 'fleet-management', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
                 ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'dashboard', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
                 ['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
@@ -62,229 +61,232 @@
         ],
     ];
 
-$principalMenu = [
-[
-'title' => 'Dashboard',
-'items' => [
-['key' => 'overview', 'label' => 'Overview', 'route' => 'principal.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-],
-],
+    $principalMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Overview', 'route' => 'principal.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
         [
             'title' => 'Management',
             'items' => [
                 ['key' => 'students', 'label' => 'Students', 'route' => 'students.index', 'active' => 'students', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
-                ['key' => 'parents', 'label' => 'Parents', 'route' => 'dashboard', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'parents', 'label' => 'Parents', 'route' => 'parents.index', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
                 ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'drivers.index', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => 'driver.view', 'dropdown' => null],
-                ['key' => 'classes', 'label' => 'Classes', 'route' => 'dashboard', 'active' => 'classes', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
+                [
+                    'key' => 'buses',
+                    'label' => 'Buses',
+                    'route' => 'buses.index',
+                    'active' => 'buses',
+                    'icon' => 'heroicon-o-truck',
+                    'permission' => null,
+                    'dropdown' => null
+                ],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
             ],
         ],
-[
-'title' => 'Trip Management',
-'items' => [
-['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
-['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
-['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Monitoring',
-'items' => [
-['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Account',
-'items' => [
-['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
-],
-],
-];
+        [
+            'title' => 'Trip Management',
+            'items' => [
+                ['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Monitoring',
+            'items' => [
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
 
-$driverMenu = [
-[
-'title' => 'Dashboard',
-'items' => [
-['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Trip Management',
-'items' => [
-['key' => 'today-trip', 'label' => "Today's Trip", 'route' => 'dashboard', 'active' => 'today-trip', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
-['key' => 'start-trip', 'label' => 'Start Trip', 'route' => 'dashboard', 'active' => 'start-trip', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
-['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
-['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'dashboard', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
-['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'dashboard', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Monitoring',
-'items' => [
-['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Account',
-'items' => [
-['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
-],
-],
-];
+    $driverMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Trip Management',
+            'items' => [
+                ['key' => 'today-trip', 'label' => "Today's Trip", 'route' => 'dashboard', 'active' => 'today-trip', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
+                ['key' => 'start-trip', 'label' => 'Start Trip', 'route' => 'dashboard', 'active' => 'start-trip', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                ['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
+                ['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'dashboard', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'dashboard', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Monitoring',
+            'items' => [
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
 
-$parentMenu = [
-[
-'title' => 'Dashboard',
-'items' => [
-['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-['key' => 'my-children', 'label' => 'My Children', 'route' => 'dashboard', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Live Tracking',
-'items' => [
-['key' => 'track-bus', 'label' => 'Track Bus', 'route' => 'dashboard', 'active' => 'track-bus', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'dashboard', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Attendance',
-'items' => [
-['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
-['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Notifications',
-'items' => [
-['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Account',
-'items' => [
-['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
-],
-],
-];
+    $parentMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'dashboard', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Live Tracking',
+            'items' => [
+                ['key' => 'track-bus', 'label' => 'Track Bus', 'route' => 'dashboard', 'active' => 'track-bus', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'dashboard', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Attendance',
+            'items' => [
+                ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+                ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Notifications',
+            'items' => [
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
 
-$studentMenu = [
-[
-'title' => 'Dashboard',
-'items' => [
-['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Tracking',
-'items' => [
-['key' => 'bus-tracking', 'label' => 'Bus Tracking', 'route' => 'dashboard', 'active' => 'bus-tracking', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Attendance',
-'items' => [
-['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Notifications',
-'items' => [
-['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-],
-],
-[
-'title' => 'Account',
-'items' => [
-['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
-],
-],
-];
+    $studentMenu = [
+        [
+            'title' => 'Dashboard',
+            'items' => [
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Tracking',
+            'items' => [
+                ['key' => 'bus-tracking', 'label' => 'Bus Tracking', 'route' => 'dashboard', 'active' => 'bus-tracking', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Attendance',
+            'items' => [
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Notifications',
+            'items' => [
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Account',
+            'items' => [
+                ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile.edit', 'active' => 'profile', 'icon' => 'heroicon-o-user-circle', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+    ];
 
-$menu = $superAdminMenu;
-$user = auth()->user();
-$roleNames = $user ? array_map('strtolower', $user->getRoleNames()->all()) : [];
+    $menu = $superAdminMenu;
+    $user = auth()->user();
+    $roleNames = $user ? array_map('strtolower', $user->getRoleNames()->all()) : [];
 
-if ($user && (in_array('school admin', $roleNames, true) || in_array('principal', $roleNames, true))) {
-$menu = $principalMenu;
-} elseif ($user && in_array('driver', $roleNames, true)) {
-$menu = $driverMenu;
-} elseif ($user && in_array('parent', $roleNames, true)) {
-$menu = $parentMenu;
-} elseif ($user && in_array('student', $roleNames, true)) {
-$menu = $studentMenu;
-}
+    if ($user && (in_array('school admin', $roleNames, true) || in_array('principal', $roleNames, true))) {
+        $menu = $principalMenu;
+    } elseif ($user && in_array('driver', $roleNames, true)) {
+        $menu = $driverMenu;
+    } elseif ($user && in_array('parent', $roleNames, true)) {
+        $menu = $parentMenu;
+    } elseif ($user && in_array('student', $roleNames, true)) {
+        $menu = $studentMenu;
+    }
 
-/**
-* PERMISSION-AWARE FILTERING
-* ----------------------------------------------------------------
-* Each menu item can declare a `permission` key. Items (and dropdown
-* sub-items) the current user is not allowed to view are hidden.
-* Leave the key off for items that require no permission.
-*/
-$can = function ($permission) {
-if (empty($permission)) {
-return true;
-}
-return auth()->check() && auth()->user()->can($permission);
-};
+    /**
+     * PERMISSION-AWARE FILTERING
+     * ----------------------------------------------------------------
+     * Each menu item can declare a `permission` key. Items (and dropdown
+     * sub-items) the current user is not allowed to view are hidden.
+     * Leave the key off for items that require no permission.
+     */
+    $can = function ($permission) {
+        if (empty($permission)) {
+            return true;
+        }
+        return auth()->check() && auth()->user()->can($permission);
+    };
 
-$menu = array_values(array_filter(array_map(function ($group) use ($can) {
-$items = array_values(array_filter($group['items'], function ($item) use ($can) {
-if (! $can($item['permission'] ?? null)) {
-return false;
-}
+    $menu = array_values(array_filter(array_map(function ($group) use ($can) {
+        $items = array_values(array_filter($group['items'], function ($item) use ($can) {
+            if (!$can($item['permission'] ?? null)) {
+                return false;
+            }
 
-if (! empty($item['dropdown'])) {
-$item['dropdown'] = array_values(array_filter(
-$item['dropdown'],
-fn ($sub) => $can($sub['permission'] ?? null)
-));
+            if (!empty($item['dropdown'])) {
+                $item['dropdown'] = array_values(array_filter(
+                    $item['dropdown'],
+                    fn($sub) => $can($sub['permission'] ?? null)
+                ));
 
-return count($item['dropdown']) > 0;
-}
+                return count($item['dropdown']) > 0;
+            }
 
-return true;
-}));
+            return true;
+        }));
 
-$group['items'] = $items;
+        $group['items'] = $items;
 
-return $group;
-}, $menu), fn ($group) => count($group['items']) > 0));
+        return $group;
+    }, $menu), fn($group) => count($group['items']) > 0));
 
-// Fallback link for the logo when the user cannot view the dashboard
-$homeRoute = auth()->check() && auth()->user()->can('dashboard.view')
-? route('dashboard')
-: route('profile.edit');
+    // Fallback link for the logo when the user cannot view the dashboard
+    $homeRoute = auth()->check() && auth()->user()->can('dashboard.view')
+        ? route('dashboard')
+        : route('profile.edit');
 
-// Helper: is this item "active" given the current $page variable?
-$isActive = function ($item) use ($page) {
-$active = $item['active'] ?? null;
-if (is_array($active)) {
-return in_array($page, $active, true);
-}
-return $active !== null && $page === $active;
-};
+    // Helper: is this item "active" given the current $page variable?
+    $isActive = function ($item) use ($page) {
+        $active = $item['active'] ?? null;
+        if (is_array($active)) {
+            return in_array($page, $active, true);
+        }
+        return $active !== null && $page === $active;
+    };
 @endphp
 
-<aside
-    :class="sidebarToggle ? 'translate-x-0 lg:w-[90px]' : '-translate-x-full'"
+<aside :class="sidebarToggle ? 'translate-x-0 lg:w-[90px]' : '-translate-x-full'"
     class="sidebar fixed left-0 top-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-hidden border-r border-gray-200 bg-white px-5 dark:border-gray-800 dark:bg-black lg:static lg:translate-x-0">
     <!-- SIDEBAR HEADER -->
-    <div
-        :class="sidebarToggle ? 'justify-center' : 'justify-between'"
+    <div :class="sidebarToggle ? 'justify-center' : 'justify-between'"
         class="sidebar-header flex items-center gap-2 pb-7 pt-8">
         <a href="{{ $homeRoute }}">
             <span class="logo" :class="sidebarToggle ? 'hidden' : ''">
                 <img class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
                 <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
             </span>
-            <img
-                class="logo-icon"
-                :class="sidebarToggle ? 'lg:block' : 'hidden'"
-                src="/images/logo/logo-icon.svg"
+            <img class="logo-icon" :class="sidebarToggle ? 'lg:block' : 'hidden'" src="/images/logo/logo-icon.svg"
                 alt="Logo" />
         </a>
     </div>
@@ -294,72 +296,67 @@ return $active !== null && $page === $active;
         <nav x-data="{selected: $persist('Dashboard')}">
 
             @foreach ($menu as $group)
-            <div>
-                <h3 class="mb-4 text-xs uppercase leading-[20px] text-gray-400">
-                    <span class="menu-group-title" :class="sidebarToggle ? 'lg:hidden' : ''">
-                        {{ $group['title'] }}
-                    </span>
+                <div>
+                    <h3 class="mb-4 text-xs uppercase leading-[20px] text-gray-400">
+                        <span class="menu-group-title" :class="sidebarToggle ? 'lg:hidden' : ''">
+                            {{ $group['title'] }}
+                        </span>
 
-                    <svg
-                        :class="sidebarToggle ? 'lg:block hidden' : 'hidden'"
-                        class="menu-group-icon mx-auto fill-current"
-                        width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z" fill="" />
-                    </svg>
-                </h3>
+                        <svg :class="sidebarToggle ? 'lg:block hidden' : 'hidden'"
+                            class="menu-group-icon mx-auto fill-current" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M5.99915 10.2451C6.96564 10.2451 7.74915 11.0286 7.74915 11.9951V12.0051C7.74915 12.9716 6.96564 13.7551 5.99915 13.7551C5.03265 13.7551 4.24915 12.9716 4.24915 12.0051V11.9951C4.24915 11.0286 5.03265 10.2451 5.99915 10.2451ZM17.9991 10.2451C18.9656 10.2451 19.7491 11.0286 19.7491 11.9951V12.0051C19.7491 12.9716 18.9656 13.7551 17.9991 13.7551C17.0326 13.7551 16.2491 12.9716 16.2491 12.0051V11.9951C16.2491 11.0286 17.0326 10.2451 17.9991 10.2451ZM13.7491 11.9951C13.7491 11.0286 12.9656 10.2451 11.9991 10.2451C11.0326 10.2451 10.2491 11.0286 10.2491 11.9951V12.0051C10.2491 12.9716 11.0326 13.7551 11.9991 13.7551C12.9656 13.7551 13.7491 12.9716 13.7491 12.0051V11.9951Z"
+                                fill="" />
+                        </svg>
+                    </h3>
 
-                <ul class="mb-6 flex flex-col gap-4">
-                    @foreach ($group['items'] as $item)
-                    <li>
-                        <a
-                            href="{{ !empty($item['dropdown']) ? '#' : route($item['route']) }}"
-                            @if(!empty($item['dropdown']))
-                            @click.prevent="selected = (selected === '{{ $item['key'] }}' ? '' : '{{ $item['key'] }}')"
-                            @else
-                            @click="selected = (selected === '{{ $item['key'] }}' ? '' : '{{ $item['key'] }}')"
-                            @endif
-                            class="menu-item group"
-                            :class="(selected === '{{ $item['key'] }}') || {{ $isActive($item) ? 'true' : 'false' }} ? 'menu-item-active' : 'menu-item-inactive'">
-                            <span
-                                :class="(selected === '{{ $item['key'] }}') || {{ $isActive($item) ? 'true' : 'false' }} ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
-                                <x-dynamic-component
-                                    :component="$item['icon']"
-                                    class="w-6 h-6 shrink-0" />
-                            </span>
+                    <ul class="mb-6 flex flex-col gap-4">
+                        @foreach ($group['items'] as $item)
+                            <li>
+                                <a href="{{ !empty($item['dropdown']) ? '#' : route($item['route']) }}"
+                                    @if(!empty($item['dropdown']))
+                                        @click.prevent="selected = (selected === '{{ $item['key'] }}' ? '' : '{{ $item['key'] }}')"
+                                    @else @click="selected = (selected === '{{ $item['key'] }}' ? '' : '{{ $item['key'] }}')"
+                                    @endif class="menu-item group"
+                                    :class="(selected === '{{ $item['key'] }}') || {{ $isActive($item) ? 'true' : 'false' }} ? 'menu-item-active' : 'menu-item-inactive'">
+                                    <span
+                                        :class="(selected === '{{ $item['key'] }}') || {{ $isActive($item) ? 'true' : 'false' }} ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
+                                        <x-dynamic-component :component="$item['icon']" class="w-6 h-6 shrink-0" />
+                                    </span>
 
-                            <span class="menu-item-text" :class="sidebarToggle ? 'lg:hidden' : ''">
-                                {{ $item['label'] }}
-                            </span>
+                                    <span class="menu-item-text" :class="sidebarToggle ? 'lg:hidden' : ''">
+                                        {{ $item['label'] }}
+                                    </span>
 
-                            @if (!empty($item['dropdown']))
-                            <span
-                                :class="[(selected === '{{ $item['key'] }}') ? 'menu-item-arrow-active' : 'menu-item-arrow-inactive', sidebarToggle ? 'lg:hidden' : '']">
-                                <x-heroicon-o-chevron-down class="menu-item-arrow w-4 h-4" />
-                            </span>
-                            @endif
-                        </a>
+                                    @if (!empty($item['dropdown']))
+                                        <span
+                                            :class="[(selected === '{{ $item['key'] }}') ? 'menu-item-arrow-active' : 'menu-item-arrow-inactive', sidebarToggle ? 'lg:hidden' : '']">
+                                            <x-heroicon-o-chevron-down class="menu-item-arrow w-4 h-4" />
+                                        </span>
+                                    @endif
+                                </a>
 
-                        @if (!empty($item['dropdown']))
-                        <div class="transform translate overflow-hidden" :class="(selected === '{{ $item['key'] }}') ? 'block' : 'hidden'">
-                            <ul :class="sidebarToggle ? 'lg:hidden' : 'flex'" class="menu-dropdown mt-2 flex flex-col gap-1 pl-9">
-                                @foreach ($item['dropdown'] as $sub)
-                                <li>
-                                    <a
-                                        href="{{ route($sub['route']) }}"
-                                        class="menu-dropdown-item group"
-                                        :class="{{ $page === $sub['page'] ? 'true' : 'false' }} ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive'">
-                                        {{ $sub['label'] }}
-                                    </a>
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        @endif
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
+                                @if (!empty($item['dropdown']))
+                                    <div class="transform translate overflow-hidden"
+                                        :class="(selected === '{{ $item['key'] }}') ? 'block' : 'hidden'">
+                                        <ul :class="sidebarToggle ? 'lg:hidden' : 'flex'"
+                                            class="menu-dropdown mt-2 flex flex-col gap-1 pl-9">
+                                            @foreach ($item['dropdown'] as $sub)
+                                                <li>
+                                                    <a href="{{ route($sub['route']) }}" class="menu-dropdown-item group"
+                                                        :class="{{ $page === $sub['page'] ? 'true' : 'false' }} ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive'">
+                                                        {{ $sub['label'] }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             @endforeach
 
         </nav>
