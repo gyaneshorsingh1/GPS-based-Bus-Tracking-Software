@@ -73,7 +73,7 @@ $principalMenu = [
             'title' => 'Management',
             'items' => [
                 ['key' => 'students', 'label' => 'Students', 'route' => 'students.index', 'active' => 'students', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
-                ['key' => 'parents', 'label' => 'Parents', 'route' => 'dashboard', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'parents', 'label' => 'Parents', 'route' => 'parents.index', 'active' => 'parents', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
                 ['key' => 'drivers', 'label' => 'Drivers', 'route' => 'drivers.index', 'active' => 'drivers', 'icon' => 'heroicon-o-user-group', 'permission' => 'driver.view', 'dropdown' => null],
                 ['key' => 'classes', 'label' => 'Classes', 'route' => 'dashboard', 'active' => 'classes', 'icon' => 'heroicon-o-academic-cap', 'permission' => null, 'dropdown' => null],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
