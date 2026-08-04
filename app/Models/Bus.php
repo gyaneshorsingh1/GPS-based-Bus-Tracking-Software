@@ -3,16 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bus extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'school_id',
-        'driver_id',
         'bus_number',
         'registration_number',
+        'make',
+        'model',
+        'year',
         'capacity',
+        'fuel_type',
+        'gps_device_id',
+        'insurance_number',
+        'insurance_expiry_date',
+        'last_service_date',
         'status',
+        'notes',
+        'created_by',
+    ];
+
+    protected $casts = [
+        'year' => 'integer',
+        'insurance_expiry_date' => 'date',
+        'last_service_date' => 'date',
     ];
 
     public function school()
@@ -20,18 +38,13 @@ class Bus extends Model
         return $this->belongsTo(School::class);
     }
 
-    public function routes()
+    public function creator()
     {
-        return $this->hasMany(Route::class);
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function students()
+    public function drivers()
     {
-        return $this->hasMany(Student::class);
-    }
-
-    public function driver()
-    {
-        return $this->belongsTo(Driver::class);
+        return $this->belongsToMany(Driver::class);
     }
 }

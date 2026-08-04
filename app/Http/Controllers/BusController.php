@@ -3,7 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bus;
+use App\Models\Driver;
+use App\Models\School;
+use App\Models\SchoolAdmin;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Throwable;
 
 class BusController extends Controller
 {
@@ -12,23 +21,27 @@ class BusController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Bus::query();
+        $user = Auth::user();
 
-        // Search
+        $query = Bus::with(['school', 'drivers']);
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $query->where('school_id', $schoolId);
+            }
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
                 $q->where('bus_number', 'like', "%{$search}%")
-                    ->orWhere('vehicle_number', 'like', "%{$search}%")
-                    ->orWhere('driver_name', 'like', "%{$search}%")
-                    ->orWhere('route', 'like', "%{$search}%");
+                    ->orWhere('registration_number', 'like', "%{$search}%")
+                    ->orWhere('make', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%");
             });
-        }
-
-        // Status filter
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
         }
 
         $buses = $query
@@ -36,26 +49,7 @@ class BusController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Dashboard statistics
-        $totalBuses = Bus::count();
-
-        $activeBuses = Bus::where('status', 'active')->count();
-
-        $maintenanceBuses = Bus::where('status', 'maintenance')->count();
-
-        $inactiveBuses = Bus::where('status', 'inactive')->count();
-
-        $totalCapacity = Bus::where('status', 'active')
-            ->sum('capacity');
-
-        return view('buses.index', compact(
-            'buses',
-            'totalBuses',
-            'activeBuses',
-            'maintenanceBuses',
-            'inactiveBuses',
-            'totalCapacity'
-        ));
+        return view('buses.index', compact('buses'));
     }
 
     /**
@@ -63,7 +57,21 @@ class BusController extends Controller
      */
     public function create()
     {
-        return view('buses.create');
+        $user = Auth::user();
+        $school = null;
+        $schools = School::orderBy('name')->get();
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $school = School::find($schoolId);
+            }
+        }
+
+        $drivers = $this->availableDrivers($school);
+
+        return view('buses.create', compact('school', 'schools', 'drivers'));
     }
 
     /**
@@ -71,70 +79,61 @@ class BusController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'bus_number' => [
-                'required',
-                'string',
-                'max:50',
-                'unique:buses,bus_number',
-            ],
+        $user = Auth::user();
 
-            'vehicle_number' => [
-                'required',
-                'string',
-                'max:50',
-                'unique:buses,vehicle_number',
-            ],
+        $rules = $this->validationRules();
 
-            'driver_name' => [
+        if (! $this->isSchoolLevelAdmin($user)) {
+            $rules['school_id'] = [
                 'nullable',
-                'string',
-                'max:100',
-            ],
+                'exists:schools,id',
+            ];
+        }
 
-            'driver_phone' => [
-                'nullable',
-                'string',
-                'max:30',
-            ],
+        $validated = $request->validate($rules);
 
-            'capacity' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:200',
-            ],
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
 
-            'route' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+            if ($schoolId) {
+                $validated['school_id'] = $schoolId;
+            }
+        }
 
-            'pickup_location' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+        if (empty($validated['school_id'] ?? null)) {
+            $schoolId = $request->input('school_id');
 
-            'drop_location' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+            if (! $schoolId) {
+                $schoolId = School::query()->value('id');
+            }
 
-            'status' => [
-                'required',
-                'in:active,maintenance,inactive',
-            ],
+            if ($schoolId) {
+                $validated['school_id'] = $schoolId;
+            } else {
+                return redirect()
+                    ->back()
+                    ->withErrors(['school_id' => 'Please create a school before adding a bus.'])
+                    ->withInput();
+            }
+        }
 
-            'description' => [
-                'nullable',
-                'string',
-            ],
-        ]);
+        $validated['created_by'] = $user->id;
 
-        Bus::create($validated);
+        $driverIds = $validated['drivers'] ?? [];
+
+        unset($validated['drivers']);
+
+        try {
+            DB::transaction(function () use ($validated, $driverIds) {
+                $bus = Bus::create($validated);
+
+                $bus->drivers()->sync($driverIds);
+            });
+        } catch (Throwable $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to create bus.']);
+        }
 
         return redirect()
             ->route('buses.index')
@@ -146,6 +145,10 @@ class BusController extends Controller
      */
     public function show(Bus $bus)
     {
+        $this->authorizeBus($bus);
+
+        $bus->load(['school', 'creator', 'drivers']);
+
         return view('buses.show', compact('bus'));
     }
 
@@ -154,7 +157,25 @@ class BusController extends Controller
      */
     public function edit(Bus $bus)
     {
-        return view('buses.edit', compact('bus'));
+        $this->authorizeBus($bus);
+
+        $user = Auth::user();
+        $school = null;
+        $schools = School::orderBy('name')->get();
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId) {
+                $school = School::find($schoolId);
+            }
+        }
+
+        $drivers = $this->availableDrivers($school, $bus);
+
+        $bus->load('drivers');
+
+        return view('buses.edit', compact('bus', 'school', 'schools', 'drivers'));
     }
 
     /**
@@ -162,70 +183,46 @@ class BusController extends Controller
      */
     public function update(Request $request, Bus $bus)
     {
-        $validated = $request->validate([
-            'bus_number' => [
+        $this->authorizeBus($bus);
+
+        $user = Auth::user();
+
+        $rules = $this->validationRules($bus);
+
+        if (! $this->isSchoolLevelAdmin($user)) {
+            $rules['school_id'] = [
                 'required',
-                'string',
-                'max:50',
-                'unique:buses,bus_number,' . $bus->id,
-            ],
+                'exists:schools,id',
+            ];
+        }
 
-            'vehicle_number' => [
-                'required',
-                'string',
-                'max:50',
-                'unique:buses,vehicle_number,' . $bus->id,
-            ],
+        $validated = $request->validate($rules);
 
-            'driver_name' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
 
-            'driver_phone' => [
-                'nullable',
-                'string',
-                'max:30',
-            ],
+            if ($schoolId) {
+                $validated['school_id'] = $schoolId;
+            } else {
+                $validated['school_id'] = $bus->school_id;
+            }
+        }
 
-            'capacity' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:200',
-            ],
+        $driverIds = $validated['drivers'] ?? [];
 
-            'route' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+        unset($validated['drivers']);
 
-            'pickup_location' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
+        try {
+            DB::transaction(function () use ($bus, $validated, $driverIds) {
+                $bus->update($validated);
 
-            'drop_location' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'status' => [
-                'required',
-                'in:active,maintenance,inactive',
-            ],
-
-            'description' => [
-                'nullable',
-                'string',
-            ],
-        ]);
-
-        $bus->update($validated);
+                $bus->drivers()->sync($driverIds);
+            });
+        } catch (Throwable $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to update bus.']);
+        }
 
         return redirect()
             ->route('buses.index')
@@ -237,10 +234,143 @@ class BusController extends Controller
      */
     public function destroy(Bus $bus)
     {
+        $this->authorizeBus($bus);
+
         $bus->delete();
 
         return redirect()
             ->route('buses.index')
             ->with('success', 'Bus deleted successfully.');
+    }
+
+    /**
+     * Shared validation rules.
+     */
+    private function validationRules(?Bus $bus = null): array
+    {
+        $busId = $bus?->id;
+
+        return [
+            'bus_number' => [
+                'required',
+                'string',
+                'max:50',
+                'unique:buses,bus_number'.($busId ? ",{$busId}" : ''),
+            ],
+
+            'registration_number' => [
+                'required',
+                'string',
+                'max:50',
+                'unique:buses,registration_number'.($busId ? ",{$busId}" : ''),
+            ],
+
+            'make' => 'nullable|string|max:100',
+
+            'model' => 'nullable|string|max:100',
+
+            'year' => 'nullable|integer|min:1950|max:'.now()->year,
+
+            'capacity' => 'required|integer|min:1|max:200',
+
+            'fuel_type' => [
+                'nullable',
+                Rule::in(['Diesel', 'Petrol', 'Electric', 'CNG', 'Hybrid']),
+            ],
+
+            'gps_device_id' => [
+                'nullable',
+                'string',
+                'max:100',
+                'unique:buses,gps_device_id'.($busId ? ",{$busId}" : ''),
+            ],
+
+            'insurance_number' => 'nullable|string|max:100',
+
+            'insurance_expiry_date' => 'nullable|date',
+
+            'last_service_date' => 'nullable|date',
+
+            'status' => [
+                'required',
+                Rule::in(['Active', 'Maintenance', 'Inactive']),
+            ],
+
+            'notes' => 'nullable|string',
+
+            'drivers' => 'nullable|array',
+
+            'drivers.*' => 'exists:drivers,id',
+        ];
+    }
+
+    /**
+     * Drivers the current user may assign to a bus.
+     */
+    private function availableDrivers(?School $school, ?Bus $bus = null): Collection
+    {
+        $user = Auth::user();
+
+        $query = Driver::query()->with('school');
+
+        $schoolId = $school?->id;
+
+        if (! $schoolId) {
+            $schoolId = $this->getUserSchoolId($user);
+        }
+
+        if (! $schoolId && $bus) {
+            $schoolId = $bus->school_id;
+        }
+
+        if ($schoolId) {
+            $query->where('school_id', $schoolId);
+        }
+
+        return $query->orderBy('first_name')->get();
+    }
+
+    /**
+     * Make sure school-level admins can only access their own school's buses.
+     */
+    private function authorizeBus(Bus $bus): void
+    {
+        $user = Auth::user();
+
+        if ($this->isSchoolLevelAdmin($user)) {
+            $schoolId = $this->getUserSchoolId($user);
+
+            if ($schoolId && $bus->school_id != $schoolId) {
+                abort(403, 'You are not authorized to access this bus.');
+            }
+        }
+    }
+
+    private function isSchoolLevelAdmin(?User $user): bool
+    {
+        return $user && $user->hasAnyRole(['School Admin', 'Principal']);
+    }
+
+    private function getUserSchoolId(?User $user): ?int
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if (! empty($user->school_id)) {
+            return (int) $user->school_id;
+        }
+
+        $schoolAdmin = SchoolAdmin::where('user_id', $user->id)->first();
+
+        if ($schoolAdmin && ! empty($schoolAdmin->school_id)) {
+            return (int) $schoolAdmin->school_id;
+        }
+
+        $school = School::where('principal_name', $user->name)
+            ->orWhere('email', $user->email)
+            ->first();
+
+        return $school?->id;
     }
 }
