@@ -20,7 +20,7 @@ class ParentProfileController extends Controller
     {
         $user = Auth::user();
 
-        $query = ParentProfile::query()->with(['user', 'school']);
+        $query = ParentProfile::query()->with(['user', 'school', 'children']);
 
         /*
         |--------------------------------------------------------------------------
