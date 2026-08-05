@@ -55,14 +55,13 @@ class Bus extends Model
         return $this->belongsTo(Driver::class);
     }
 
+    public function gpsDevice()
+    {
+        return $this->hasOne(GpsDevice::class, 'bus_id');
+    }
+
     public function students()
     {
         return $this->hasMany(Student::class);
     }
-
-    public function gpsDevice()
-    {
-        return $this->hasOne(GpsDevice::class);
-    }
-    
 }

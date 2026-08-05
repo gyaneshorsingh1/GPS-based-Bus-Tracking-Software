@@ -26,4 +26,9 @@ class GpsDevice extends Model
     {
         return $this->belongsTo(Bus::class);
     }
+
+    public function locations()
+    {
+        return $this->hasMany(BusLocation::class);
+    }
 }

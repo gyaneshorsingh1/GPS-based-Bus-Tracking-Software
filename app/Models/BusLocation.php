@@ -16,6 +16,15 @@ class BusLocation extends Model
         'recorded_at',
     ];
 
+    protected $casts = [
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'speed' => 'float',
+        'heading' => 'float',
+        'altitude' => 'integer',
+        'recorded_at' => 'datetime',
+    ];
+
     public function gpsDevice()
     {
         return $this->belongsTo(GpsDevice::class);
