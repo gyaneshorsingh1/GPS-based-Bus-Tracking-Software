@@ -13,26 +13,26 @@ return new class extends Migration
     {
         Schema::create('route_stops', function (Blueprint $table) {
 
-    $table->id();
+            $table->id();
 
-    $table->foreignId('route_id')
-        ->constrained()
-        ->cascadeOnDelete();
+            $table->foreignId('route_id')
+                ->constrained()
+                ->cascadeOnDelete();
 
-    $table->string('name');
+            $table->string('name');
 
-    $table->decimal('latitude',10,7);
+            $table->decimal('latitude', 10, 7);
 
-    $table->decimal('longitude',10,7);
+            $table->decimal('longitude', 10, 7);
 
-    $table->integer('stop_order');
+            $table->integer('stop_order');
 
-    $table->time('pickup_time')->nullable();
+            $table->time('pickup_time')->nullable();
 
-    $table->time('drop_time')->nullable();
+            $table->time('drop_time')->nullable();
 
-    $table->timestamps();
-});
+            $table->timestamps();
+        });
     }
 
     /**

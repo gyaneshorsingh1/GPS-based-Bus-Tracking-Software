@@ -34,7 +34,7 @@ class BusSeeder extends Seeder
             'last_service_date' => '2026-07-15',
             'status' => 'Active',
             'notes' => 'Used on the Baneshwor shuttle route.',
-            'drivers' => ['DRV-001', 'DRV-004'],
+            'driver' => 'DRV-001',
         ],
         [
             'bus_number' => 'BUS-002',
@@ -50,7 +50,7 @@ class BusSeeder extends Seeder
             'last_service_date' => '2026-06-20',
             'status' => 'Active',
             'notes' => 'Backup bus for the Kalanki express.',
-            'drivers' => ['DRV-003'],
+            'driver' => 'DRV-003',
         ],
         [
             'bus_number' => 'BUS-003',
@@ -66,7 +66,7 @@ class BusSeeder extends Seeder
             'last_service_date' => '2026-05-10',
             'status' => 'Active',
             'notes' => 'Main bus for the Gwarko morning loop.',
-            'drivers' => ['DRV-003', 'DRV-005'],
+            'driver' => 'DRV-003',
         ],
         [
             'bus_number' => 'BUS-004',
@@ -82,7 +82,7 @@ class BusSeeder extends Seeder
             'last_service_date' => '2026-04-25',
             'status' => 'Maintenance',
             'notes' => 'Small shuttle for special events.',
-            'drivers' => ['DRV-006'],
+            'driver' => 'DRV-006',
         ],
         [
             'bus_number' => 'BUS-005',
@@ -98,7 +98,7 @@ class BusSeeder extends Seeder
             'last_service_date' => '2026-07-01',
             'status' => 'Active',
             'notes' => 'Electric bus on the Jhamsikhel route.',
-            'drivers' => ['DRV-002'],
+            'driver' => 'DRV-002',
         ],
         [
             'bus_number' => 'BUS-006',
@@ -114,7 +114,7 @@ class BusSeeder extends Seeder
             'last_service_date' => '2026-02-18',
             'status' => 'Inactive',
             'notes' => 'Retired from daily service.',
-            'drivers' => ['DRV-007'],
+            'driver' => 'DRV-007',
         ],
     ];
 
@@ -141,23 +141,22 @@ class BusSeeder extends Seeder
 
         DB::transaction(function () use ($creator, $schools) {
             foreach (self::BUSES as $index => $data) {
-                $driverEmployeeIds = $data['drivers'];
+                $driverEmployeeId = $data['driver'];
 
-                unset($data['drivers']);
+                unset($data['driver']);
 
                 $school = $schools->get($index % $schools->count());
 
-                $driverIds = Driver::whereIn('employee_id', $driverEmployeeIds)->pluck('id')->all();
+                $driverId = Driver::where('employee_id', $driverEmployeeId)->value('id');
 
                 $bus = Bus::updateOrCreate(
                     ['bus_number' => $data['bus_number']],
                     array_merge($data, [
                         'school_id' => $school->id,
+                        'driver_id' => $driverId,
                         'created_by' => $creator->id,
                     ])
                 );
-
-                $bus->drivers()->sync($driverIds);
             }
         });
 

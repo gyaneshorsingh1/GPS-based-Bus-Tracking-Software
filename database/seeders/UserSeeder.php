@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
 
         $school = School::first();
 
-        if (!$school) {
+        if (! $school) {
             $this->command->error(
                 'No school exists. Please create a school before running UserSeeder.'
             );

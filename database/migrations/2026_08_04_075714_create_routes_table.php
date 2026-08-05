@@ -12,38 +12,38 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('routes', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('school_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('school_id')->constrained()->cascadeOnDelete();
 
-    // $table->foreignId('bus_id')
-    //     ->nullable()
-    //     ->constrained()
-    //     ->nullOnDelete();
+            // $table->foreignId('bus_id')
+            //     ->nullable()
+            //     ->constrained()
+            //     ->nullOnDelete();
 
-    $table->foreignId('driver_id')
-        ->nullable()
-        ->constrained()
-        ->nullOnDelete();
+            $table->foreignId('driver_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
-    $table->string('name');
+            $table->string('name');
 
-    $table->string('route_code')->unique();
+            $table->string('route_code')->unique();
 
-    $table->string('start_location');
+            $table->string('start_location');
 
-    $table->string('end_location');
+            $table->string('end_location');
 
-    $table->decimal('estimated_distance', 8, 2)->nullable();
+            $table->decimal('estimated_distance', 8, 2)->nullable();
 
-    $table->integer('estimated_duration')->nullable(); // minutes
+            $table->integer('estimated_duration')->nullable(); // minutes
 
-    $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(true);
 
-    $table->softDeletes();
+            $table->softDeletes();
 
-    $table->timestamps();
-});
+            $table->timestamps();
+        });
     }
 
     /**
