@@ -241,6 +241,16 @@
             fullRouteBounds = fullPolyline.getBounds();
             map.fitBounds(fullRouteBounds, { padding: [50, 50] });
 
+            // Initialize the single shared simulated bus location at the first route point
+            window.liveBusGps = {
+                latitude: routeCoordinates[0][0],
+                longitude: routeCoordinates[0][1],
+                speed: 32,
+                heading: 0,
+                timestamp: Date.now(),
+                progressPercent: 0
+            };
+
             // Initialize Live Bus Marker at first route point
             initBusMarker(routeCoordinates[0]);
 
@@ -335,38 +345,41 @@
         // Compute angle/heading between points
         let angle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180 / Math.PI;
 
-        // Move marker
+        // Update the single shared simulated GPS location used by both map and journey
+        window.liveBusGps = window.liveBusGps || {};
+        window.liveBusGps.latitude = p1[0];
+        window.liveBusGps.longitude = p1[1];
+        window.liveBusGps.speed = 28 + Math.floor(Math.random() * 8);
+        window.liveBusGps.heading = angle;
+        window.liveBusGps.timestamp = Date.now();
+        window.liveBusGps.progressPercent = (currentPathIndex / routeCoordinates.length) * 100;
+
+        // Move marker from the shared GPS location
         if (busMarker) {
-            busMarker.setLatLng(p1);
+            busMarker.setLatLng([window.liveBusGps.latitude, window.liveBusGps.longitude]);
 
             // Rotate bus marker smoothly
             const innerEl = document.getElementById('busMarkerInner');
             if (innerEl) {
-                innerEl.style.transform = `rotate(${angle + 90}deg)`;
+                innerEl.style.transform = `rotate(${window.liveBusGps.heading + 90}deg)`;
             }
 
             // Auto-follow camera if enabled
             if (autoFollowCamera && map) {
-                map.panTo(p1, { animate: true, duration: 0.3 });
+                map.panTo([window.liveBusGps.latitude, window.liveBusGps.longitude], { animate: true, duration: 0.3 });
             }
         }
 
         // Increment index
         currentPathIndex = (currentPathIndex + 1) % routeCoordinates.length;
 
-        // Calculate progress percentage and current stop index for live journey timeline sync
-        const totalStops = @json($route->stops->count()) || 4;
-        const progressPercent = (currentPathIndex / routeCoordinates.length) * 100;
-        const currentStopIdx = Math.min(Math.floor((currentPathIndex / routeCoordinates.length) * totalStops), totalStops - 1);
-        const currentSpeed = 28 + Math.floor(Math.random() * 8);
-
-        // Update map telemetry bar
+        // Update map telemetry bar from the shared GPS location
         const speedEl = document.getElementById('busSpeed');
-        if (speedEl) speedEl.innerText = currentSpeed + ' km/h';
+        if (speedEl) speedEl.innerText = window.liveBusGps.speed + ' km/h';
 
-        // Notify Live Journey timeline component
+        // Notify Live Journey timeline component with the same shared GPS object
         if (typeof window.updateLiveJourneyState === 'function') {
-            window.updateLiveJourneyState(currentStopIdx, progressPercent, currentSpeed);
+            window.updateLiveJourneyState(window.liveBusGps);
         }
 
         // Schedule next frame step smoothly

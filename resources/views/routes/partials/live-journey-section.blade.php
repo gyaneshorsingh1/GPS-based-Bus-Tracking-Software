@@ -160,15 +160,60 @@
 </div>
 
 <script>
-    // Live Synchronizer called by map tracking loop
-    window.updateLiveJourneyState = function(currentIdx, progressPercent, speedKm) {
-        const totalStops = {{ $route->stops->count() }};
-        if (totalStops === 0) return;
+    // Single shared simulated bus GPS location — updated by the Route Map tracking loop.
+    // Both the Route Map and the Live Route Journey read from this same object.
+    window.liveBusGps = window.liveBusGps || null;
 
+    const liveJourneyStops = @json($route->stops);
+    let liveJourneyLastIdx = null;
+
+    function liveGpsDistanceKm(lat1, lon1, lat2, lon2) {
+        const toRad = (deg) => (deg * Math.PI) / 180;
+        const earthRadiusKm = 6371;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2
+            + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // Derive the current stop index from the shared GPS latitude/longitude.
+    // Falls back to the simulated route progress when stops have no coordinates.
+    function liveCurrentStopIndex(gps) {
+        let nearestIdx = -1;
+        let nearestDist = Infinity;
+
+        for (let i = 0; i < liveJourneyStops.length; i++) {
+            const stop = liveJourneyStops[i];
+            if (stop.latitude && stop.longitude && parseFloat(stop.latitude) !== 0 && parseFloat(stop.longitude) !== 0) {
+                const dist = liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(stop.latitude), parseFloat(stop.longitude));
+                if (dist < nearestDist) {
+                    nearestDist = dist;
+                    nearestIdx = i;
+                }
+            }
+        }
+
+        if (nearestIdx >= 0) return nearestIdx;
+        return Math.min(Math.floor((gps.progressPercent / 100) * liveJourneyStops.length), liveJourneyStops.length - 1);
+    }
+
+    // Live Synchronizer — called by the map tracking loop with the shared GPS object
+    window.updateLiveJourneyState = function(gps) {
+        const totalStops = liveJourneyStops.length;
+        if (totalStops === 0 || !gps) return;
+
+        let currentIdx = liveCurrentStopIndex(gps);
         currentIdx = Math.min(currentIdx, totalStops - 1);
 
+        // Keep the journey strictly forward-facing, mirroring the map's forward motion
+        if (liveJourneyLastIdx !== null && currentIdx < liveJourneyLastIdx) {
+            currentIdx = liveJourneyLastIdx;
+        }
+        liveJourneyLastIdx = currentIdx;
+
         // 1. Update Progress Bar & Label
-        const clampedPercent = Math.min(Math.max(Math.round(progressPercent), 5), 100);
+        const clampedPercent = Math.min(Math.max(Math.round(gps.progressPercent), 5), 100);
         const progressBar = document.getElementById('journeyProgressBar');
         const progressLabel = document.getElementById('progressBarLabel');
         
@@ -176,9 +221,8 @@
         if (progressLabel) progressLabel.innerText = clampedPercent + '% Completed';
 
         // 2. Update Summary Card Text
-        const stopsList = @json($route->stops);
-        const currentStop = stopsList[currentIdx] ? stopsList[currentIdx].name : 'In Transit';
-        const nextStop = stopsList[currentIdx + 1] ? stopsList[currentIdx + 1].name : (stopsList[currentIdx] ? stopsList[currentIdx].name : 'Destination');
+        const currentStop = liveJourneyStops[currentIdx] ? liveJourneyStops[currentIdx].name : 'In Transit';
+        const nextStop = liveJourneyStops[currentIdx + 1] ? liveJourneyStops[currentIdx + 1].name : (liveJourneyStops[currentIdx] ? liveJourneyStops[currentIdx].name : 'Destination');
 
         const summaryCurrent = document.getElementById('summaryCurrentStop');
         const summaryNext = document.getElementById('summaryNextStop');
@@ -188,7 +232,11 @@
         if (summaryCurrent) summaryCurrent.innerText = currentStop;
         if (summaryNext) summaryNext.innerText = nextStop;
         if (summaryProgress) summaryProgress.innerText = (currentIdx + 1) + ' / ' + totalStops + ' Stops';
-        
+
+        // Keep the map telemetry next-stop readout in sync with the journey
+        const mapNextStop = document.getElementById('nextStopName');
+        if (mapNextStop) mapNextStop.innerText = nextStop;
+
         // Calculate dynamic destination ETA
         const minsLeft = Math.max(0, (totalStops - 1 - currentIdx) * 5);
         if (summaryEta) {
