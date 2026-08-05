@@ -14,6 +14,11 @@ class RouteStop extends Model
         'stop_order',
         'pickup_time',
         'drop_time',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function route()

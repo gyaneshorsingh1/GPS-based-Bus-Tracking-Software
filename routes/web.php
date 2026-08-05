@@ -6,6 +6,7 @@ use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\PrincipalDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\RouteStopController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
@@ -291,6 +292,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('/routes/{route}', [RouteController::class, 'destroy'])
         ->middleware('permission:route.delete')
         ->name('routes.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Route Stops
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/routes/{route}/stops', [RouteStopController::class, 'store'])
+        ->middleware('permission:route.update')
+        ->name('routes.stops.store');
+
+    Route::put('/route-stops/{stop}', [RouteStopController::class, 'update'])
+        ->middleware('permission:route.update')
+        ->name('route-stops.update');
+
+    Route::delete('/route-stops/{stop}', [RouteStopController::class, 'destroy'])
+        ->middleware('permission:route.update')
+        ->name('route-stops.destroy');
 
     /*
     |--------------------------------------------------------------------------
