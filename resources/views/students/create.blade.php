@@ -218,12 +218,8 @@
                             class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
                             <option value="" disabled @selected(old('parent_id') === null)>Select Parent</option>
-                            @foreach ($parents->groupBy('school_id') as $schoolId => $group)
-                                <optgroup label="{{ $group->first()->school->name ?? 'Other' }}">
-                                    @foreach ($group as $parent)
-                                        <option value="{{ $parent->id }}" @selected(old('parent_id') == $parent->id)>{{ $parent->user->name }}</option>
-                                    @endforeach
-                                </optgroup>
+                            @foreach ($parents as $parent)
+                                <option value="{{ $parent->id }}" data-school-id="{{ $parent->school_id }}" @selected(old('parent_id') == $parent->id)>{{ $parent->user->name }}</option>
                             @endforeach
                         </select>
                         @error('parent_id')
@@ -384,4 +380,29 @@
             </div>
         </form>
     </div>
+    <script>
+        (function () {
+            const schoolSelect = document.getElementById('school_id');
+            const parentSelect = document.getElementById('parent_id');
+            if (!schoolSelect || !parentSelect) return;
+
+            function filterParents() {
+                const selectedSchool = schoolSelect.value;
+                let selectedHidden = false;
+                parentSelect.querySelectorAll('option[data-school-id]').forEach(function (option) {
+                    const show = !selectedSchool || option.dataset.schoolId === selectedSchool;
+                    option.hidden = !show;
+                    if (!show && option.selected) {
+                        selectedHidden = true;
+                    }
+                });
+                if (selectedHidden) {
+                    parentSelect.value = '';
+                }
+            }
+
+            schoolSelect.addEventListener('change', filterParents);
+            filterParents();
+        })();
+    </script>
 </x-app-layout>

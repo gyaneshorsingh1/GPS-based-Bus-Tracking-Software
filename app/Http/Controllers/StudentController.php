@@ -62,18 +62,18 @@ class StudentController extends Controller
         $user = Auth::user();
         $school = null;
         $schools = School::orderBy('name')->get();
+        $parentsSchoolId = null;
 
         if ($this->isSchoolLevelAdmin($user)) {
             $schoolId = $this->getUserSchoolId($user);
 
             if ($schoolId) {
                 $school = School::find($schoolId);
+                $parentsSchoolId = $schoolId;
             }
         }
 
-        $parents = ParentProfile::with(['user', 'school'])
-            ->orderBy('id')
-            ->get();
+        $parents = $this->availableParents($parentsSchoolId);
 
         $buses = Bus::query()
             ->with('school')
@@ -119,17 +119,19 @@ class StudentController extends Controller
 
             $rules['parent_id'] = [
                 'required',
-                'exists:parent_profiles,id',
+                Rule::exists('parent_profiles', 'id')->where('school_id', $schoolId),
             ];
         } else {
             $rules['school_id'] = 'required|exists:schools,id';
             $rules['parent_id'] = [
                 'required',
-                'exists:parent_profiles,id',
+                Rule::exists('parent_profiles', 'id')->where('school_id', $request->input('school_id')),
             ];
         }
 
-        $validated = $request->validate($rules);
+        $validated = $request->validate($rules, [
+            'parent_id.exists' => 'The selected parent does not belong to the selected school.',
+        ]);
 
         if ($this->isSchoolLevelAdmin($user)) {
             $validated['school_id'] = $schoolId;
@@ -190,18 +192,18 @@ class StudentController extends Controller
         $user = Auth::user();
         $school = null;
         $schools = School::orderBy('name')->get();
+        $parentsSchoolId = null;
 
         if ($this->isSchoolLevelAdmin($user)) {
             $schoolId = $this->getUserSchoolId($user);
 
             if ($schoolId) {
                 $school = School::find($schoolId);
+                $parentsSchoolId = $schoolId;
             }
         }
 
-        $parents = ParentProfile::with(['user', 'school'])
-            ->orderBy('id')
-            ->get();
+        $parents = $this->availableParents($parentsSchoolId);
 
         $buses = Bus::query()
             ->with('school')
@@ -251,17 +253,19 @@ class StudentController extends Controller
 
             $rules['parent_id'] = [
                 'required',
-                'exists:parent_profiles,id',
+                Rule::exists('parent_profiles', 'id')->where('school_id', $schoolId),
             ];
         } else {
             $rules['school_id'] = 'required|exists:schools,id';
             $rules['parent_id'] = [
                 'required',
-                'exists:parent_profiles,id',
+                Rule::exists('parent_profiles', 'id')->where('school_id', $request->input('school_id')),
             ];
         }
 
-        $validated = $request->validate($rules);
+        $validated = $request->validate($rules, [
+            'parent_id.exists' => 'The selected parent does not belong to the selected school.',
+        ]);
 
         if ($this->isSchoolLevelAdmin($user)) {
             $validated['school_id'] = $schoolId;
@@ -341,6 +345,18 @@ class StudentController extends Controller
     private function isSchoolLevelAdmin(?User $user): bool
     {
         return $user && $user->hasAnyRole(['School Admin', 'Principal']);
+    }
+
+    /**
+     * Parents for the student form dropdown.
+     * School-level admins only see their own school's parents; the filtering happens in the query.
+     */
+    private function availableParents(?int $schoolId): \Illuminate\Support\Collection
+    {
+        return ParentProfile::with(['user', 'school'])
+            ->when($schoolId, fn ($query) => $query->where('school_id', $schoolId))
+            ->orderBy('id')
+            ->get();
     }
 
     private function getUserSchoolId(?User $user): ?int
