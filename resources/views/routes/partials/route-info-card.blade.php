@@ -8,7 +8,7 @@
             </div>
             <div>
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Route Information</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">General details and schedule configuration</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">General details, assigned driver, buses and schedule configuration</p>
             </div>
         </div>
         <div>
@@ -26,52 +26,79 @@
         </div>
     </div>
 
-    <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <!-- Route Name -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Route Name</dt>
             <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->name }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+        <!-- Route Code -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Route Code</dt>
             <dd class="mt-1 text-sm font-semibold text-brand-600 dark:text-brand-400 font-mono">{{ $route->route_code }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+        <!-- Start Location -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Start Location</dt>
             <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->start_location }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+        <!-- End Location -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">End Location</dt>
             <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->end_location }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+        <!-- Estimated Distance -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Distance</dt>
             <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->estimated_distance ? $route->estimated_distance . ' km' : '—' }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+        <!-- Estimated Duration -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Duration</dt>
             <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->estimated_duration ? $route->estimated_duration . ' mins' : '—' }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+        <!-- School -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">School</dt>
             <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->school->name ?? '—' }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
+        <!-- Driver -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Driver</dt>
-            <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->driver->full_name ?? 'Not Assigned' }}</dd>
+            <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $route->driver->full_name ?? '—' }}</dd>
         </div>
 
-        <div class="rounded-xl bg-gray-50/50 p-3.5 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
-            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Status</dt>
-            <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
-                {{ $route->is_active ? 'Active Operation' : 'Inactive / Suspended' }}
+        <!-- Buses -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between sm:col-span-2 lg:col-span-1 xl:col-span-2">
+            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Assigned Buses</dt>
+            <dd class="mt-1.5 flex flex-wrap gap-1.5 items-center">
+                @forelse ($route->buses ?? [] as $bus)
+                    <span class="inline-flex items-center rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-400 border border-brand-200/60 dark:border-brand-500/20">
+                        🚍 {{ $bus->bus_number }}
+                    </span>
+                @empty
+                    <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">—</span>
+                @endforelse
             </dd>
+        </div>
+
+        <!-- Created At -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
+            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Created</dt>
+            <dd class="mt-1 text-xs font-medium text-gray-700 dark:text-gray-300">{{ $route->created_at ? $route->created_at->format('M d, Y H:i') : '—' }}</dd>
+        </div>
+
+        <!-- Updated At -->
+        <div class="rounded-xl bg-gray-50/60 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 flex flex-col justify-between">
+            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Updated</dt>
+            <dd class="mt-1 text-xs font-medium text-gray-700 dark:text-gray-300">{{ $route->updated_at ? $route->updated_at->format('M d, Y H:i') : '—' }}</dd>
         </div>
     </dl>
 </div>
