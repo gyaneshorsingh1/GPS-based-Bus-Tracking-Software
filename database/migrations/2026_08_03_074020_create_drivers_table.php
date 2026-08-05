@@ -27,7 +27,7 @@ return new class extends Migration
             $table->enum('gender', [
                 'Male',
                 'Female',
-                'Other'
+                'Other',
             ]);
 
             $table->date('date_of_birth');
@@ -57,7 +57,7 @@ return new class extends Migration
             $table->enum('status', [
                 'Active',
                 'Inactive',
-                'Suspended'
+                'Suspended',
             ])->default('Active');
 
             // Profile

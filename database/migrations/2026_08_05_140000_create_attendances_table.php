@@ -11,30 +11,31 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gps_devices', function (Blueprint $table) {
+        Schema::create('attendances', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('school_id')
+            $table->foreignId('student_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
             $table->foreignId('bus_id')
                 ->nullable()
-                ->unique()
                 ->constrained()
                 ->nullOnDelete();
 
-            $table->string('device_name');
-            $table->string('device_imei')->unique();
-            $table->string('sim_number')->nullable();
+            $table->date('date');
 
-            $table->enum('status', ['active', 'inactive', 'maintenance', 'offline'])->default('active');
+            $table->timestamp('check_in_at')->nullable();
+            $table->timestamp('check_out_at')->nullable();
 
-            $table->date('installed_at')->nullable();
-            $table->text('notes')->nullable();
+            $table->foreignId('marked_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->timestamps();
-            $table->softDeletes();
+
+            $table->unique(['student_id', 'date']);
         });
     }
 
@@ -43,6 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gps_devices');
+        Schema::dropIfExists('attendances');
     }
 };

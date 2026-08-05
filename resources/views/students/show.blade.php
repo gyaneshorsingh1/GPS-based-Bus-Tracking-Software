@@ -90,6 +90,17 @@
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Parent</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $student->parent->user->name ?? '—' }}</dd>
                 </div>
+
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Assigned Bus</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        @if ($student->bus)
+                            {{ $student->bus->bus_number }}@if ($student->bus->route) ({{ $student->bus->route->name }})@endif
+                        @else
+                            —
+                        @endif
+                    </dd>
+                </div>
             </dl>
 
             <h2 class="mb-4 mt-6 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">

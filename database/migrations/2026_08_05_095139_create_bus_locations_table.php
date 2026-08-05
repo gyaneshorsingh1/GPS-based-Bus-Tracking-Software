@@ -11,27 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('route_stops', function (Blueprint $table) {
-
+        Schema::create('bus_locations', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('route_id')
+            $table->foreignId('gps_device_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->string('name');
-
             $table->decimal('latitude', 10, 7);
-
             $table->decimal('longitude', 10, 7);
 
-            $table->integer('stop_order');
+            $table->decimal('speed', 6, 2)->default(0);
+            $table->decimal('heading', 5, 2)->nullable();
+            $table->integer('altitude')->nullable();
 
-            $table->time('pickup_time')->nullable();
-
-            $table->time('drop_time')->nullable();
+            $table->timestamp('recorded_at');
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -40,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('route_stops');
+        Schema::dropIfExists('bus_locations');
     }
 };

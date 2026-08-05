@@ -271,33 +271,50 @@
 
             <div>
                 <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
-                    Assigned Drivers
+                    Route & Driver Assignment
                 </h2>
 
-                @if ($drivers->isEmpty())
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        No drivers available. <a href="{{ route('drivers.create') }}" class="text-brand-500 hover:text-brand-600">Create a driver</a> first to assign them to this bus.
-                    </p>
-                @else
-                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        @foreach ($drivers as $driver)
-                            <label class="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-                                <input
-                                    type="checkbox"
-                                    name="drivers[]"
-                                    value="{{ $driver->id }}"
-                                    @checked(in_array($driver->id, old('drivers', []), true))
-                                    class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-                                >
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $driver->full_name }}</span>
-                                <span class="ml-auto text-xs text-gray-500 dark:text-gray-400">{{ $driver->employee_id }}</span>
-                            </label>
-                        @endforeach
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                        <label for="route_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Route</label>
+                        <select
+                            id="route_id"
+                            name="route_id"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                            <option value="">No route</option>
+                            @foreach ($routes as $route)
+                                <option value="{{ $route->id }}" @selected(old('route_id') == $route->id)>{{ $route->name }} ({{ $route->route_code }})</option>
+                            @endforeach
+                        </select>
+                        @error('route_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-                    @error('drivers')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                @endif
+
+                    <div>
+                        <label for="driver_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Driver</label>
+                        @if ($drivers->isEmpty())
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                No drivers available. <a href="{{ route('drivers.create') }}" class="text-brand-500 hover:text-brand-600">Create a driver</a> first to assign them to this bus.
+                            </p>
+                        @else
+                            <select
+                                id="driver_id"
+                                name="driver_id"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            >
+                                <option value="">No driver</option>
+                                @foreach ($drivers as $driver)
+                                    <option value="{{ $driver->id }}" @selected(old('driver_id') == $driver->id)>{{ $driver->full_name }} ({{ $driver->employee_id }})</option>
+                                @endforeach
+                            </select>
+                            @error('driver_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        @endif
+                    </div>
+                </div>
             </div>
 
             <div class="flex items-center justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-800">

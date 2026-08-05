@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bus;
 use App\Models\Driver;
+use App\Models\Route;
 use App\Models\School;
 use App\Models\SchoolAdmin;
 use App\Models\User;
@@ -23,7 +24,7 @@ class BusController extends Controller
     {
         $user = Auth::user();
 
-        $query = Bus::with(['school', 'drivers']);
+        $query = Bus::with(['school', 'route', 'driver']);
 
         if ($this->isSchoolLevelAdmin($user)) {
             $schoolId = $this->getUserSchoolId($user);
@@ -70,8 +71,9 @@ class BusController extends Controller
         }
 
         $drivers = $this->availableDrivers($school);
+        $routes = $this->availableRoutes($school);
 
-        return view('buses.create', compact('school', 'schools', 'drivers'));
+        return view('buses.create', compact('school', 'schools', 'drivers', 'routes'));
     }
 
     /**
@@ -119,15 +121,9 @@ class BusController extends Controller
 
         $validated['created_by'] = $user->id;
 
-        $driverIds = $validated['drivers'] ?? [];
-
-        unset($validated['drivers']);
-
         try {
-            DB::transaction(function () use ($validated, $driverIds) {
-                $bus = Bus::create($validated);
-
-                $bus->drivers()->sync($driverIds);
+            DB::transaction(function () use ($validated) {
+                Bus::create($validated);
             });
         } catch (Throwable $e) {
             return back()
@@ -147,7 +143,7 @@ class BusController extends Controller
     {
         $this->authorizeBus($bus);
 
-        $bus->load(['school', 'creator', 'drivers']);
+        $bus->load(['school', 'creator', 'route', 'driver']);
 
         return view('buses.show', compact('bus'));
     }
@@ -172,10 +168,11 @@ class BusController extends Controller
         }
 
         $drivers = $this->availableDrivers($school, $bus);
+        $routes = $this->availableRoutes($school, $bus);
 
-        $bus->load('drivers');
+        $bus->load(['route', 'driver']);
 
-        return view('buses.edit', compact('bus', 'school', 'schools', 'drivers'));
+        return view('buses.edit', compact('bus', 'school', 'schools', 'drivers', 'routes'));
     }
 
     /**
@@ -208,15 +205,9 @@ class BusController extends Controller
             }
         }
 
-        $driverIds = $validated['drivers'] ?? [];
-
-        unset($validated['drivers']);
-
         try {
-            DB::transaction(function () use ($bus, $validated, $driverIds) {
+            DB::transaction(function () use ($bus, $validated) {
                 $bus->update($validated);
-
-                $bus->drivers()->sync($driverIds);
             });
         } catch (Throwable $e) {
             return back()
@@ -298,9 +289,9 @@ class BusController extends Controller
 
             'notes' => 'nullable|string',
 
-            'drivers' => 'nullable|array',
+            'route_id' => 'nullable|exists:routes,id',
 
-            'drivers.*' => 'exists:drivers,id',
+            'driver_id' => 'nullable|exists:drivers,id',
         ];
     }
 
@@ -328,6 +319,32 @@ class BusController extends Controller
         }
 
         return $query->orderBy('first_name')->get();
+    }
+
+    /**
+     * Routes the current user may assign to a bus.
+     */
+    private function availableRoutes(?School $school, ?Bus $bus = null): Collection
+    {
+        $user = Auth::user();
+
+        $query = Route::query()->with('school');
+
+        $schoolId = $school?->id;
+
+        if (! $schoolId) {
+            $schoolId = $this->getUserSchoolId($user);
+        }
+
+        if (! $schoolId && $bus) {
+            $schoolId = $bus->school_id;
+        }
+
+        if ($schoolId) {
+            $query->where('school_id', $schoolId);
+        }
+
+        return $query->orderBy('name')->get();
     }
 
     /**

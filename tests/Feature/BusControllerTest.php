@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Bus;
 use App\Models\Driver;
+use App\Models\Route;
 use App\Models\School;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
@@ -15,7 +16,7 @@ class BusControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_super_admin_can_create_bus_with_multiple_drivers(): void
+    public function test_super_admin_can_create_bus_with_driver_and_route(): void
     {
         $this->seed([PermissionSeeder::class, RoleSeeder::class]);
 
@@ -32,7 +33,15 @@ class BusControllerTest extends TestCase
             'status' => 'active',
         ]);
 
-        $driverOne = Driver::create([
+        $route = Route::create([
+            'school_id' => $school->id,
+            'name' => 'Baneshwor Shuttle',
+            'route_code' => 'R1',
+            'start_location' => 'Baneshwor',
+            'end_location' => 'School',
+        ]);
+
+        $driver = Driver::create([
             'school_id' => $school->id,
             'employee_id' => 'DR001',
             'first_name' => 'Ramesh',
@@ -42,24 +51,6 @@ class BusControllerTest extends TestCase
             'phone' => '9800000001',
             'address' => 'Kathmandu',
             'license_number' => 'LIC-001',
-            'license_type' => 'Bus',
-            'license_issue_date' => '2020-01-01',
-            'license_expiry_date' => '2030-01-01',
-            'joining_date' => '2024-01-01',
-            'status' => 'Active',
-            'created_by' => $user->id,
-        ]);
-
-        $driverTwo = Driver::create([
-            'school_id' => $school->id,
-            'employee_id' => 'DR002',
-            'first_name' => 'Sita',
-            'last_name' => 'Rai',
-            'gender' => 'Female',
-            'date_of_birth' => '1992-01-01',
-            'phone' => '9800000002',
-            'address' => 'Kathmandu',
-            'license_number' => 'LIC-002',
             'license_type' => 'Bus',
             'license_issue_date' => '2020-01-01',
             'license_expiry_date' => '2030-01-01',
@@ -86,7 +77,8 @@ class BusControllerTest extends TestCase
             'last_service_date' => '2026-01-01',
             'status' => 'Active',
             'notes' => 'Brand new bus',
-            'drivers' => [$driverOne->id, $driverTwo->id],
+            'route_id' => $route->id,
+            'driver_id' => $driver->id,
         ]);
 
         $response->assertRedirect(route('buses.index'));
@@ -94,24 +86,15 @@ class BusControllerTest extends TestCase
         $this->assertDatabaseHas('buses', [
             'bus_number' => 'BUS-001',
             'school_id' => $school->id,
+            'route_id' => $route->id,
+            'driver_id' => $driver->id,
             'created_by' => $user->id,
         ]);
 
         $bus = Bus::where('bus_number', 'BUS-001')->first();
         $this->assertNotNull($bus);
-        $this->assertCount(2, $bus->drivers);
-        $this->assertTrue($bus->drivers->contains('id', $driverOne->id));
-        $this->assertTrue($bus->drivers->contains('id', $driverTwo->id));
-
-        $this->assertDatabaseHas('bus_driver', [
-            'bus_id' => $bus->id,
-            'driver_id' => $driverOne->id,
-        ]);
-
-        $this->assertDatabaseHas('bus_driver', [
-            'bus_id' => $bus->id,
-            'driver_id' => $driverTwo->id,
-        ]);
+        $this->assertTrue($bus->route->is($route));
+        $this->assertTrue($bus->driver->is($driver));
     }
 
     public function test_duplicate_bus_number_is_rejected(): void
@@ -172,6 +155,32 @@ class BusControllerTest extends TestCase
         $schoolAdmin->school_id = $school->id;
         $schoolAdmin->save();
 
+        $route = Route::create([
+            'school_id' => $school->id,
+            'name' => 'Green Valley Shuttle',
+            'route_code' => 'GV-R1',
+            'start_location' => 'Baneshwor',
+            'end_location' => 'School',
+        ]);
+
+        $driver = Driver::create([
+            'school_id' => $school->id,
+            'employee_id' => 'DR010',
+            'first_name' => 'Hari',
+            'last_name' => 'Tamang',
+            'gender' => 'Male',
+            'date_of_birth' => '1988-05-10',
+            'phone' => '9800000100',
+            'address' => 'Kathmandu',
+            'license_number' => 'LIC-010',
+            'license_type' => 'Bus',
+            'license_issue_date' => '2019-01-01',
+            'license_expiry_date' => '2029-01-01',
+            'joining_date' => '2023-01-01',
+            'status' => 'Active',
+            'created_by' => $schoolAdmin->id,
+        ]);
+
         $bus = Bus::create([
             'school_id' => $school->id,
             'bus_number' => 'BUS-010',
@@ -188,6 +197,8 @@ class BusControllerTest extends TestCase
             'registration_number' => 'BA 1 KHA 1111',
             'capacity' => 50,
             'status' => 'Maintenance',
+            'route_id' => $route->id,
+            'driver_id' => $driver->id,
         ]);
 
         $response->assertRedirect(route('buses.index'));
@@ -196,5 +207,7 @@ class BusControllerTest extends TestCase
 
         $this->assertSame(50, $bus->capacity);
         $this->assertSame('Maintenance', $bus->status);
+        $this->assertSame($route->id, $bus->route_id);
+        $this->assertSame($driver->id, $bus->driver_id);
     }
 }

@@ -60,7 +60,8 @@
                         <th class="px-5 py-3 font-medium">Registration No.</th>
                         <th class="px-5 py-3 font-medium">Make / Model</th>
                         <th class="px-5 py-3 font-medium">Capacity</th>
-                        <th class="px-5 py-3 font-medium">Drivers</th>
+                        <th class="px-5 py-3 font-medium">Route</th>
+                        <th class="px-5 py-3 font-medium">Driver</th>
                         <th class="px-5 py-3 font-medium">School</th>
                         <th class="px-5 py-3 font-medium">Status</th>
                         <th class="px-5 py-3 text-right font-medium">Actions</th>
@@ -79,15 +80,8 @@
                                 @endif
                             </td>
                             <td class="px-5 py-3">{{ $bus->capacity }}</td>
-                            <td class="px-5 py-3">
-                                @forelse ($bus->drivers as $driver)
-                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                                        {{ $driver->full_name }}
-                                    </span>
-                                @empty
-                                    —
-                                @endforelse
-                            </td>
+                            <td class="px-5 py-3">{{ $bus->route?->name ?? '—' }}</td>
+                            <td class="px-5 py-3">{{ $bus->driver?->full_name ?? '—' }}</td>
                             <td class="px-5 py-3">{{ $bus->school->name ?? '—' }}</td>
                             <td class="px-5 py-3">
                                 @if ($bus->status === 'Active')

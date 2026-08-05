@@ -242,6 +242,29 @@
                         @enderror
                     </div>
 
+                    <div>
+                        <label for="bus_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Assigned Bus</label>
+                        @if ($buses->isEmpty())
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                No buses available. <a href="{{ route('buses.create') }}" class="text-brand-500 hover:text-brand-600">Create a bus</a> first to assign one to this student.
+                            </p>
+                        @else
+                            <select
+                                id="bus_id"
+                                name="bus_id"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:border-brand-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                            >
+                                <option value="">No bus</option>
+                                @foreach ($buses as $bus)
+                                    <option value="{{ $bus->id }}" @selected(old('bus_id', $student->bus_id) == $bus->id)>{{ $bus->bus_number }}@if ($bus->make) ({{ $bus->make }})@endif</option>
+                                @endforeach
+                            </select>
+                            @error('bus_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        @endif
+                    </div>
+
                     <div class="md:col-span-2">
                         <label for="is_active" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                             <input

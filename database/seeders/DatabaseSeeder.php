@@ -63,7 +63,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DriverSeeder::class,
             BusSeeder::class,
+            GpsDeviceSeeder::class,
+            BusLocationSeeder::class,
             RouteSeeder::class,
+            StudentSeeder::class,
         ]);
     }
 }
