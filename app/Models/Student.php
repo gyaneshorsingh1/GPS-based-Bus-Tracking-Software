@@ -10,7 +10,6 @@ class Student extends Model
         'school_id',
         'parent_id',
         'bus_id',
-        'route_id',
         'admission_no',
         'first_name',
         'last_name',
@@ -52,10 +51,5 @@ class Student extends Model
     public function bus()
     {
         return $this->belongsTo(Bus::class);
-    }
-
-    public function route()
-    {
-        return $this->belongsTo(Route::class);
     }
 }
