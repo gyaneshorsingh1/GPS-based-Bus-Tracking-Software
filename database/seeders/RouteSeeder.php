@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bus;
 use App\Models\Driver;
 use App\Models\Route;
 use App\Models\RouteStop;
@@ -29,6 +30,7 @@ class RouteSeeder extends Seeder
             'estimated_duration' => 35,
             'is_active' => true,
             'driver' => 'DRV-001',
+            'buses' => ['BUS-001'],
             'stops' => [
                 ['name' => 'Baneshwor Chowk', 'latitude' => 27.6993300, 'longitude' => 85.3392200, 'stop_order' => 1, 'pickup_time' => '07:00:00', 'drop_time' => '15:10:00'],
                 ['name' => 'New Baneshwor', 'latitude' => 27.6958000, 'longitude' => 85.3348000, 'stop_order' => 2, 'pickup_time' => '07:05:00', 'drop_time' => '15:15:00'],
@@ -46,6 +48,7 @@ class RouteSeeder extends Seeder
             'estimated_duration' => 50,
             'is_active' => true,
             'driver' => 'DRV-004',
+            'buses' => ['BUS-002'],
             'stops' => [
                 ['name' => 'Kalanki Bus Stop', 'latitude' => 27.6999000, 'longitude' => 85.2812000, 'stop_order' => 1, 'pickup_time' => '06:45:00', 'drop_time' => '15:15:00'],
                 ['name' => 'Kalimati', 'latitude' => 27.7008000, 'longitude' => 85.3017000, 'stop_order' => 2, 'pickup_time' => '06:55:00', 'drop_time' => '15:25:00'],
@@ -63,6 +66,7 @@ class RouteSeeder extends Seeder
             'estimated_duration' => 25,
             'is_active' => true,
             'driver' => 'DRV-005',
+            'buses' => ['BUS-003'],
             'stops' => [
                 ['name' => 'Gwarko Chowk', 'latitude' => 27.6723000, 'longitude' => 85.3183000, 'stop_order' => 1, 'pickup_time' => '07:05:00', 'drop_time' => '15:05:00'],
                 ['name' => 'Lagankhel', 'latitude' => 27.6670000, 'longitude' => 85.3236000, 'stop_order' => 2, 'pickup_time' => '07:10:00', 'drop_time' => '15:10:00'],
@@ -80,6 +84,7 @@ class RouteSeeder extends Seeder
             'estimated_duration' => 22,
             'is_active' => true,
             'driver' => 'DRV-002',
+            'buses' => ['BUS-005'],
             'stops' => [
                 ['name' => 'Jhamsikhel', 'latitude' => 27.6721000, 'longitude' => 85.2990000, 'stop_order' => 1, 'pickup_time' => '07:10:00', 'drop_time' => '15:05:00'],
                 ['name' => 'Sanepa', 'latitude' => 27.6765000, 'longitude' => 85.3065000, 'stop_order' => 2, 'pickup_time' => '07:15:00', 'drop_time' => '15:10:00'],
@@ -108,7 +113,9 @@ class RouteSeeder extends Seeder
 
                 $driverEmployeeId = $data['driver'];
 
-                unset($data['stops'], $data['driver']);
+                $busNumbers = $data['buses'];
+
+                unset($data['stops'], $data['driver'], $data['buses']);
 
                 $school = $schools->get($index % $schools->count());
 
@@ -121,6 +128,10 @@ class RouteSeeder extends Seeder
                         'driver_id' => $driver?->id,
                     ])
                 );
+
+                $busIds = Bus::whereIn('bus_number', $busNumbers)->pluck('id')->all();
+
+                $route->buses()->sync($busIds);
 
                 foreach ($stops as $stop) {
                     RouteStop::updateOrCreate(

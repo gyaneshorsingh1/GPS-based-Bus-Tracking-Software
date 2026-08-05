@@ -63,6 +63,7 @@
                         <th class="px-5 py-3 font-medium">Distance</th>
                         <th class="px-5 py-3 font-medium">Duration</th>
                         <th class="px-5 py-3 font-medium">School</th>
+                        <th class="px-5 py-3 font-medium">Buses</th>
                         <th class="px-5 py-3 font-medium">Status</th>
                         <th class="px-5 py-3 text-right font-medium">Actions</th>
                     </tr>
@@ -77,6 +78,15 @@
                             <td class="px-5 py-3">{{ $route->estimated_distance ? $route->estimated_distance . ' km' : '—' }}</td>
                             <td class="px-5 py-3">{{ $route->estimated_duration ? $route->estimated_duration . ' min' : '—' }}</td>
                             <td class="px-5 py-3">{{ $route->school->name ?? '—' }}</td>
+                            <td class="px-5 py-3">
+                                @forelse ($route->buses as $bus)
+                                    <span class="mr-1 inline-block rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/20 dark:text-brand-400">
+                                        {{ $bus->bus_number }}
+                                    </span>
+                                @empty
+                                    —
+                                @endforelse
+                            </td>
                             <td class="px-5 py-3">
                                 @if ($route->is_active)
                                     <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">Active</span>
@@ -117,7 +127,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="10" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
                                 No routes found.
                             </td>
                         </tr>
