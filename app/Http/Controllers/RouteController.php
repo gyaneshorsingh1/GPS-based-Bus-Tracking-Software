@@ -110,7 +110,13 @@ class RouteController extends Controller
     {
         $this->authorizeRoute($route);
 
-        $route->load(['school', 'driver']);
+        $route->load([
+            'school',
+            'driver',
+            'stops' => function ($query) {
+                $query->orderBy('stop_order', 'asc');
+            },
+        ]);
 
         return view('routes.show', compact('route'));
     }
