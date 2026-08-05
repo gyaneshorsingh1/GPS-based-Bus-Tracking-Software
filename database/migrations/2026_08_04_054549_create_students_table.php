@@ -19,8 +19,8 @@ return new class extends Migration
                 ->constrained('parent_profiles')
                 ->cascadeOnDelete();
 
-            // $table->foreignId('bus_id')->nullable()->constrained()->nullOnDelete();
-            // $table->foreignId('route_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('bus_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('route_id')->nullable()->constrained()->nullOnDelete();
 
             $table->string('admission_no')->unique();
 

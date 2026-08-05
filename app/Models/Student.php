@@ -49,13 +49,14 @@ class Student extends Model
         return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
     }
 
-    // public function bus()
-    // {
-    //     return $this->belongsTo(Bus::class);
-    // }
+    public function bus()
+    {
+        return $this->belongsTo(Bus::class);
+    }
 
-    // public function route()
-    // {
-    //     return $this->belongsTo(Route::class);
-    // }
+    public function route()
+    {
+        return $this->belongsTo(Route::class);
+    }
+
 }
