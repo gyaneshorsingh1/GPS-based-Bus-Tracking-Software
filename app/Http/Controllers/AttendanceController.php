@@ -23,7 +23,6 @@ class AttendanceController extends Controller
         $user = Auth::user();
 
         $query = Bus::query()
-            ->where('status', 'Active')
             ->with(['school', 'driver', 'route'])
             ->withCount('students');
 

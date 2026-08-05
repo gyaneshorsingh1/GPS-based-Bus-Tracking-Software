@@ -343,7 +343,7 @@ class AttendanceControllerTest extends TestCase
         $this->assertDatabaseCount('attendances', 0);
     }
 
-    public function test_index_only_lists_active_buses(): void
+    public function test_index_lists_all_buses_regardless_of_status(): void
     {
         $this->seed([PermissionSeeder::class, RoleSeeder::class]);
 
@@ -363,7 +363,8 @@ class AttendanceControllerTest extends TestCase
         $this->actingAs($superAdmin)->get(route('attendance.index'))
             ->assertOk()
             ->assertSee('BUS-111')
-            ->assertDontSee('BUS-112');
+            ->assertSee('BUS-112')
+            ->assertSee('Maintenance');
     }
 
     public function test_attendance_is_blocked_for_non_active_buses(): void

@@ -34,10 +34,21 @@
         </div>
     </dl>
 
-    <a
-        href="{{ route('attendance.buses.show', ['bus' => $bus, 'date' => $today]) }}"
-        class="block w-full rounded-lg bg-brand-500 px-4 py-2 text-center text-sm font-medium text-white hover:bg-brand-600"
-    >
-        View Attendance
-    </a>
+    @if ($bus->status === 'Active')
+        <a
+            href="{{ route('attendance.buses.show', ['bus' => $bus, 'date' => $today]) }}"
+            class="block w-full rounded-lg bg-brand-500 px-4 py-2 text-center text-sm font-medium text-white hover:bg-brand-600"
+        >
+            View Attendance
+        </a>
+    @else
+        <button
+            type="button"
+            disabled
+            title="Attendance can only be marked on active buses"
+            class="block w-full cursor-not-allowed rounded-lg bg-gray-100 px-4 py-2 text-center text-sm font-medium text-gray-400 dark:bg-gray-800 dark:text-gray-500"
+        >
+            View Attendance
+        </button>
+    @endif
 </div>
