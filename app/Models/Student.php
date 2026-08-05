@@ -58,5 +58,4 @@ class Student extends Model
     {
         return $this->belongsTo(Route::class);
     }
-
 }
