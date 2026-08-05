@@ -47,4 +47,9 @@ class Bus extends Model
     {
         return $this->belongsToMany(Driver::class);
     }
+
+    public function routes()
+    {
+        return $this->belongsToMany(Route::class);
+    }
 }

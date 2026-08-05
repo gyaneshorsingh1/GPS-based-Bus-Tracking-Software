@@ -78,4 +78,34 @@
     <!-- Add & Edit Stop Modal -->
     @include('routes.partials.stop-modal')
 
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Driver</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $route->driver->full_name ?? '—' }}</dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Buses</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+                        @forelse ($route->buses as $bus)
+                            <span class="mr-2 inline-block rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/20 dark:text-brand-400">
+                                {{ $bus->bus_number }}
+                            </span>
+                        @empty
+                            —
+                        @endforelse
+                    </dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $route->created_at->format('M d, Y H:i') }}</dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Updated</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ $route->updated_at->format('M d, Y H:i') }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
 </x-app-layout>

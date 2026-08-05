@@ -182,6 +182,39 @@
                 </div>
             </div>
 
+            <div>
+                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
+                    Assigned Buses
+                </h2>
+
+                @if ($buses->isEmpty())
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        No buses available. Create a bus before assigning one to a route.
+                    </p>
+                @else
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        @foreach ($buses as $bus)
+                            <label class="flex items-start gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                                <input
+                                    type="checkbox"
+                                    name="buses[]"
+                                    value="{{ $bus->id }}"
+                                    @checked(in_array($bus->id, old('buses', $route->buses->pluck('id')->all())))
+                                    class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                                >
+                                <span class="text-sm">
+                                    <span class="block font-medium text-gray-900 dark:text-white">{{ $bus->bus_number }}</span>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $bus->make }} {{ $bus->model }}</span>
+                                </span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('buses')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                @endif
+            </div>
+
             <div class="flex items-center justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-800">
                 <a
                     href="{{ route('routes.index') }}"

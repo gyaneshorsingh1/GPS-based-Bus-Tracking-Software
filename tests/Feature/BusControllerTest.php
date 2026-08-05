@@ -151,4 +151,50 @@ class BusControllerTest extends TestCase
 
         $this->assertSame(1, Bus::count());
     }
+
+    public function test_school_admin_can_edit_their_own_schools_bus(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        $schoolAdmin = User::factory()->create(['school_id' => null]);
+        $schoolAdmin->assignRole('School Admin');
+
+        $school = School::create([
+            'name' => 'Green Valley High School',
+            'code' => 'SCH003',
+            'email' => 'admin@greenvalley.com',
+            'phone' => '9800000000',
+            'address' => 'Kathmandu',
+            'principal_name' => 'Principal Name',
+            'status' => 'active',
+        ]);
+
+        $schoolAdmin->school_id = $school->id;
+        $schoolAdmin->save();
+
+        $bus = Bus::create([
+            'school_id' => $school->id,
+            'bus_number' => 'BUS-010',
+            'registration_number' => 'BA 1 KHA 1111',
+            'capacity' => 40,
+            'status' => 'Active',
+        ]);
+
+        $response = $this->actingAs($schoolAdmin)->get(route('buses.edit', $bus));
+        $response->assertOk();
+
+        $response = $this->actingAs($schoolAdmin)->put(route('buses.update', $bus), [
+            'bus_number' => 'BUS-010',
+            'registration_number' => 'BA 1 KHA 1111',
+            'capacity' => 50,
+            'status' => 'Maintenance',
+        ]);
+
+        $response->assertRedirect(route('buses.index'));
+
+        $bus->refresh();
+
+        $this->assertSame(50, $bus->capacity);
+        $this->assertSame('Maintenance', $bus->status);
+    }
 }

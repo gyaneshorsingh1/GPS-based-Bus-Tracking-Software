@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/principal/dashboard', [PrincipalDashboardController::class, 'index'])
         ->middleware([
             'permission:dashboard.view',
-            'role:School Admin',
+            'role:School Admin', // user role name like this: school-admin
         ])
         ->name('principal.dashboard');
 
@@ -346,11 +346,11 @@ Route::middleware('auth')->group(function () {
         ->name('buses.show');
 
     Route::get('/buses/{bus}/edit', [BusController::class, 'edit'])
-        ->middleware('permission:bus.edit')
+        ->middleware('permission:bus.update')
         ->name('buses.edit');
 
     Route::put('/buses/{bus}', [BusController::class, 'update'])
-        ->middleware('permission:bus.edit')
+        ->middleware('permission:bus.update')
         ->name('buses.update');
 
     Route::delete('/buses/{bus}', [BusController::class, 'destroy'])

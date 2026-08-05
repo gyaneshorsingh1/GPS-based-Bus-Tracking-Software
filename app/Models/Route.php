@@ -8,7 +8,6 @@ class Route extends Model
 {
     protected $fillable = [
         'school_id',
-        'bus_id',
         'driver_id',
         'name',
         'route_code',
@@ -24,10 +23,10 @@ class Route extends Model
         return $this->belongsTo(School::class);
     }
 
-    // public function bus()
-    // {
-    //     return $this->belongsTo(Bus::class);
-    // }
+    public function buses()
+    {
+        return $this->belongsToMany(Bus::class);
+    }
 
     public function driver()
     {
