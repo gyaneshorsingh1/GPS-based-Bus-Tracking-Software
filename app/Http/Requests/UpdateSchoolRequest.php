@@ -4,15 +4,16 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreSchoolRequest extends FormRequest
+class UpdateSchoolRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermissionTo('school.create');
+        return $this->user()->hasPermissionTo('school.update');
     }
 
     /**
@@ -22,10 +23,12 @@ class StoreSchoolRequest extends FormRequest
      */
     public function rules(): array
     {
+        $school = $this->route('school');
+
         return [
             'name' => 'required|max:255',
-            'code' => 'required|unique:schools,code',
-            'email' => 'required|email|unique:schools,email',
+            'code' => ['required', Rule::unique('schools', 'code')->ignore($school->id)],
+            'email' => ['required', 'email', Rule::unique('schools', 'email')->ignore($school->id)],
             'phone' => 'nullable|max:20',
             'address' => 'nullable',
             'latitude' => 'nullable|numeric',

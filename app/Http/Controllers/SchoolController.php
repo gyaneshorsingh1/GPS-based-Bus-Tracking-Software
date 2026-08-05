@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSchoolRequest;
+use App\Http\Requests\UpdateSchoolRequest;
 use App\Models\School;
 use Illuminate\Http\Request;
 
@@ -39,20 +41,9 @@ class SchoolController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSchoolRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|max:255',
-            'code' => 'required|unique:schools,code',
-            'email' => 'required|email|unique:schools,email',
-            'phone' => 'nullable|max:20',
-            'address' => 'nullable',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'principal_name' => 'nullable|max:255',
-            'logo' => 'nullable|image|max:2048',
-            'status' => 'required',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('logo')) {
             $validated['logo'] = $request
@@ -86,18 +77,9 @@ class SchoolController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, School $school)
+    public function update(UpdateSchoolRequest $request, School $school)
     {
-        $validated = $request->validate([
-            'name' => 'required|max:255',
-            'code' => 'required|unique:schools,code,'.$school->id,
-            'email' => 'required|email|unique:schools,email,'.$school->id,
-            'phone' => 'nullable|max:20',
-            'address' => 'nullable',
-            'principal_name' => 'nullable|max:255',
-            'logo' => 'nullable|image|max:2048',
-            'status' => 'required',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('logo')) {
             $validated['logo'] = $request
