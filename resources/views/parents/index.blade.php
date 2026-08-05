@@ -59,7 +59,7 @@
                         <th class="px-5 py-3 font-medium">Name</th>
                         <th class="px-5 py-3 font-medium">Email</th>
                         <th class="px-5 py-3 font-medium">School</th>
-                        <th class="px-5 py-3 font-medium">Father Name</th>
+                        <th class="px-5 py-3 font-medium">Children</th>
                         <th class="px-5 py-3 font-medium">Phone</th>
                         <th class="px-5 py-3 font-medium">Created</th>
                         <th class="px-5 py-3 text-right font-medium">Actions</th>
@@ -71,7 +71,17 @@
                             <td class="px-5 py-3 font-medium">{{ $parent->user->name }}</td>
                             <td class="px-5 py-3">{{ $parent->user->email }}</td>
                             <td class="px-5 py-3">{{ $parent->school->name ?? '—' }}</td>
-                            <td class="px-5 py-3">{{ $parent->father_name }}</td>
+                            <td class="px-5 py-3">
+                                <div class="flex flex-wrap gap-1.5">
+                                    @forelse ($parent->children as $child)
+                                        <span class="inline-flex items-center rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-400 border border-brand-200/60 dark:border-brand-500/20">
+                                            {{ $child->full_name }}
+                                        </span>
+                                    @empty
+                                        —
+                                    @endforelse
+                                </div>
+                            </td>
                             <td class="px-5 py-3">{{ $parent->phone }}</td>
                             <td class="px-5 py-3">{{ $parent->created_at->format('M d, Y') }}</td>
                             <td class="px-5 py-3">
