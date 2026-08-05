@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/principal/dashboard', [PrincipalDashboardController::class, 'index'])
         ->middleware([
             'permission:dashboard.view',
-            'role:School Admin',
+            'role:School Admin', // user role name like this: school-admin
         ])
         ->name('principal.dashboard');
 
