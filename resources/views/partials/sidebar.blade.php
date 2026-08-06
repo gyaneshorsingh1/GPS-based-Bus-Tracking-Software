@@ -29,7 +29,10 @@
         [
             'title' => 'Management',
             'items' => [
-                ['key' => 'user-management', 'label' => 'User Management', 'route' => 'dashboard', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => null, 'dropdown' => null],
+                // "User Management" is Super Admin only. The `permission`
+                // key is checked by the filter below via the `manage-users`
+                // gate, so the item is hidden from every other role.
+                ['key' => 'user-management', 'label' => 'User Management', 'route' => 'users.index', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'manage-users', 'dropdown' => null],
                 ['key' => 'school-management', 'label' => 'School Management', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
                 ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
