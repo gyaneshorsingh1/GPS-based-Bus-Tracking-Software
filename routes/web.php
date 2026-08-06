@@ -11,6 +11,7 @@ use App\Http\Controllers\RouteStopController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -232,6 +233,41 @@ Route::middleware('auth')->group(function () {
     Route::delete('/school-admins/{schoolAdmin}', [SchoolAdminController::class, 'destroy'])
         ->middleware('permission:school-admin.delete')
         ->name('school-admins.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Management
+    |--------------------------------------------------------------------------
+    |
+    | Super Admin only: every route is protected by the `manage-users` gate.
+    | Any other authenticated user who manually enters one of these URLs
+    | receives a 403 response.
+    |
+    */
+
+    Route::get('/users', [UserController::class, 'index'])
+        ->middleware('can:manage-users')
+        ->name('users.index');
+
+    Route::get('/users/create', [UserController::class, 'create'])
+        ->middleware('can:manage-users')
+        ->name('users.create');
+
+    Route::post('/users', [UserController::class, 'store'])
+        ->middleware('can:manage-users')
+        ->name('users.store');
+
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+        ->middleware('can:manage-users')
+        ->name('users.edit');
+
+    Route::put('/users/{user}', [UserController::class, 'update'])
+        ->middleware('can:manage-users')
+        ->name('users.update');
+
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        ->middleware('can:manage-users')
+        ->name('users.destroy');
 
     /*
     |--------------------------------------------------------------------------
