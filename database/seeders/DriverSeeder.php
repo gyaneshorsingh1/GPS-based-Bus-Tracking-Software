@@ -190,6 +190,28 @@ class DriverSeeder extends Seeder
             'emergency_contact_phone' => '+977-9801334455',
             'remarks' => 'Pending license renewal.',
         ],
+        [
+            'email' => 'driver@example.com',
+            'first_name' => 'School',
+            'last_name' => 'Driver',
+            'gender' => 'Male',
+            'date_of_birth' => '1990-01-01',
+            'phone' => '+977-9800000000',
+            'address' => 'Demo Address, Ward 1',
+            'city' => 'Biratnagar',
+            'state' => 'Koshi',
+            'country' => 'Nepal',
+            'postal_code' => '56600',
+            'license_type' => 'Bus',
+            'license_issue_date' => '2019-01-01',
+            'license_expiry_date' => '2029-01-01',
+            'experience_years' => 5,
+            'joining_date' => '2024-01-01',
+            'status' => 'Active',
+            'emergency_contact_name' => 'Demo Contact',
+            'emergency_contact_phone' => '+977-9800000001',
+            'remarks' => 'Demo driver login account.',
+        ],
     ];
 
     /**
@@ -221,7 +243,7 @@ class DriverSeeder extends Seeder
 
                 $licenseNumber = 'DL-'.str_pad((string) ($index + 1), 8, '0', STR_PAD_LEFT);
 
-                $email = Str::slug($data['first_name'].'-'.$data['last_name']).'@gpsbustrack.com';
+                $email = $data['email'] ?? Str::slug($data['first_name'].'-'.$data['last_name']).'@gpsbustrack.com';
 
                 $school = $schools->get($index % $schools->count());
 
