@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BusController;
 use App\Http\Controllers\BusLocationController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\DriverDashboardController;
 use App\Http\Controllers\ParentDashboardController;
 use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\PrincipalDashboardController;
@@ -68,9 +69,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/driver/dashboard', function () {
-        return view('dashboard');
-    })
+    Route::get('/driver/dashboard', [DriverDashboardController::class, 'index'])
         ->middleware([
             'permission:dashboard.view',
             'role:Driver',
