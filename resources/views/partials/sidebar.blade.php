@@ -44,7 +44,7 @@
             'items' => [
                 ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -100,7 +100,7 @@
             'title' => 'Monitoring',
             'items' => [
                 ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'bus_location', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -133,7 +133,7 @@
             'title' => 'Monitoring',
             'items' => [
                 ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'driver.dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'driver.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'driver.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -165,12 +165,12 @@
         //         ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'parent.dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
         //     ],
         // ],
-        [
-            'title' => 'Notifications',
-            'items' => [
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'parent.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-            ],
-        ],
+        // [
+        //     'title' => 'Notifications',
+        //     'items' => [
+        //         ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'parent.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+        //     ],
+        // ],
         [
             'title' => 'Account',
             'items' => [
@@ -201,7 +201,7 @@
         [
             'title' => 'Notifications',
             'items' => [
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
