@@ -32,12 +32,12 @@
                 // "User Management" is Super Admin only. The `permission`
                 // key is checked by the filter below via the `manage-users`
                 // gate, so the item is hidden from every other role.
-                ['key' => 'user-management', 'label' => 'User Management', 'route' => 'users.index', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'manage-users', 'dropdown' => null],
-                ['key' => 'school-management', 'label' => 'School Management', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
-                ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
-                ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
-                ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-                ['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
+                ['key' => 'user-management', 'label' => 'User ', 'route' => 'users.index', 'active' => 'user-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'manage-users', 'dropdown' => null],
+                ['key' => 'school-management', 'label' => 'School', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
+                ['key' => 'school-admin-management', 'label' => 'School Admin', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
+                ['key' => 'parent-management', 'label' => 'Parent', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'route-management', 'label' => 'Route', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trip-management', 'label' => 'Trip', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
