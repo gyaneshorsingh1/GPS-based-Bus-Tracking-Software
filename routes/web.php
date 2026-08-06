@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BusController;
+use App\Http\Controllers\BusLocationController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\DriverDashboardController;
+use App\Http\Controllers\ParentDashboardController;
 use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\PrincipalDashboardController;
 use App\Http\Controllers\ProfileController;
@@ -66,9 +69,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/driver/dashboard', function () {
-        return view('dashboard');
-    })
+    Route::get('/driver/dashboard', [DriverDashboardController::class, 'index'])
         ->middleware([
             'permission:dashboard.view',
             'role:Driver',
@@ -81,21 +82,19 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/parent/dashboard', function () {
-        return view('dashboard');
-    })
+    Route::get('/parent/dashboard', [ParentDashboardController::class, 'index'])
         ->middleware([
             'permission:dashboard.view',
             'role:Parent',
         ])
         ->name('parent.dashboard');
 
-    Route::get('/parent/my-children', [ParentProfileController::class, 'myChildren'])
+    Route::get('/parent/children', [ParentDashboardController::class, 'children'])
         ->middleware([
-            'permission:dashboard.view',
+            'permission:student.view',
             'role:Parent',
         ])
-        ->name('parent.my-children');
+        ->name('parent.children');
 
     /*
     |--------------------------------------------------------------------------
@@ -398,6 +397,10 @@ Route::middleware('auth')->group(function () {
             'role:Super Admin|School Admin|Driver',
         ])
         ->name('attendance.mark');
+
+    Route::get('/bus-location', [BusLocationController::class, 'index'])
+        ->middleware('role:Super Admin|School Admin|Driver|Parent')
+        ->name('bus_location');
 
     /*
     |--------------------------------------------------------------------------

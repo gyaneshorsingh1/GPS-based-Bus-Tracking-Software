@@ -34,6 +34,15 @@
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
                 ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
                 ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
+            ],
+        ],
+        [
+            'title' => 'Monitoring',
+            'items' => [
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -80,16 +89,16 @@
         [
             'title' => 'Trip Management',
             'items' => [
-                ['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
-                ['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Monitoring',
             'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'bus_location', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -104,25 +113,25 @@
         [
             'title' => 'Dashboard',
             'items' => [
-                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'driver.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Trip Management',
             'items' => [
-                ['key' => 'today-trip', 'label' => "Today's Trip", 'route' => 'dashboard', 'active' => 'today-trip', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
-                ['key' => 'start-trip', 'label' => 'Start Trip', 'route' => 'dashboard', 'active' => 'start-trip', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
-                ['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
-                ['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'dashboard', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
-                ['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'dashboard', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+                ['key' => 'today-trip', 'label' => "Today's Trip", 'route' => 'driver.dashboard', 'active' => 'today-trip', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
+                ['key' => 'start-trip', 'label' => 'Start Trip', 'route' => 'driver.dashboard', 'active' => 'start-trip', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                ['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'driver.dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
+                ['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'attendance.index', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+                ['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'attendance.index', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Monitoring',
             'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'driver.dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'driver.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -137,30 +146,29 @@
         [
             'title' => 'Dashboard',
             'items' => [
-                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'parent.my-children', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'parent.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'my-children', 'label' => 'My Students', 'route' => 'parent.children', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Live Tracking',
             'items' => [
-                ['key' => 'track-bus', 'label' => 'Track Bus', 'route' => 'dashboard', 'active' => 'track-bus', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'dashboard', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
             ],
         ],
-        [
-            'title' => 'Attendance',
-            'items' => [
-                ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
-                ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
-            ],
-        ],
-        [
-            'title' => 'Notifications',
-            'items' => [
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
-            ],
-        ],
+        // [
+        //     'title' => 'Attendance',
+        //     'items' => [
+        //         ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'parent.dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+        //         ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'parent.dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+        //     ],
+        // ],
+        // [
+        //     'title' => 'Notifications',
+        //     'items' => [
+        //         ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'parent.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+        //     ],
+        // ],
         [
             'title' => 'Account',
             'items' => [
@@ -191,7 +199,7 @@
         [
             'title' => 'Notifications',
             'items' => [
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -253,10 +261,16 @@
         return $group;
     }, $menu), fn($group) => count($group['items']) > 0));
 
-    // Fallback link for the logo when the user cannot view the dashboard
-    $homeRoute = auth()->check() && auth()->user()->can('dashboard.view')
-        ? route('dashboard')
-        : route('profile.edit');
+    // Fallback link for the logo
+    $homeRoute = ! auth()->check()
+        ? route('login')
+        : match (true) {
+            auth()->user()->hasRole('Super Admin') => route('dashboard'),
+            auth()->user()->hasRole('School Admin') => route('principal.dashboard'),
+            auth()->user()->hasRole('Driver') => route('driver.dashboard'),
+            auth()->user()->hasRole('Parent') => route('parent.dashboard'),
+            default => auth()->user()->can('dashboard.view') ? route('dashboard') : route('profile.edit'),
+        };
 
     // Helper: is this item "active" given the current $page variable?
     $isActive = function ($item) use ($page) {
