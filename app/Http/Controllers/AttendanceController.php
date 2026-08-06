@@ -37,9 +37,16 @@ class AttendanceController extends Controller
         } elseif ($user->hasRole('Driver')) {
             $driverId = Driver::where('user_id', $user->id)->value('id');
 
-            if ($driverId) {
-                $query->where('driver_id', $driverId);
+            if (! $driverId) {
+                return view('attendance.index', [
+                    'buses' => collect(),
+                    'checkedIn' => collect(),
+                    'today' => $request->query('date') ?: now()->toDateString(),
+                    'groupedBySchool' => false,
+                ]);
             }
+
+            $query->where('driver_id', $driverId);
         }
 
         $buses = $query->orderBy('bus_number')->get();

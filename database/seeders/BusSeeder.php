@@ -34,7 +34,7 @@ class BusSeeder extends Seeder
             'last_service_date' => '2026-07-15',
             'status' => 'Active',
             'notes' => 'Used on the Baneshwor shuttle route.',
-            'driver' => 'DRV-001',
+            'driver' => 'DRV-009',
         ],
         [
             'bus_number' => 'BUS-002',
