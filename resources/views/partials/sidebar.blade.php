@@ -148,28 +148,28 @@
         [
             'title' => 'Dashboard',
             'items' => [
-                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'dashboard', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'parent.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
+                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'parent.children', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Live Tracking',
             'items' => [
-                ['key' => 'track-bus', 'label' => 'Track Bus', 'route' => 'dashboard', 'active' => 'track-bus', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
+                ['key' => 'track-bus', 'label' => 'Track Bus', 'route' => 'bus_location', 'active' => ['track-bus', 'bus-location'], 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
                 ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Attendance',
             'items' => [
-                ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
-                ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+                ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'parent.dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+                ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'parent.dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Notifications',
             'items' => [
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
+                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'parent.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -264,10 +264,16 @@
         return $group;
     }, $menu), fn($group) => count($group['items']) > 0));
 
-    // Fallback link for the logo when the user cannot view the dashboard
-    $homeRoute = auth()->check() && auth()->user()->can('dashboard.view')
-        ? route('dashboard')
-        : route('profile.edit');
+    // Fallback link for the logo
+    $homeRoute = ! auth()->check()
+        ? route('login')
+        : match (true) {
+            auth()->user()->hasRole('Super Admin') => route('dashboard'),
+            auth()->user()->hasRole('School Admin') => route('principal.dashboard'),
+            auth()->user()->hasRole('Driver') => route('driver.dashboard'),
+            auth()->user()->hasRole('Parent') => route('parent.dashboard'),
+            default => auth()->user()->can('dashboard.view') ? route('dashboard') : route('profile.edit'),
+        };
 
     // Helper: is this item "active" given the current $page variable?
     $isActive = function ($item) use ($page) {

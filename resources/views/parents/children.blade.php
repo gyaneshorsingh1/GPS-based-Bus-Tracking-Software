@@ -1,0 +1,79 @@
+<x-app-layout page="my-children">
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">My Children</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    {{ $children->count() }} child{{ $children->count() === 1 ? '' : 'ren' }} linked to your account.
+                </p>
+            </div>
+        </div>
+
+        @if ($children->isEmpty())
+            <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    No children are linked to your account yet. Please contact your school.
+                </p>
+            </div>
+        @else
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                @foreach ($children as $child)
+                    @php $bus = $child->bus; @endphp
+                    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-lg font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+                                {{ strtoupper(substr($child->first_name ?? $child->full_name, 0, 1)) }}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ $child->full_name }}</p>
+                                <p class="text-theme-xs text-gray-500 dark:text-gray-400">
+                                    {{ trim($child->grade.' '.$child->section) }} · {{ $child->admission_no }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <dl class="mt-4 space-y-2 border-t border-gray-100 pt-4 text-sm dark:border-gray-800">
+                            <div class="flex justify-between gap-3">
+                                <dt class="text-gray-500 dark:text-gray-400">School</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{ $child->school?->name ?? '—' }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-3">
+                                <dt class="text-gray-500 dark:text-gray-400">Assigned Bus</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{ $bus?->bus_number ?? 'Not assigned' }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-3">
+                                <dt class="text-gray-500 dark:text-gray-400">Route</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{ $bus?->route?->name ?? '—' }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-3">
+                                <dt class="text-gray-500 dark:text-gray-400">Driver</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{ $bus?->driver?->full_name ?? '—' }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-3">
+                                <dt class="text-gray-500 dark:text-gray-400">Pickup</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{ $child->pickup_location ?? '—' }}</dd>
+                            </div>
+                            <div class="flex justify-between gap-3">
+                                <dt class="text-gray-500 dark:text-gray-400">Drop-off</dt>
+                                <dd class="font-medium text-gray-900 dark:text-white">{{ $child->drop_location ?? '—' }}</dd>
+                            </div>
+                        </dl>
+
+                        @if ($bus)
+                            <a
+                                href="{{ route('bus_location') }}"
+                                class="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-theme-sm font-medium text-white hover:bg-brand-600"
+                            >
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                Track This Bus
+                            </a>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+</x-app-layout>
