@@ -24,7 +24,6 @@
             'title' => 'Dashboard',
             'items' => [
                 ['key' => 'overview', 'label' => 'Overview', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-                ['key' => 'live-summary', 'label' => 'Live Summary', 'route' => 'dashboard', 'active' => 'live-summary', 'icon' => 'heroicon-o-signal', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -34,24 +33,14 @@
                 ['key' => 'school-management', 'label' => 'School Management', 'route' => 'schools.index', 'active' => 'school-management', 'icon' => 'heroicon-o-building-library', 'permission' => null, 'dropdown' => null],
                 ['key' => 'school-admin-management', 'label' => 'School Admin Management', 'route' => 'school-admins.index', 'active' => 'school-admin-management', 'icon' => 'heroicon-o-user-group', 'permission' => 'school-admin.view', 'dropdown' => null],
                 ['key' => 'parent-management', 'label' => 'Parent Management', 'route' => 'parents.index', 'active' => 'parent-management', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
-                ['key' => 'fleet-management', 'label' => 'Fleet Management', 'route' => 'dashboard', 'active' => 'fleet-management', 'icon' => 'heroicon-o-truck', 'permission' => null, 'dropdown' => null],
                 ['key' => 'route-management', 'label' => 'Route Management', 'route' => 'routes.index', 'active' => 'route-management', 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
-                ['key' => 'trip-management', 'label' => 'Trip Management', 'route' => 'dashboard', 'active' => 'trip-management', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
-            ],
-        ],
-        [
-            'title' => 'Monitoring',
-            'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
-                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
-                ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Administration',
             'items' => [
                 ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'dashboard', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => null, 'dropdown' => null],
-                ['key' => 'settings', 'label' => 'Settings', 'route' => 'dashboard', 'active' => 'settings', 'icon' => 'heroicon-o-cog-6-tooth', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'settings', 'label' => 'Settings', 'route' => 'dashboard', 'active' => 'settings', 'icon' => 'heroicon-o-cog-6-tooth', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -149,7 +138,7 @@
             'title' => 'Dashboard',
             'items' => [
                 ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'dashboard', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'parent.my-children', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [

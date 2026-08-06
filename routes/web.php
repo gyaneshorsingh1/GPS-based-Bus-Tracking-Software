@@ -90,6 +90,13 @@ Route::middleware('auth')->group(function () {
         ])
         ->name('parent.dashboard');
 
+    Route::get('/parent/my-children', [ParentProfileController::class, 'myChildren'])
+        ->middleware([
+            'permission:dashboard.view',
+            'role:Parent',
+        ])
+        ->name('parent.my-children');
+
     /*
     |--------------------------------------------------------------------------
     | Drivers
