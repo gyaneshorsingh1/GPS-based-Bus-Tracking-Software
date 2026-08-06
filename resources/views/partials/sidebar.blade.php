@@ -43,7 +43,6 @@
         [
             'title' => 'Monitoring',
             'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
                 // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
@@ -51,7 +50,7 @@
         [
             'title' => 'Administration',
             'items' => [
-                ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'dashboard', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'roles.index', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => 'role.view', 'dropdown' => null],
                 // ['key' => 'settings', 'label' => 'Settings', 'route' => 'dashboard', 'active' => 'settings', 'icon' => 'heroicon-o-cog-6-tooth', 'permission' => null, 'dropdown' => null],
             ],
         ],
@@ -122,11 +121,11 @@
         [
             'title' => 'Trip Management',
             'items' => [
-                ['key' => 'today-trip', 'label' => "Today's Trip", 'route' => 'driver.dashboard', 'active' => 'today-trip', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
-                ['key' => 'start-trip', 'label' => 'Start Trip', 'route' => 'driver.dashboard', 'active' => 'start-trip', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
-                ['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'driver.dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
-                ['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'attendance.index', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
-                ['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'attendance.index', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'today-trip', 'label' => "Today's Trip", 'route' => 'driver.dashboard', 'active' => 'today-trip', 'icon' => 'heroicon-o-clipboard-document-list', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'start-trip', 'label' => 'Start Trip', 'route' => 'driver.dashboard', 'active' => 'start-trip', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'driver.dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'attendance.index', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'attendance.index', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
             ],
         ],

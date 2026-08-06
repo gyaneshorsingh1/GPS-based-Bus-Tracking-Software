@@ -11,10 +11,11 @@ use App\Http\Controllers\PrincipalDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\RouteStopController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\SuperAdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,9 +42,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/systemadmin/dashboard', function () {
-        return view('dashboard');
-    })
+    Route::get('/systemadmin/dashboard', [SuperAdminDashboardController::class, 'index'])
         ->middleware([
             'verified',
             'permission:dashboard.view',
@@ -437,6 +436,40 @@ Route::middleware('auth')->group(function () {
     Route::get('/bus-location', [BusLocationController::class, 'index'])
         ->middleware('role:Super Admin|School Admin|Driver|Parent')
         ->name('bus_location');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Roles & Permissions (Super Admin only)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/roles', [RoleController::class, 'index'])
+        ->middleware(['role:Super Admin', 'permission:role.view'])
+        ->name('roles.index');
+
+    Route::get('/roles/create', [RoleController::class, 'create'])
+        ->middleware(['role:Super Admin', 'permission:role.create'])
+        ->name('roles.create');
+
+    Route::post('/roles', [RoleController::class, 'store'])
+        ->middleware(['role:Super Admin', 'permission:role.create'])
+        ->name('roles.store');
+
+    Route::get('/roles/{role}', [RoleController::class, 'show'])
+        ->middleware(['role:Super Admin', 'permission:role.view'])
+        ->name('roles.show');
+
+    Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])
+        ->middleware(['role:Super Admin', 'permission:role.update'])
+        ->name('roles.edit');
+
+    Route::put('/roles/{role}', [RoleController::class, 'update'])
+        ->middleware(['role:Super Admin', 'permission:role.update'])
+        ->name('roles.update');
+
+    Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
+        ->middleware(['role:Super Admin', 'permission:role.delete'])
+        ->name('roles.destroy');
 
     /*
     |--------------------------------------------------------------------------
