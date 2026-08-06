@@ -47,7 +47,7 @@
         [
             'title' => 'Administration',
             'items' => [
-                ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'dashboard', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'roles-permissions', 'label' => 'Roles & Permissions', 'route' => 'roles.index', 'active' => 'roles-permissions', 'icon' => 'heroicon-o-shield-check', 'permission' => 'role.view', 'dropdown' => null],
                 // ['key' => 'settings', 'label' => 'Settings', 'route' => 'dashboard', 'active' => 'settings', 'icon' => 'heroicon-o-cog-6-tooth', 'permission' => null, 'dropdown' => null],
             ],
         ],
