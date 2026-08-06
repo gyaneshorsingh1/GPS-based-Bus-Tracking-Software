@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BusController;
+use App\Http\Controllers\BusLocationController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\PrincipalDashboardController;
@@ -391,6 +392,10 @@ Route::middleware('auth')->group(function () {
             'role:Super Admin|School Admin|Driver',
         ])
         ->name('attendance.mark');
+
+    Route::get('/bus-location', [BusLocationController::class, 'index'])
+        ->middleware('role:Super Admin|School Admin|Driver|Parent')
+        ->name('bus_location');
 
     /*
     |--------------------------------------------------------------------------
