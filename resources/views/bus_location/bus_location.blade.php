@@ -115,6 +115,25 @@
         liveMap.flyTo([lat, lng], 15, { duration: 0.8 });
     }
 
+    function timeAgo(dateStr) {
+        if (!dateStr) return '—';
+        const then = new Date(dateStr).getTime();
+        if (isNaN(then)) return dateStr;
+
+        const seconds = Math.floor((Date.now() - then) / 1000);
+        if (seconds < 10) return 'Just now';
+        if (seconds < 60) return `${seconds} seconds ago`;
+
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+
+        const days = Math.floor(hours / 24);
+        return `${days} day${days === 1 ? '' : 's'} ago`;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const hasLocations = busLocations.some(l => l.latitude && l.longitude);
         const defaultCenter = hasLocations ? [busLocations.find(l => l.latitude && l.longitude).latitude, busLocations.find(l => l.latitude && l.longitude).longitude] : [27.7172, 85.3240];
@@ -167,7 +186,7 @@
         }
 
         document.getElementById('onMapCount').textContent = onMap;
-        document.getElementById('lastUpdateStat').textContent = busLocations.length ? (busLocations[0].recorded_at || '—') : '—';
-        document.getElementById('lastUpdateBadge').textContent = busLocations.length ? `Updated ${busLocations[0].recorded_at || ''}` : 'No data yet';
+        document.getElementById('lastUpdateStat').textContent = busLocations.length ? timeAgo(busLocations[0].recorded_at) : '—';
+        document.getElementById('lastUpdateBadge').textContent = busLocations.length ? `Updated ${timeAgo(busLocations[0].recorded_at)}` : 'No data yet';
     });
 </script>
