@@ -14,6 +14,7 @@ use App\Http\Controllers\RouteStopController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SuperAdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,9 +41,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/systemadmin/dashboard', function () {
-        return view('dashboard');
-    })
+    Route::get('/systemadmin/dashboard', [SuperAdminDashboardController::class, 'index'])
         ->middleware([
             'verified',
             'permission:dashboard.view',
