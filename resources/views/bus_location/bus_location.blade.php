@@ -19,7 +19,7 @@
             </div>
             <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
                 <p class="text-sm text-gray-500 dark:text-gray-400">Last Update</p>
-                <p id="lastUpdateStat" class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">—</p>
+                <p id="lastUpdateStat" class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">—</p>
             </div>
         </div>
 
