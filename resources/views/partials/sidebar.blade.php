@@ -91,15 +91,15 @@
         [
             'title' => 'Trip Management',
             'items' => [
-                ['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
-                ['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
+                // ['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Monitoring',
             'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'bus_location', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
@@ -149,23 +149,22 @@
             'title' => 'Dashboard',
             'items' => [
                 ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'parent.dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-                ['key' => 'my-children', 'label' => 'My Children', 'route' => 'parent.children', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
+                ['key' => 'my-children', 'label' => 'My Students', 'route' => 'parent.children', 'active' => 'my-children', 'icon' => 'heroicon-o-users', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
             'title' => 'Live Tracking',
             'items' => [
-                ['key' => 'track-bus', 'label' => 'Track Bus', 'route' => 'bus_location', 'active' => ['track-bus', 'bus-location'], 'icon' => 'heroicon-o-map', 'permission' => null, 'dropdown' => null],
                 ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
             ],
         ],
-        [
-            'title' => 'Attendance',
-            'items' => [
-                ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'parent.dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
-                ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'parent.dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
-            ],
-        ],
+        // [
+        //     'title' => 'Attendance',
+        //     'items' => [
+        //         ['key' => 'boarding-history', 'label' => 'Boarding History', 'route' => 'parent.dashboard', 'active' => 'boarding-history', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
+        //         ['key' => 'dropoff-history', 'label' => 'Drop-off History', 'route' => 'parent.dashboard', 'active' => 'dropoff-history', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+        //     ],
+        // ],
         [
             'title' => 'Notifications',
             'items' => [
