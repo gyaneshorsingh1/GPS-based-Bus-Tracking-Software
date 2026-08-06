@@ -29,7 +29,7 @@
             @endphp
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                <div class="flex min-h-[150px] flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
                     <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-500/15">
                         <svg class="fill-brand-500" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M8.262 2.402c.706-.54 1.683-.218 2.074.502L14.12 9.25h4.13c1.795 0 3.25 1.455 3.25 3.25V15c0 1.054-.5 1.99-1.277 2.586A3.75 3.75 0 0116.5 22.75a3.75 3.75 0 01-3.722-5.164h-2.556a3.751 3.751 0 01-6.444 0A2.25 2.25 0 011.75 15.5v-5A2.25 2.25 0 014 8.25h1.5a.75.75 0 000-1.5H3.5a.75.75 0 010-1.5H10V3.25a.75.75 0 010-1.5h1.5c.414 0 .75.336.75.75v.75a.75.75 0 01-1.5 0V3.25a.75.75 0 00-.75-.75H8.75a.75.75 0 00-.488 1.902zM5.5 18.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zm9.5 0a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM16.5 11h1.75a1.75 1.75 0 011.75 1.75V15a.75.75 0 01-.75.75h-2.75v-4.75z" fill=""/>
@@ -41,7 +41,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                <div class="flex min-h-[150px] flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
                     <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-success-50 dark:bg-success-500/15">
                         <svg class="fill-success-600 dark:fill-success-500" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M7.5 2.25C5.01572 2.25 3 4.26572 3 6.75V17.25C3 19.7343 5.01572 21.75 7.5 21.75H16.5C18.9843 21.75 21 19.7343 21 17.25V6.75C21 4.26572 18.9843 2.25 16.5 2.25H7.5ZM7.25 7.75C7.25 7.33579 7.58579 7 8 7H16C16.4142 7 16.75 7.33579 16.75 7.75C16.75 8.16421 16.4142 8.5 16 8.5H8C7.58579 8.5 7.25 8.16421 7.25 7.75ZM7.25 12C7.25 11.5858 7.58579 11.25 8 11.25H16C16.4142 11.25 16.75 11.5858 16.75 12C16.75 12.4142 16.4142 12.75 16 12.75H8C7.58579 12.75 7.25 12.4142 7.25 12ZM8 15.25C7.58579 15.25 7.25 15.5858 7.25 16C7.25 16.4142 7.58579 16.75 8 16.75H10.25C10.6642 16.75 11 16.4142 11 16C11 15.5858 10.6642 15.25 10.25 15.25H8Z" fill=""/>
@@ -53,7 +53,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                <div class="flex min-h-[150px] flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
                     <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-warning-50 dark:bg-warning-500/15">
                         <svg class="fill-warning-600 dark:fill-warning-500" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M12 4.25C7.71979 4.25 4.25 7.71979 4.25 12C4.25 16.2802 7.71979 19.75 12 19.75C16.2802 19.75 19.75 16.2802 19.75 12C19.75 7.71979 16.2802 4.25 12 4.25ZM2.75 12C2.75 6.89201 6.89201 2.75 12 2.75C17.108 2.75 21.25 6.89201 21.25 12C21.25 17.108 17.108 21.25 12 21.25C6.89201 21.25 2.75 17.108 2.75 12ZM11.25 8C11.25 7.58579 11.5858 7.25 12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V12C12.75 12.4142 12.4142 12.75 12 12.75C11.5858 12.75 11.25 12.4142 11.25 12V8ZM12 16.75C12.4142 16.75 12.75 16.4142 12.75 16C12.75 15.5858 12.4142 15.25 12 15.25C11.5858 15.25 11.25 15.5858 11.25 16C11.25 16.4142 11.5858 16.75 12 16.75Z" fill=""/>
@@ -66,7 +66,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                <div class="flex min-h-[150px] flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
                     <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
                         <svg class="fill-gray-800 dark:fill-white/90" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M8.262 2.402c.706-.54 1.683-.218 2.074.502L14.12 9.25h4.13c1.795 0 3.25 1.455 3.25 3.25V15c0 1.054-.5 1.99-1.277 2.586A3.75 3.75 0 0116.5 22.75a3.75 3.75 0 01-3.722-5.164h-2.556a3.751 3.751 0 01-6.444 0A2.25 2.25 0 011.75 15.5v-5A2.25 2.25 0 014 8.25h1.5a.75.75 0 000-1.5H3.5a.75.75 0 010-1.5H10V3.25a.75.75 0 010-1.5h1.5c.414 0 .75.336.75.75v.75a.75.75 0 01-1.5 0V3.25a.75.75 0 00-.75-.75H8.75a.75.75 0 00-.488 1.902zM5.5 18.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zm9.5 0a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5zM16.5 11h1.75a1.75 1.75 0 011.75 1.75V15a.75.75 0 01-.75.75h-2.75v-4.75z" fill=""/>
@@ -95,7 +95,7 @@
                         $location = $locationsByBus->get($bus->id);
                         $online = $location && $location->recorded_at?->gt(now()->subMinutes(10));
                     @endphp
-                    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div class="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
                         <div class="mb-3 flex items-start justify-between gap-3">
                             <div>
                                 <p class="text-base font-semibold text-gray-900 dark:text-white">{{ $bus->bus_number }}</p>
@@ -110,7 +110,7 @@
                             @endif
                         </div>
 
-                        <dl class="mb-4 space-y-1.5 text-sm">
+                        <dl class="mb-4 flex-1 space-y-1.5 text-sm">
                             <div class="flex justify-between gap-3">
                                 <dt class="text-gray-500 dark:text-gray-400">Route</dt>
                                 <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->route?->name ?? '—' }}</dd>
