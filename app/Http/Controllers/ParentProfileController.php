@@ -55,6 +55,23 @@ class ParentProfileController extends Controller
     }
 
     /**
+     * Show the children belonging to the logged-in parent.
+     */
+    public function myChildren()
+    {
+        $user = Auth::user();
+
+        $parentProfile = ParentProfile::query()
+            ->where('user_id', $user->id)
+            ->with('children.school')
+            ->first();
+
+        $children = $parentProfile?->children ?? collect();
+
+        return view('parents.my-children', compact('children'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
