@@ -102,8 +102,10 @@
 
     function busMarkerHtml(label) {
         return `
-            <div class="bus-marker-wrap">
-                <div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#4F46E5;border:2px solid #fff;box-shadow:0 4px 6px rgba(0,0,0,0.3);color:#fff;font-size:10px;font-weight:700;text-align:center;line-height:1.2;padding:2px;white-space:nowrap;overflow:hidden;">${label}</div>
+            <div style="display:flex;flex-direction:column;align-items:center;width:120px;height:48px;">
+                <div style="flex-shrink:0;max-width:116px;padding:3px 8px;border-radius:8px;background:#4F46E5;border:2px solid #fff;box-shadow:0 4px 6px rgba(0,0,0,0.3);color:#fff;font-size:11px;font-weight:700;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
+                <div style="width:8px;height:8px;margin-top:-5px;background:#4F46E5;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);"></div>
+                <div style="width:16px;height:16px;margin-top:-5px;border-radius:50%;background:#4F46E5;border:2px solid #fff;box-shadow:0 4px 6px rgba(0,0,0,0.3);"></div>
             </div>
         `;
     }
@@ -138,12 +140,12 @@
             const online = l.recorded_at && new Date(l.recorded_at) > new Date(Date.now() - 10 * 60 * 1000);
             if (online) onMap++;
 
-            const label = (bus?.bus_number || 'BUS').substring(0, 4).toUpperCase();
+            const label = bus?.bus_number || 'BUS';
             const icon = L.divIcon({
                 className: '',
                 html: busMarkerHtml(label),
-                iconSize: [40, 40],
-                iconAnchor: [20, 20],
+                iconSize: [120, 48],
+                iconAnchor: [60, 44],
             });
 
             const marker = L.marker([l.latitude, l.longitude], { icon, zIndexOffset: online ? 1000 : 500 }).addTo(window.liveMap);
