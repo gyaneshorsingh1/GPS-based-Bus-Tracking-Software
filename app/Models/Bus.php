@@ -11,6 +11,8 @@ class Bus extends Model
 
     protected $fillable = [
         'school_id',
+        'route_id',
+        'driver_id',
         'bus_number',
         'registration_number',
         'make',
@@ -43,13 +45,23 @@ class Bus extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function drivers()
+    public function route()
     {
-        return $this->belongsToMany(Driver::class);
+        return $this->belongsTo(Route::class);
     }
 
-    public function routes()
+    public function driver()
     {
-        return $this->belongsToMany(Route::class);
+        return $this->belongsTo(Driver::class);
+    }
+
+    public function gpsDevice()
+    {
+        return $this->hasOne(GpsDevice::class, 'bus_id');
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
     }
 }

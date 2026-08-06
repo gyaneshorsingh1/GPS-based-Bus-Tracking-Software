@@ -59,7 +59,7 @@ class Driver extends Model
 
     public function buses()
     {
-        return $this->belongsToMany(Bus::class);
+        return $this->hasMany(Bus::class);
     }
 
     public function getFullNameAttribute(): string

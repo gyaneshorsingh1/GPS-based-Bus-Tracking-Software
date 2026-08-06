@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('school_id')
+        Schema::table('students', function (Blueprint $table) {
+            $table->foreignId('bus_id')
                 ->nullable()
-                ->after('id')
-                ->constrained('schools')
+                ->after('parent_id')
+                ->constrained()
                 ->nullOnDelete();
         });
     }
@@ -25,9 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['school_id']);
-            $table->dropColumn('school_id');
+        Schema::table('students', function (Blueprint $table) {
+            $table->dropForeign(['bus_id']);
+
+            $table->dropColumn(['bus_id']);
         });
     }
 };

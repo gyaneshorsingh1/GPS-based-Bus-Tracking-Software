@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bus;
 use App\Models\Route;
 use App\Models\School;
 use App\Models\SchoolAdmin;
@@ -19,7 +18,7 @@ class RouteController extends Controller
     {
         $user = Auth::user();
 
-        $query = Route::with('school', 'buses');
+        $query = Route::with('school', 'buses.driver');
 
         if ($this->isSchoolLevelAdmin($user)) {
             $schoolId = $this->getUserSchoolId($user);
@@ -56,18 +55,16 @@ class RouteController extends Controller
         $user = Auth::user();
         $school = null;
         $schools = School::orderBy('name')->get();
-        $buses = Bus::orderBy('bus_number')->get();
 
         if ($this->isSchoolLevelAdmin($user)) {
             $schoolId = $this->getUserSchoolId($user);
 
             if ($schoolId) {
                 $school = School::find($schoolId);
-                $buses = Bus::where('school_id', $schoolId)->orderBy('bus_number')->get();
             }
         }
 
-        return view('routes.create', compact('school', 'schools', 'buses'));
+        return view('routes.create', compact('school', 'schools'));
     }
 
     /**
@@ -85,8 +82,6 @@ class RouteController extends Controller
             'estimated_distance' => 'nullable|numeric|min:0',
             'estimated_duration' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
-            'buses' => 'nullable|array',
-            'buses.*' => 'exists:buses,id',
         ];
 
         if (! $this->isSchoolLevelAdmin($user)) {
@@ -101,13 +96,7 @@ class RouteController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active');
 
-        $buses = $validated['buses'] ?? [];
-
-        unset($validated['buses']);
-
-        $route = Route::create($validated);
-
-        $route->buses()->sync($buses);
+        Route::create($validated);
 
         return redirect()
             ->route('routes.index')
@@ -121,7 +110,7 @@ class RouteController extends Controller
     {
         $this->authorizeRoute($route);
 
-        $route->load(['school', 'driver', 'buses']);
+        $route->load(['school', 'buses.driver']);
 
         return view('routes.show', compact('route'));
     }
@@ -136,18 +125,16 @@ class RouteController extends Controller
         $user = Auth::user();
         $school = null;
         $schools = School::orderBy('name')->get();
-        $buses = Bus::orderBy('bus_number')->get();
 
         if ($this->isSchoolLevelAdmin($user)) {
             $schoolId = $this->getUserSchoolId($user);
 
             if ($schoolId) {
                 $school = School::find($schoolId);
-                $buses = Bus::where('school_id', $schoolId)->orderBy('bus_number')->get();
             }
         }
 
-        return view('routes.edit', compact('route', 'school', 'schools', 'buses'));
+        return view('routes.edit', compact('route', 'school', 'schools'));
     }
 
     /**
@@ -167,8 +154,6 @@ class RouteController extends Controller
             'estimated_distance' => 'nullable|numeric|min:0',
             'estimated_duration' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
-            'buses' => 'nullable|array',
-            'buses.*' => 'exists:buses,id',
         ];
 
         if (! $this->isSchoolLevelAdmin($user)) {
@@ -183,13 +168,7 @@ class RouteController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active');
 
-        $buses = $validated['buses'] ?? [];
-
-        unset($validated['buses']);
-
         $route->update($validated);
-
-        $route->buses()->sync($buses);
 
         return redirect()
             ->route('routes.index')

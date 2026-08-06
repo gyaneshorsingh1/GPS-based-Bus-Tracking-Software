@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BusController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\ParentProfileController;
@@ -363,6 +364,40 @@ Route::middleware('auth')->group(function () {
     Route::delete('/buses/{bus}', [BusController::class, 'destroy'])
         ->middleware('permission:bus.delete')
         ->name('buses.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Attendance
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/attendance', [AttendanceController::class, 'index'])
+        ->middleware([
+            'permission:attendance.view',
+            'role:Super Admin|School Admin|Driver',
+        ])
+        ->name('attendance.index');
+
+    Route::get('/attendance/buses/{bus}', [AttendanceController::class, 'show'])
+        ->middleware([
+            'permission:attendance.view',
+            'role:Super Admin|School Admin|Driver',
+        ])
+        ->name('attendance.buses.show');
+
+    Route::get('/attendance/buses/{bus}/history', [AttendanceController::class, 'history'])
+        ->middleware([
+            'permission:attendance.view',
+            'role:Super Admin|School Admin|Driver',
+        ])
+        ->name('attendance.buses.history');
+
+    Route::post('/attendance/buses/{bus}/students/{student}', [AttendanceController::class, 'mark'])
+        ->middleware([
+            'permission:attendance.mark',
+            'role:Super Admin|School Admin|Driver',
+        ])
+        ->name('attendance.mark');
 
     /*
     |--------------------------------------------------------------------------

@@ -96,24 +96,35 @@
 
             <div class="space-y-6">
                 <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-                    <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">Assigned Drivers</h2>
+                    <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">Assignment</h2>
 
-                    @forelse ($bus->drivers as $driver)
-                        <div class="mb-3 flex items-center justify-between gap-4">
-                            <div>
-                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $driver->full_name }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $driver->employee_id }} · {{ $driver->phone ?? 'No phone' }}</p>
-                            </div>
-                            <a
-                                href="{{ route('drivers.show', $driver) }}"
-                                class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                            >
-                                View
-                            </a>
+                    <dl class="space-y-3 text-sm">
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Route</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">
+                                @if ($bus->route)
+                                    <a href="{{ route('routes.show', $bus->route) }}" class="text-brand-500 hover:text-brand-600">
+                                        {{ $bus->route->name }}
+                                    </a>
+                                @else
+                                    —
+                                @endif
+                            </dd>
                         </div>
-                    @empty
-                        <p class="text-sm text-gray-500 dark:text-gray-400">No drivers assigned to this bus.</p>
-                    @endforelse
+
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Driver</dt>
+                            <dd class="font-medium text-gray-900 dark:text-white">
+                                @if ($bus->driver)
+                                    <a href="{{ route('drivers.show', $bus->driver) }}" class="text-brand-500 hover:text-brand-600">
+                                        {{ $bus->driver->full_name }}
+                                    </a>
+                                @else
+                                    —
+                                @endif
+                            </dd>
+                        </div>
+                    </dl>
                 </div>
             </div>
         </div>

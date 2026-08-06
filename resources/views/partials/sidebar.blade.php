@@ -82,7 +82,7 @@
             'items' => [
                 ['key' => 'active-trips', 'label' => 'Active Trips', 'route' => 'dashboard', 'active' => 'active-trips', 'icon' => 'heroicon-o-play', 'permission' => null, 'dropdown' => null],
                 ['key' => 'trip-history', 'label' => 'Trip History', 'route' => 'dashboard', 'active' => 'trip-history', 'icon' => 'heroicon-o-clock', 'permission' => null, 'dropdown' => null],
-                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'dashboard', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => null, 'dropdown' => null],
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
             ],
         ],
         [
@@ -115,6 +115,7 @@
                 ['key' => 'end-trip', 'label' => 'End Trip', 'route' => 'dashboard', 'active' => 'end-trip', 'icon' => 'heroicon-o-stop', 'permission' => null, 'dropdown' => null],
                 ['key' => 'boarding', 'label' => 'Student Boarding', 'route' => 'dashboard', 'active' => 'boarding', 'icon' => 'heroicon-o-arrow-right', 'permission' => null, 'dropdown' => null],
                 ['key' => 'drop-off', 'label' => 'Student Drop-off', 'route' => 'dashboard', 'active' => 'drop-off', 'icon' => 'heroicon-o-arrow-left', 'permission' => null, 'dropdown' => null],
+                ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
             ],
         ],
         [

@@ -125,13 +125,13 @@ class RouteSeeder extends Seeder
                     ['route_code' => $data['route_code']],
                     array_merge($data, [
                         'school_id' => $school->id,
-                        'driver_id' => $driver?->id,
                     ])
                 );
 
-                $busIds = Bus::whereIn('bus_number', $busNumbers)->pluck('id')->all();
-
-                $route->buses()->sync($busIds);
+                Bus::whereIn('bus_number', $busNumbers)->update([
+                    'route_id' => $route->id,
+                    'driver_id' => $driver?->id,
+                ]);
 
                 foreach ($stops as $stop) {
                     RouteStop::updateOrCreate(
