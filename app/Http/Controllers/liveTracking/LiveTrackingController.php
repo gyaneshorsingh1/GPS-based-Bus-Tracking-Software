@@ -63,6 +63,8 @@ class LiveTrackingController extends Controller
         $bus = $selectedBus;
         $route = $bus?->route;
 
+        $fleet = $this->fleetPayload($buses, $assetsByImei);
+
         return view('liveTracking.view', [
             'isParent' => false,
             'children' => collect(),
@@ -72,7 +74,29 @@ class LiveTrackingController extends Controller
             'bus' => $bus,
             'route' => $route,
             'telemetry' => $bus ? $this->telemetry($bus, $assetsByImei) : null,
+            'fleet' => $fleet,
+            'fleetStats' => $this->fleetStats($fleet),
             'liveCount' => $assetsByImei->count(),
+        ]);
+    }
+
+    public function fleet(Request $request, NazarTrackService $nazarTrack)
+    {
+        $allowedBusIds = $this->scope();
+
+        $buses = Bus::query()
+            ->with(['driver', 'route.stops', 'school'])
+            ->when($allowedBusIds !== null, fn ($query) => $query->whereIn('id', $allowedBusIds))
+            ->get();
+
+        $assetsByImei = $this->assetsByImei($nazarTrack);
+
+        $fleet = $this->fleetPayload($buses, $assetsByImei);
+
+        return response()->json([
+            'fleet' => $fleet,
+            'stats' => $this->fleetStats($fleet),
+            'updated_at' => now()->toIso8601String(),
         ]);
     }
 
@@ -144,6 +168,82 @@ class LiveTrackingController extends Controller
         return collect($live['data'] ?? [])
             ->filter(fn ($asset) => ! empty($asset['imei']))
             ->keyBy('imei');
+    }
+
+    /**
+     * Fleet payload for the non-parent map: one plain array per bus, including
+     * its route + stops and normalized telemetry (safe for @json).
+     */
+    private function fleetPayload(Collection $buses, Collection $assetsByImei): array
+    {
+        return $buses->map(function (Bus $bus) use ($assetsByImei) {
+            return [
+                'id' => $bus->id,
+                'bus_number' => $bus->bus_number,
+                'registration_number' => $bus->registration_number,
+                'route_id' => $bus->route_id,
+                'route_name' => $bus->route?->name,
+                'driver_name' => $bus->driver?->full_name,
+                'school_name' => $bus->school?->name,
+                'route' => $bus->route ? [
+                    'id' => $bus->route->id,
+                    'name' => $bus->route->name,
+                    'route_code' => $bus->route->route_code,
+                    'start_location' => $bus->route->start_location,
+                    'end_location' => $bus->route->end_location,
+                    'stops' => $bus->route->stops->map(fn ($stop) => [
+                        'name' => $stop->name,
+                        'latitude' => $stop->latitude,
+                        'longitude' => $stop->longitude,
+                        'stop_order' => $stop->stop_order,
+                        'pickup_time' => $stop->pickup_time,
+                        'drop_time' => $stop->drop_time,
+                    ])->values()->all(),
+                ] : null,
+                'telemetry' => $this->telemetry($bus, $assetsByImei),
+            ];
+        })->values()->all();
+    }
+
+    /**
+     * Aggregate fleet statistics from a fleet payload.
+     */
+    private function fleetStats(array $fleet): array
+    {
+        $online = 0;
+        $moving = 0;
+        $latest = null;
+
+        foreach ($fleet as $entry) {
+            $t = $entry['telemetry'];
+
+            if ($t['hasLive'] === 'live' && $t['latitude'] && $t['longitude']) {
+                $online++;
+            }
+
+            if ($t['is_moving'] && $t['latitude'] && $t['longitude']) {
+                $moving++;
+            }
+
+            if ($t['last_updated_at'] && ($latest === null || $t['last_updated_at'] > $latest)) {
+                $latest = $t['last_updated_at'];
+            }
+        }
+
+        if ($latest !== null) {
+            try {
+                $latest = \Carbon\Carbon::parse($latest)->toIso8601String();
+            } catch (\Throwable) {
+                $latest = null;
+            }
+        }
+
+        return [
+            'total' => count($fleet),
+            'online' => $online,
+            'moving' => $moving,
+            'last_updated_at' => $latest,
+        ];
     }
 
     /**

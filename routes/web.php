@@ -454,6 +454,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:Super Admin|School Admin|Driver|Parent|Principal')
         ->name('live-tracking.asset');
 
+        Route::get('/live-tracking/fleet', [LiveTrackingController::class, 'fleet'])
+        ->middleware('role:Super Admin|School Admin|Driver|Parent|Principal')
+        ->name('live-tracking.fleet');
+
     /*
     |--------------------------------------------------------------------------
     | Roles & Permissions (Super Admin only)
