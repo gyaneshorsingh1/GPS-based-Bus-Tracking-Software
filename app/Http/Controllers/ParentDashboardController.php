@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\BusLocation;
 use App\Models\ParentProfile;
+use App\Services\FleetMapService;
 use Illuminate\Support\Facades\Auth;
 
 class ParentDashboardController extends Controller
 {
+    public function __construct(private readonly FleetMapService $fleetMap) {}
+
     /**
      * Show the parent dashboard.
      */
@@ -36,18 +38,7 @@ class ParentDashboardController extends Controller
 
         $locationsByBus = collect();
         if ($busIds->isNotEmpty()) {
-            $latestPerDevice = BusLocation::select('gps_device_id')
-                ->selectRaw('MAX(recorded_at) as last_recorded_at')
-                ->groupBy('gps_device_id');
-
-            $locations = BusLocation::query()
-                ->joinSub($latestPerDevice, 'latest', function ($join) {
-                    $join->on('bus_locations.gps_device_id', '=', 'latest.gps_device_id')
-                        ->on('bus_locations.recorded_at', '=', 'latest.last_recorded_at');
-                })
-                ->with('gpsDevice')
-                ->whereHas('gpsDevice.bus', fn ($bus) => $bus->whereIn('id', $busIds))
-                ->get();
+            $locations = $this->fleetMap->latestLocationsByDevice($busIds, ['gpsDevice']);
 
             $locationsByBus = $locations
                 ->filter(fn ($location) => $location->gpsDevice?->bus_id)

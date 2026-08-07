@@ -100,12 +100,18 @@
 <script>
     const busLocations = @json($locations);
 
-    function busMarkerHtml(label) {
+    function busMarkerHtml() {
         return `
-            <div style="display:flex;flex-direction:column;align-items:center;width:120px;height:48px;">
-                <div style="flex-shrink:0;max-width:116px;padding:3px 8px;border-radius:8px;background:#4F46E5;border:2px solid #fff;box-shadow:0 4px 6px rgba(0,0,0,0.3);color:#fff;font-size:11px;font-weight:700;line-height:1.2;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
-                <div style="width:8px;height:8px;margin-top:-5px;background:#4F46E5;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);"></div>
-                <div style="width:16px;height:16px;margin-top:-5px;border-radius:50%;background:#4F46E5;border:2px solid #fff;box-shadow:0 4px 6px rgba(0,0,0,0.3);"></div>
+            <div style="display:flex;flex-direction:column;align-items:center;">
+                <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0px 4px 6px rgba(0,0,0,0.4));">
+                    <circle cx="32" cy="32" r="30" fill="#4F46E5" fill-opacity="0.25"/>
+                    <circle cx="32" cy="32" r="24" fill="#312E81" stroke="#FFFFFF" stroke-width="3"/>
+                    <rect x="18" y="20" width="28" height="24" rx="4" fill="#F59E0B"/>
+                    <rect x="21" y="23" width="22" height="8" rx="2" fill="#1E293B"/>
+                    <circle cx="23" cy="40" r="3" fill="#000000"/>
+                    <circle cx="41" cy="40" r="3" fill="#000000"/>
+                    <polygon points="32,6 38,18 26,18" fill="#10B981"/>
+                </svg>
             </div>
         `;
     }
@@ -162,22 +168,28 @@
             const label = bus?.bus_number || 'BUS';
             const icon = L.divIcon({
                 className: '',
-                html: busMarkerHtml(label),
-                iconSize: [120, 48],
-                iconAnchor: [60, 44],
+                html: busMarkerHtml(),
+                iconSize: [44, 44],
+                iconAnchor: [22, 22],
             });
 
             const marker = L.marker([l.latitude, l.longitude], { icon, zIndexOffset: online ? 1000 : 500 }).addTo(window.liveMap);
 
-            marker.bindPopup(`
+            const busDetailsHtml = `
                 <div style="font-family:inherit;min-width:180px;">
-                    <div style="font-weight:700;font-size:14px;">${bus?.bus_number || 'Unknown Bus'}</div>
-                    <div style="font-size:12px;color:#666;margin-top:2px;">${bus?.route?.name || 'No route assigned'}</div>
-                    <div style="font-size:12px;color:#666;">Driver: ${bus?.driver?.full_name || '—'}</div>
-                    <div style="font-size:12px;color:#666;">Speed: ${l.speed} km/h</div>
+                    <div style="font-weight:700;font-size:14px;">🚍 Bus #${bus?.bus_number || 'Unknown Bus'}</div>
+                    <div style="font-size:12px;color:#666;margin-top:2px;">Route: <strong>${bus?.route?.name || 'No route assigned'}</strong></div>
+                    <div style="font-size:12px;color:#666;">Driver: <strong>${bus?.driver?.full_name || '—'}</strong></div>
+                    <div style="font-size:12px;color:#666;">Speed: <strong>${l.speed} km/h</strong></div>
                     <div style="font-size:12px;color:#666;">Recorded: ${l.recorded_at || '—'}</div>
                 </div>
-            `);
+            `;
+
+            marker.bindTooltip(busDetailsHtml, {
+                direction: 'top',
+                offset: [0, -10],
+                opacity: 1,
+            });
             markers.push(marker);
         });
 

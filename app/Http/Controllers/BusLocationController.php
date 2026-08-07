@@ -7,27 +7,60 @@ use App\Models\BusLocation;
 use App\Models\Driver;
 use App\Models\ParentProfile;
 use App\Models\SchoolAdmin;
+use App\Services\FleetMapService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class BusLocationController extends Controller
 {
+    public function __construct(private readonly FleetMapService $fleetMap) {}
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        $allowedBusIds = null;
-
         if ($user->hasRole('Parent')) {
             $parent = ParentProfile::where('user_id', $user->id)->first();
-            $allowedBusIds = $parent
-                ? $parent->children()->whereNotNull('bus_id')->pluck('bus_id')
+
+            $children = $parent
+                ? $parent->children()->with(['bus.route.stops', 'bus.driver', 'bus.school'])->get()
                 : collect();
-        } elseif ($user->hasRole('Driver')) {
+
+            $selectedChildId = $request->query('child_id');
+            $selectedChild = $children->firstWhere('id', $selectedChildId)
+                ?? $children->firstWhere('bus_id', '!=', null)
+                ?? $children->first();
+
+            $bus = $selectedChild?->bus;
+            $route = $bus?->route;
+
+            if ($route) {
+                $route->load(['stops', 'school', 'buses.driver']);
+            }
+
+            $latestLocation = null;
+            if ($bus && $bus->gps_device_id) {
+                $latestLocation = BusLocation::where('gps_device_id', $bus->gps_device_id)
+                    ->latest('recorded_at')
+                    ->first();
+            }
+
+            return view('bus_location.parent_bus_location', compact(
+                'parent',
+                'children',
+                'selectedChild',
+                'bus',
+                'route',
+                'latestLocation'
+            ));
+        }
+
+        $allowedBusIds = null;
+
+        if ($user->hasRole('Driver')) {
             $driver = Driver::where('user_id', $user->id)->first();
             $allowedBusIds = $driver ? $driver->buses()->pluck('buses.id') : collect();
         } elseif ($user->hasRole('School Admin')) {
@@ -38,20 +71,10 @@ class BusLocationController extends Controller
                 : collect();
         }
 
-        $latestPerDevice = BusLocation::select('gps_device_id')
-            ->selectRaw('MAX(recorded_at) as last_recorded_at')
-            ->groupBy('gps_device_id');
-
-        $locations = BusLocation::query()
-            ->joinSub($latestPerDevice, 'latest', function ($join) {
-                $join->on('bus_locations.gps_device_id', '=', 'latest.gps_device_id')
-                    ->on('bus_locations.recorded_at', '=', 'latest.last_recorded_at');
-            })
-            ->with(['gpsDevice.bus.driver', 'gpsDevice.bus.route', 'gpsDevice.bus.school'])
-            ->when($allowedBusIds !== null, fn ($query) => $query
-                ->whereHas('gpsDevice.bus', fn ($bus) => $bus->whereIn('id', $allowedBusIds)))
-            ->orderByDesc('bus_locations.recorded_at')
-            ->get();
+        $locations = $this->fleetMap->latestLocationsByDevice(
+            $allowedBusIds,
+            ['gpsDevice.bus.driver', 'gpsDevice.bus.route', 'gpsDevice.bus.school'],
+        );
 
         return view('bus_location.bus_location', [
             'locations' => $locations,
