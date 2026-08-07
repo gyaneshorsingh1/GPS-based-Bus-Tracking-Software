@@ -77,24 +77,90 @@
                             <label for="stop_pickup_time" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider dark:text-gray-300">
                                 Pickup Time
                             </label>
-                            <input
-                                type="time"
-                                name="pickup_time"
-                                id="stop_pickup_time"
-                                class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            >
+                            <input type="hidden" name="pickup_time" id="stop_pickup_time">
+                            <div class="relative mt-1">
+                                <div class="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onclick="adjustPickupTime(-5)"
+                                        title="5 minutes earlier"
+                                        class="shrink-0 rounded-xl border border-gray-300 px-2.5 py-2 text-xs font-bold text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                                    >
+                                        −5
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="stop_pickup_time_display"
+                                        onclick="togglePickupTimeDropdown()"
+                                        class="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    >
+                                        <svg class="h-4 w-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <span id="stop_pickup_time_text" class="font-mono">--:--</span>
+                                        <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="adjustPickupTime(5)"
+                                        title="5 minutes later"
+                                        class="shrink-0 rounded-xl border border-gray-300 px-2.5 py-2 text-xs font-bold text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                                    >
+                                        +5
+                                    </button>
+                                </div>
+                                <div id="stop_pickup_time_dropdown" class="absolute left-0 right-0 z-20 mt-1 hidden max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"></div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                Auto-filled from the previous stop — you can change it manually.
+                            </p>
                         </div>
 
                         <div>
                             <label for="stop_drop_time" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider dark:text-gray-300">
                                 Arrival / Drop Time
                             </label>
-                            <input
-                                type="time"
-                                name="drop_time"
-                                id="stop_drop_time"
-                                class="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                            >
+                            <input type="hidden" name="drop_time" id="stop_drop_time">
+                            <div class="relative mt-1">
+                                <div class="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onclick="adjustDropTime(-5)"
+                                        title="5 minutes earlier"
+                                        class="shrink-0 rounded-xl border border-gray-300 px-2.5 py-2 text-xs font-bold text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                                    >
+                                        −5
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="stop_drop_time_display"
+                                        onclick="toggleDropTimeDropdown()"
+                                        class="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                                    >
+                                        <svg class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <span id="stop_drop_time_text" class="font-mono">--:--</span>
+                                        <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="adjustDropTime(5)"
+                                        title="5 minutes later"
+                                        class="shrink-0 rounded-xl border border-gray-300 px-2.5 py-2 text-xs font-bold text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                                    >
+                                        +5
+                                    </button>
+                                </div>
+                                <div id="stop_drop_time_dropdown" class="absolute left-0 right-0 z-20 mt-1 hidden max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"></div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                You can pick a time manually.
+                            </p>
                         </div>
                     </div>
 
@@ -223,9 +289,12 @@
         document.getElementById('stop_longitude').value = '';
         document.getElementById('stop_is_active').value = '1';
         document.getElementById('submitStopBtn').innerText = 'Add Stop';
+        syncPickupTimeDisplay();
+        syncDropTimeDisplay();
         
         document.getElementById('stopModal').classList.remove('hidden');
 
+        fillSuggestedPickupTime();
         resetStopPicker();
     }
 
@@ -247,6 +316,8 @@
         document.getElementById('stop_longitude').value = stop.longitude || '';
         document.getElementById('stop_is_active').value = (stop.is_active === false || stop.is_active === 0) ? '0' : '1';
         document.getElementById('submitStopBtn').innerText = 'Update Stop';
+        syncPickupTimeDisplay();
+        syncDropTimeDisplay();
         
         document.getElementById('stopModal').classList.remove('hidden');
 
@@ -258,6 +329,8 @@
     }
 
     function closeStopModal() {
+        closePickupTimeDropdown();
+        closeDropTimeDropdown();
         document.getElementById('stopModal').classList.add('hidden');
     }
 
@@ -278,6 +351,172 @@
     let stopPickerInitialized = false;
     const routeStopsData = @json($route->stops);
     const STOP_PICKER_DEFAULT_CENTER = [27.7172, 85.3240];
+    const STOP_AVG_SPEED_KMH = 32;
+    const STOP_DWELL_MIN = 2;
+    const DEFAULT_STOP_INTERVAL_MIN = 5;
+
+    function haversineKm(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const toRad = function (deg) { return deg * Math.PI / 180; };
+        const dLat = toRad(lat2 - lat1);
+        const dLng = toRad(lng2 - lng1);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                  Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function addMinutesToTime(timeStr, minutes) {
+        if (!timeStr) return '';
+        const parts = timeStr.split(':');
+        let total = parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10) + Math.round(minutes);
+        total = ((total % 1440) + 1440) % 1440;
+        const hh = String(Math.floor(total / 60)).padStart(2, '0');
+        const mm = String(total % 60).padStart(2, '0');
+        return hh + ':' + mm;
+    }
+
+    function getPreviousStop(newOrder) {
+        const ordered = routeStopsData.slice().sort((a, b) => a.stop_order - b.stop_order);
+        for (let i = ordered.length - 1; i >= 0; i--) {
+            const s = ordered[i];
+            if (s.stop_order < newOrder && s.pickup_time && s.latitude && s.longitude && s.latitude != 0 && s.longitude != 0) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    function fillSuggestedPickupTime() {
+        const pickupInput = document.getElementById('stop_pickup_time');
+        if (!pickupInput || pickupInput.value) return;
+
+        const orderInput = document.getElementById('stop_order');
+        const newOrder = parseInt(orderInput ? orderInput.value : '', 10) || 1;
+        const lat = parseFloat(document.getElementById('stop_latitude').value);
+        const lng = parseFloat(document.getElementById('stop_longitude').value);
+        const prev = getPreviousStop(newOrder);
+
+        if (prev) {
+            let travelMin = DEFAULT_STOP_INTERVAL_MIN;
+            if (!isNaN(lat) && !isNaN(lng) && prev.latitude && prev.longitude) {
+                const distKm = haversineKm(
+                    parseFloat(prev.latitude), parseFloat(prev.longitude), lat, lng
+                );
+                travelMin = Math.max(DEFAULT_STOP_INTERVAL_MIN, Math.round((distKm / STOP_AVG_SPEED_KMH) * 60 + STOP_DWELL_MIN));
+            }
+            pickupInput.value = addMinutesToTime(prev.pickup_time.substring(0, 5), travelMin);
+        }
+        syncPickupTimeDisplay();
+    }
+
+    function formatTime12h(timeStr) {
+        if (!timeStr) return '--:--';
+        const parts = timeStr.split(':');
+        let h = parseInt(parts[0], 10);
+        const m = parts[1] || '00';
+        const suffix = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        if (h === 0) h = 12;
+        return h + ':' + m + ' ' + suffix;
+    }
+
+    function timePickerIds(key) {
+        return {
+            input: 'stop_' + key + '_time',
+            text: 'stop_' + key + '_time_text',
+            dropdown: 'stop_' + key + '_time_dropdown'
+        };
+    }
+
+    function syncTimePickerDisplay(key) {
+        const ids = timePickerIds(key);
+        const input = document.getElementById(ids.input);
+        const textEl = document.getElementById(ids.text);
+        if (!textEl) return;
+        textEl.textContent = formatTime12h(input ? input.value : '');
+        highlightCurrentTimePicker(key);
+    }
+
+    function buildTimePickerOptions(key) {
+        const ids = timePickerIds(key);
+        const dropdown = document.getElementById(ids.dropdown);
+        if (!dropdown) return;
+        dropdown.innerHTML = '';
+        for (let total = 0; total < 1440; total += 5) {
+            const hh = String(Math.floor(total / 60)).padStart(2, '0');
+            const mm = String(total % 60).padStart(2, '0');
+            const value = hh + ':' + mm;
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.dataset.value = value;
+            option.textContent = formatTime12h(value);
+            option.className = 'block w-full rounded-lg px-3 py-1.5 text-left text-sm text-gray-700 transition hover:bg-brand-50 hover:text-brand-600 dark:text-gray-300 dark:hover:bg-brand-500/10 dark:hover:text-brand-400';
+            option.addEventListener('click', function () {
+                selectTimePickerOption(key, this.dataset.value);
+            });
+            dropdown.appendChild(option);
+        }
+    }
+
+    function highlightCurrentTimePicker(key) {
+        const ids = timePickerIds(key);
+        const dropdown = document.getElementById(ids.dropdown);
+        const input = document.getElementById(ids.input);
+        if (!dropdown || !input) return;
+        const value = input.value;
+        Array.prototype.forEach.call(dropdown.children, function (option) {
+            const isCurrent = option.dataset.value === value;
+            option.classList.toggle('bg-brand-50', isCurrent);
+            option.classList.toggle('text-brand-600', isCurrent);
+            option.classList.toggle('font-semibold', isCurrent);
+            option.classList.toggle('dark:bg-brand-500/10', isCurrent);
+            option.classList.toggle('dark:text-brand-400', isCurrent);
+        });
+    }
+
+    function toggleTimePickerDropdown(key) {
+        const ids = timePickerIds(key);
+        const dropdown = document.getElementById(ids.dropdown);
+        if (!dropdown) return;
+        if (dropdown.classList.contains('hidden')) {
+            if (!dropdown.hasChildNodes()) buildTimePickerOptions(key);
+            highlightCurrentTimePicker(key);
+            dropdown.classList.remove('hidden');
+        } else {
+            dropdown.classList.add('hidden');
+        }
+    }
+
+    function closeTimePickerDropdown(key) {
+        const dropdown = document.getElementById(timePickerIds(key).dropdown);
+        if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    function selectTimePickerOption(key, value) {
+        document.getElementById(timePickerIds(key).input).value = value;
+        syncTimePickerDisplay(key);
+        closeTimePickerDropdown(key);
+    }
+
+    function adjustTimePicker(key, delta) {
+        const input = document.getElementById(timePickerIds(key).input);
+        const current = input.value || '00:00';
+        input.value = addMinutesToTime(current, delta);
+        syncTimePickerDisplay(key);
+    }
+
+    // Pickup-time wrappers (existing callers)
+    function syncPickupTimeDisplay() { syncTimePickerDisplay('pickup'); }
+    function togglePickupTimeDropdown() { toggleTimePickerDropdown('pickup'); }
+    function closePickupTimeDropdown() { closeTimePickerDropdown('pickup'); }
+    function adjustPickupTime(delta) { adjustTimePicker('pickup', delta); }
+
+    // Drop-time wrappers
+    function syncDropTimeDisplay() { syncTimePickerDisplay('drop'); }
+    function toggleDropTimeDropdown() { toggleTimePickerDropdown('drop'); }
+    function closeDropTimeDropdown() { closeTimePickerDropdown('drop'); }
+    function adjustDropTime(delta) { adjustTimePicker('drop', delta); }
 
     function initStopPicker() {
         if (stopPickerInitialized || typeof L === 'undefined') return;
@@ -338,6 +577,7 @@
         document.getElementById('stop_latitude').value = lat.toFixed(6);
         document.getElementById('stop_longitude').value = lng.toFixed(6);
         updateStopPickerReadout(lat, lng, name);
+        fillSuggestedPickupTime();
         if (!name) {
             reverseGeocodeStop(lat, lng);
         }
@@ -576,5 +816,24 @@
                 }
             });
         }
+
+        // Close the time picker dropdowns when clicking outside
+        document.addEventListener('click', function (event) {
+            ['pickup', 'drop'].forEach(function (key) {
+                const ids = timePickerIds(key);
+                const dropdown = document.getElementById(ids.dropdown);
+                const display = document.getElementById('stop_' + key + '_time_display');
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    if (!dropdown.contains(event.target) && event.target !== display && !display.contains(event.target)) {
+                        closeTimePickerDropdown(key);
+                    }
+                }
+            });
+        });
+
+        buildTimePickerOptions('pickup');
+        buildTimePickerOptions('drop');
+        syncPickupTimeDisplay();
+        syncDropTimeDisplay();
     });
 </script>
