@@ -18,6 +18,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\liveTracking\LiveTrackingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -444,6 +445,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/bus-location', [BusLocationController::class, 'index'])
         ->middleware('role:Super Admin|School Admin|Driver|Parent')
         ->name('bus_location');
+
+        Route::get('/live-tracking', [LiveTrackingController::class, 'index'])
+        ->middleware('role:Super Admin|School Admin|Driver|Parent')
+        ->name('live-tracking');
 
     /*
     |--------------------------------------------------------------------------
