@@ -31,7 +31,7 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                    <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School Name</label>
+                    <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School Name <span class="text-red-500">*</span></label>
                     <input
                         type="text"
                         id="name"
@@ -46,7 +46,7 @@
                 </div>
 
                 <div>
-                    <label for="code" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School Code</label>
+                    <label for="code" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School Code <span class="text-red-500">*</span></label>
                     <input
                         type="text"
                         id="code"
@@ -61,7 +61,7 @@
                 </div>
 
                 <div>
-                    <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                    <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email <span class="text-red-500">*</span></label>
                     <input
                         type="email"
                         id="email"
@@ -104,7 +104,7 @@
                 </div>
 
                 <div>
-                    <label for="status" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                    <label for="status" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Status <span class="text-red-500">*</span></label>
                     <select
                         id="status"
                         name="status"

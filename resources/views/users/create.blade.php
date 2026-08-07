@@ -31,7 +31,7 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                    <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                    <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Name <span class="text-red-500">*</span></label>
                     <input
                         type="text"
                         id="name"
@@ -46,7 +46,7 @@
                 </div>
 
                 <div>
-                    <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                    <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email <span class="text-red-500">*</span></label>
                     <input
                         type="email"
                         id="email"
@@ -61,7 +61,7 @@
                 </div>
 
                 <div>
-                    <label for="password" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                    <label for="password" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Password <span class="text-red-500">*</span></label>
                     <input
                         type="password"
                         id="password"
@@ -75,7 +75,7 @@
                 </div>
 
                 <div>
-                    <label for="role" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
+                    <label for="role" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Role <span class="text-red-500">*</span></label>
                     <select
                         id="role"
                         name="role"
@@ -95,7 +95,7 @@
                 </div>
 
                 <div>
-                    <label for="status" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                    <label for="status" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Status <span class="text-red-500">*</span></label>
                     <select
                         id="status"
                         name="status"
