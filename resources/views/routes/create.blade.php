@@ -34,7 +34,7 @@
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
-                        <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Route Name</label>
+                        <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Route Name <span class="text-red-500">*</span></label>
                         <input
                             type="text"
                             id="name"
@@ -49,7 +49,7 @@
                     </div>
 
                     <div>
-                        <label for="route_code" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Route Code</label>
+                        <label for="route_code" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Route Code <span class="text-red-500">*</span></label>
                         <input
                             type="text"
                             id="route_code"
@@ -64,7 +64,7 @@
                     </div>
 
                     <div>
-                        <label for="start_location" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Start Location</label>
+                        <label for="start_location" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Start Location <span class="text-red-500">*</span></label>
                         <input
                             type="text"
                             id="start_location"
@@ -79,7 +79,7 @@
                     </div>
 
                     <div>
-                        <label for="end_location" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">End Location</label>
+                        <label for="end_location" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">End Location <span class="text-red-500">*</span></label>
                         <input
                             type="text"
                             id="end_location"
@@ -147,7 +147,7 @@
                         </div>
                     @else
                         <div>
-                            <label for="school_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <label for="school_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School <span class="text-red-500">*</span></label>
                             <select
                                 id="school_id"
                                 name="school_id"
