@@ -443,12 +443,16 @@ Route::middleware('auth')->group(function () {
         ->name('attendance.mark');
 
     Route::get('/bus-location', [BusLocationController::class, 'index'])
-        ->middleware('role:Super Admin|School Admin|Driver|Parent')
+        ->middleware('role:Super Admin|School Admin|Driver|Parent|Principal')
         ->name('bus_location');
 
         Route::get('/live-tracking', [LiveTrackingController::class, 'index'])
-        ->middleware('role:Super Admin|School Admin|Driver|Parent')
+        ->middleware('role:Super Admin|School Admin|Driver|Parent|Principal')
         ->name('live-tracking');
+
+        Route::get('/live-tracking/asset', [LiveTrackingController::class, 'asset'])
+        ->middleware('role:Super Admin|School Admin|Driver|Parent|Principal')
+        ->name('live-tracking.asset');
 
     /*
     |--------------------------------------------------------------------------

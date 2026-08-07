@@ -24,7 +24,6 @@
             'title' => 'Dashboard',
             'items' => [
                 ['key' => 'overview', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
-                ['key' => 'live-tracking', 'label' => 'Dashboard', 'route' => 'dashboard', 'active' => ['overview', 'dashboard'], 'icon' => 'heroicon-o-home', 'permission' => null, 'dropdown' => null],
             ],
         ],
         [
@@ -45,6 +44,8 @@
             'title' => 'Monitoring',
             'items' => [
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
+                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'live-tracking', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
@@ -100,7 +101,8 @@
         [
             'title' => 'Monitoring',
             'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'bus_location', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'live-tracking', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
@@ -133,7 +135,8 @@
         [
             'title' => 'Monitoring',
             'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'driver.dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'live-tracking', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'driver.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],
@@ -158,7 +161,7 @@
             'items' => [
                 ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
 
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'live-tracking', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'live-tracking', 'active' => 'live-tracking', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
             ],
         ],
         // [
