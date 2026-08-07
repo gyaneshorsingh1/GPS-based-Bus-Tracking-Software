@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'nazartrack' => [
+        'base_url' => env('NAZARTRACK_BASE_URL'),
+        'api_key' => env('NAZARTRACK_API_KEY'),
+    ],
+
 ];

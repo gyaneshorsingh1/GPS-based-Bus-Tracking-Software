@@ -156,7 +156,7 @@
         [
             'title' => 'Live Tracking',
             'items' => [
-                // ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
+                ['key' => 'bus-location', 'label' => 'Bus Location', 'route' => 'bus_location', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
 
                 ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'live-tracking', 'active' => 'bus-location', 'icon' => 'heroicon-o-map-pin', 'permission' => null, 'dropdown' => null],
             ],

@@ -1,11 +1,25 @@
 <x-app-layout page="live-tracking">
 
-    <div class="flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-primary">Live Tracking</h1>
-        </div>
+   <h2>Live Tracking</h2>
 
-        <h2 class="text-lg font-semibold text-gray-900">Bus Location</h2>   
+<p><strong>Success:</strong> {{ $liveData['success'] ? 'Yes' : 'No' }}</p>
+<p><strong>Company ID:</strong> {{ $liveData['company_id'] }}</p>
+<p><strong>Total Assets:</strong> {{ $liveData['count'] }}</p>
+
+<hr>
+
+@foreach ($liveData['data'] as $asset)
+    <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+        <p><strong>Asset:</strong> {{ $asset['asset_name'] }}</p>
+        <p><strong>Plate:</strong> {{ $asset['plate_number'] }}</p>
+        <p><strong>Status:</strong> {{ $asset['status_label'] }}</p>
+        <p><strong>Latitude:</strong> {{ $asset['latitude'] ?? 'N/A' }}</p>
+        <p><strong>Longitude:</strong> {{ $asset['longitude'] ?? 'N/A' }}</p>
+        <p><strong>Speed:</strong> {{ $asset['speed_kmh'] }} km/h</p>
+        <p><strong>IMEI:</strong> {{ $asset['imei'] }}</p>
+
+        <p><strong>Marker Color:</strong> {{ $asset['marker']['color'] }}</p>
+        <p><strong>Moving:</strong> {{ $asset['is_moving'] ? 'Yes' : 'No' }}</p>
     </div>
-
+@endforeach
     </x-app-layout>
