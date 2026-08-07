@@ -445,6 +445,10 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:Super Admin|School Admin|Driver|Parent')
         ->name('bus_location');
 
+    Route::get('/bus-location/latest', [BusLocationController::class, 'latestJson'])
+        ->middleware('role:Super Admin|School Admin|Driver|Parent')
+        ->name('bus_location.latest');
+
     /*
     |--------------------------------------------------------------------------
     | Roles & Permissions (Super Admin only)
@@ -499,5 +503,14 @@ Route::middleware('auth')->group(function () {
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
+
+
+use App\Services\NazarTrackService;
+
+Route::get('/gps-test', function (NazarTrackService $gps) {
+
+    return $gps->findDeviceByImei('868720060002890');
+
+});
 
 require __DIR__.'/auth.php';
