@@ -35,7 +35,7 @@
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
-                        <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                        <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name <span class="text-red-500">*</span></label>
                         <input
                             type="text"
                             id="name"
@@ -50,7 +50,7 @@
                     </div>
 
                     <div>
-                        <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                        <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email <span class="text-red-500">*</span></label>
                         <input
                             type="email"
                             id="email"
@@ -87,7 +87,7 @@
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div>
-                        <label for="school_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                        <label for="school_id" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">School <span class="text-red-500">*</span></label>
                         @if ($superAdmin)
                             <select
                                 id="school_id"
@@ -115,7 +115,7 @@
                     </div>
 
                     <div>
-                        <label for="phone" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+                        <label for="phone" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone <span class="text-red-500">*</span></label>
                         <input
                             type="text"
                             id="phone"
