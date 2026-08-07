@@ -8,10 +8,13 @@ use App\Models\Route;
 use App\Models\School;
 use App\Models\SchoolAdmin;
 use App\Models\Student;
+use App\Services\FleetMapService;
 use Illuminate\Support\Facades\Auth;
 
 class PrincipalDashboardController extends Controller
 {
+    public function __construct(private readonly FleetMapService $fleetMap) {}
+
     /**
      * Show the principal (school admin) dashboard.
      */
@@ -19,17 +22,7 @@ class PrincipalDashboardController extends Controller
     {
         $user = Auth::user();
 
-        $schoolId = $user->school_id;
-
-        if (! $schoolId) {
-            $schoolId = SchoolAdmin::where('user_id', $user->id)->value('school_id');
-        }
-
-        if (! $schoolId) {
-            $schoolId = School::where('principal_name', $user->name)
-                ->orWhere('email', $user->email)
-                ->value('id');
-        }
+        $schoolId = $this->resolveSchoolId($user);
 
         $busQuery = Bus::query();
         $driverQuery = Driver::query();
@@ -70,6 +63,8 @@ class PrincipalDashboardController extends Controller
 
         $school = $schoolId ? School::find($schoolId) : null;
 
+        $fleetMap = $this->fleetMap->forSchool($schoolId);
+
         return view('principalDashboard', compact(
             'user',
             'school',
@@ -86,6 +81,37 @@ class PrincipalDashboardController extends Controller
             'upcomingRoutes',
             'expiringBuses',
             'suspendedDrivers',
+            'fleetMap',
         ));
+    }
+
+    /**
+     * JSON payload of the live fleet map used by the dashboard auto-refresh.
+     */
+    public function fleetData()
+    {
+        $user = Auth::user();
+
+        return response()->json($this->fleetMap->forSchool($this->resolveSchoolId($user)));
+    }
+
+    /**
+     * Resolve the principal's school id from the user record and fallbacks.
+     */
+    private function resolveSchoolId($user): ?int
+    {
+        $schoolId = $user->school_id;
+
+        if (! $schoolId) {
+            $schoolId = SchoolAdmin::where('user_id', $user->id)->value('school_id');
+        }
+
+        if (! $schoolId) {
+            $schoolId = School::where('principal_name', $user->name)
+                ->orWhere('email', $user->email)
+                ->value('id');
+        }
+
+        return $schoolId;
     }
 }

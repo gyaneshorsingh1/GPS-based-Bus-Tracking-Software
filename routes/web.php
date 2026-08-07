@@ -9,9 +9,9 @@ use App\Http\Controllers\ParentDashboardController;
 use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\PrincipalDashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\RouteStopController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SchoolAdminController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\StudentController;
@@ -63,6 +63,13 @@ Route::middleware('auth')->group(function () {
             'role:School Admin', // user role name like this: school-admin
         ])
         ->name('principal.dashboard');
+
+    Route::get('/principal/dashboard/fleet-data', [PrincipalDashboardController::class, 'fleetData'])
+        ->middleware([
+            'permission:dashboard.view',
+            'role:School Admin',
+        ])
+        ->name('principal.dashboard.fleet-data');
 
     /*
     |--------------------------------------------------------------------------

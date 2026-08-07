@@ -1,17 +1,32 @@
 <x-app-layout page="buses">
-    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
-        <div class="mb-6 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $bus->bus_number }}</h1>
+    <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6 space-y-6">
+        
+        <!-- Header Bar -->
+        <div class="flex items-center justify-between border-b border-gray-200 pb-5 dark:border-gray-800">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $bus->bus_number }}</h1>
+                    @if ($bus->registration_number)
+                        <span class="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 font-mono">
+                            {{ $bus->registration_number }}
+                        </span>
+                    @endif
+                </div>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Vehicle details, driver assignment, and live GPS map position.
+                </p>
+            </div>
+
             <div class="flex items-center gap-2">
                 <a
                     href="{{ route('buses.index') }}"
-                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                     Back to Buses
                 </a>
                 <a
                     href="{{ route('buses.edit', $bus) }}"
-                    class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+                    class="rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-xs transition hover:bg-brand-600"
                 >
                     Edit Bus
                 </a>
@@ -19,51 +34,46 @@
         </div>
 
         @if (session('success'))
-            <div class="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
+            <div class="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-200 dark:border-green-800/40">
                 {{ session('success') }}
             </div>
         @endif
 
-        <div class="mb-6 flex items-center gap-3">
-            @if ($bus->status === 'Active')
-                <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">Active</span>
-            @elseif ($bus->status === 'Maintenance')
-                <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">Maintenance</span>
-            @else
-                <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">Inactive</span>
-            @endif
-
-            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $bus->school->name ?? 'No school assigned' }}</span>
-        </div>
-
+        <!-- Vehicle Details & Assignment Cards Grid -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-                <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">Vehicle Details</h2>
+            <!-- Card 1: Vehicle Specs -->
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.03]">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800 mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Vehicle Details</h2>
+                    @if ($bus->status === 'Active')
+                        <span class="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400">Active</span>
+                    @elseif ($bus->status === 'Maintenance')
+                        <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-500/10 dark:text-amber-400">Maintenance</span>
+                    @else
+                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 ring-1 ring-inset ring-gray-500/20 dark:bg-gray-800 dark:text-gray-400">Inactive</span>
+                    @endif
+                </div>
 
                 <dl class="space-y-3 text-sm">
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Bus Number</dt>
-                        <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->bus_number }}</dd>
+                        <dd class="font-semibold text-gray-900 dark:text-white">{{ $bus->bus_number }}</dd>
                     </div>
                     <div class="flex justify-between gap-4">
-                        <dt class="text-gray-500 dark:text-gray-400">Registration Number</dt>
-                        <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->registration_number }}</dd>
+                        <dt class="text-gray-500 dark:text-gray-400">Registration Plate</dt>
+                        <dd class="font-mono font-semibold text-brand-600 dark:text-brand-400">{{ $bus->registration_number }}</dd>
                     </div>
                     <div class="flex justify-between gap-4">
-                        <dt class="text-gray-500 dark:text-gray-400">Make</dt>
-                        <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->make ?? '—' }}</dd>
+                        <dt class="text-gray-500 dark:text-gray-400">Make & Model</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">{{ trim(($bus->make ?? '').' '.($bus->model ?? '')) ?: '—' }}</dd>
                     </div>
                     <div class="flex justify-between gap-4">
-                        <dt class="text-gray-500 dark:text-gray-400">Model</dt>
-                        <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->model ?? '—' }}</dd>
-                    </div>
-                    <div class="flex justify-between gap-4">
-                        <dt class="text-gray-500 dark:text-gray-400">Year</dt>
+                        <dt class="text-gray-500 dark:text-gray-400">Model Year</dt>
                         <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->year ?? '—' }}</dd>
                     </div>
                     <div class="flex justify-between gap-4">
-                        <dt class="text-gray-500 dark:text-gray-400">Capacity</dt>
-                        <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->capacity }}</dd>
+                        <dt class="text-gray-500 dark:text-gray-400">Seating Capacity</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->capacity }} Passengers</dd>
                     </div>
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Fuel Type</dt>
@@ -71,7 +81,7 @@
                     </div>
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">GPS Device ID</dt>
-                        <dd class="font-medium text-gray-900 dark:text-white">{{ $bus->gps_device_id ?? '—' }}</dd>
+                        <dd class="font-mono text-xs font-semibold text-gray-900 dark:text-white">{{ $bus->gps_device_id ?? 'Not linked' }}</dd>
                     </div>
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Insurance Number</dt>
@@ -94,39 +104,210 @@
                 </dl>
             </div>
 
+            <!-- Card 2: Route & Driver Assignment -->
             <div class="space-y-6">
-                <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-                    <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">Assignment</h2>
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.03]">
+                    <h2 class="mb-4 border-b border-gray-200 pb-3 text-lg font-semibold text-gray-900 dark:border-gray-800 dark:text-white">Route & Driver Assignment</h2>
 
-                    <dl class="space-y-3 text-sm">
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-gray-500 dark:text-gray-400">Route</dt>
-                            <dd class="font-medium text-gray-900 dark:text-white">
+                    <dl class="space-y-4 text-sm">
+                        <div class="flex justify-between items-center gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Assigned Route</dt>
+                            <dd class="font-semibold text-gray-900 dark:text-white">
                                 @if ($bus->route)
-                                    <a href="{{ route('routes.show', $bus->route) }}" class="text-brand-500 hover:text-brand-600">
-                                        {{ $bus->route->name }}
+                                    <a href="{{ route('routes.show', $bus->route) }}" class="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-700 dark:text-brand-400">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                        </svg>
+                                        {{ $bus->route->name }} ({{ $bus->route->route_code }})
                                     </a>
                                 @else
-                                    —
+                                    <span class="text-gray-400">— No route assigned —</span>
                                 @endif
                             </dd>
                         </div>
 
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-gray-500 dark:text-gray-400">Driver</dt>
-                            <dd class="font-medium text-gray-900 dark:text-white">
+                        <div class="flex justify-between items-center gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Assigned Driver</dt>
+                            <dd class="font-semibold text-gray-900 dark:text-white">
                                 @if ($bus->driver)
-                                    <a href="{{ route('drivers.show', $bus->driver) }}" class="text-brand-500 hover:text-brand-600">
+                                    <a href="{{ route('drivers.show', $bus->driver) }}" class="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-700 dark:text-brand-400">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
                                         {{ $bus->driver->full_name }}
                                     </a>
                                 @else
-                                    —
+                                    <span class="text-gray-400">— No driver assigned —</span>
                                 @endif
+                            </dd>
+                        </div>
+
+                        <div class="flex justify-between items-center gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">School</dt>
+                            <dd class="font-semibold text-gray-900 dark:text-white">
+                                {{ $bus->school->name ?? '—' }}
                             </dd>
                         </div>
                     </dl>
                 </div>
             </div>
         </div>
+
+        <!-- Live Bus GPS Location Map Card (Single Point API Location) -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.03]">
+            @php
+                $lat = $latestLocation?->latitude ?? 27.7172;
+                $lng = $latestLocation?->longitude ?? 85.3240;
+                $hasGps = $latestLocation && $latestLocation->latitude && $latestLocation->longitude;
+                $isOnline = $hasGps && $latestLocation->recorded_at?->gt(now()->subMinutes(10));
+                $speed = $latestLocation->speed ?? 0;
+            @endphp
+
+            <div class="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Live GPS Location</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Real-time GPS coordinate telemetry from device API</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Telemetry Stats -->
+                    <div class="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                        <span>Speed: <strong class="text-gray-900 dark:text-white font-mono">{{ $speed }} km/h</strong></span>
+                        <span class="text-gray-300 dark:text-gray-600">•</span>
+                        <span>Coords: <strong class="text-brand-600 dark:text-brand-400 font-mono">{{ number_format($lat, 4) }}, {{ number_format($lng, 4) }}</strong></span>
+                    </div>
+
+                    @if ($isOnline)
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Online & Transmitting
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                            <span class="h-2 w-2 rounded-full bg-gray-400"></span>
+                            {{ $hasGps ? 'Offline / Parked' : 'No GPS Data Yet' }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Leaflet Map Container -->
+            <div class="relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-900" style="min-height: 420px;">
+                <div id="busSingleLocationMap" class="h-[420px] w-full z-0"></div>
+
+                <!-- Recenter Button -->
+                <div class="absolute top-4 right-4 z-10">
+                    <button
+                        type="button"
+                        onclick="recenterMapOnBus()"
+                        title="Recenter Camera on Bus"
+                        class="flex items-center gap-2 rounded-xl bg-white/95 px-3 py-2 text-xs font-semibold text-gray-800 shadow-md backdrop-blur-md transition hover:bg-brand-500 hover:text-white dark:bg-gray-900/95 dark:text-gray-200 dark:hover:bg-brand-500 dark:hover:text-white border border-gray-200 dark:border-gray-700"
+                    >
+                        <svg class="h-4 w-4 text-brand-500 dark:text-brand-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        <span>Recenter on Bus</span>
+                    </button>
+                </div>
+
+                <!-- Telemetry Legend Footer Overlay -->
+                <div class="absolute bottom-4 left-4 z-10 flex items-center gap-3 rounded-xl bg-white/90 p-3 text-xs shadow-lg backdrop-blur-md dark:bg-gray-900/90 border border-gray-200/80 dark:border-gray-800">
+                    <div class="flex items-center gap-1.5 font-medium text-gray-700 dark:text-gray-300">
+                        <span class="h-3 w-3 rounded-full {{ $isOnline ? 'bg-emerald-500' : 'bg-amber-500' }} inline-block"></span>
+                        Bus #{{ $bus->bus_number }}
+                    </div>
+                    <div class="h-3 w-px bg-gray-300 dark:bg-gray-700"></div>
+                    <div class="text-gray-600 dark:text-gray-400">
+                        Last Signal: <strong>{{ $latestLocation?->recorded_at?->format('M d, Y H:i:s') ?? 'No telemetry recorded' }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </x-app-layout>
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let busMap = null;
+    let busLocationMarker = null;
+
+    const busLat = {{ $lat }};
+    const busLng = {{ $lng }};
+    const busNumber = @json($bus->bus_number);
+    const driverName = @json($bus->driver?->full_name ?? '—');
+    const routeName = @json($bus->route?->name ?? '—');
+    const recordedTime = @json($latestLocation?->recorded_at?->format('M d, Y H:i:s') ?? 'N/A');
+    const speedVal = {{ $speed }};
+
+    function busMarkerHtml() {
+        return `
+            <div style="display:flex;flex-direction:column;align-items:center;">
+                <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0px 4px 6px rgba(0,0,0,0.4));">
+                    <circle cx="32" cy="32" r="30" fill="#4F46E5" fill-opacity="0.25"/>
+                    <circle cx="32" cy="32" r="24" fill="#312E81" stroke="#FFFFFF" stroke-width="3"/>
+                    <rect x="18" y="20" width="28" height="24" rx="4" fill="#F59E0B"/>
+                    <rect x="21" y="23" width="22" height="8" rx="2" fill="#1E293B"/>
+                    <circle cx="23" cy="40" r="3" fill="#000000"/>
+                    <circle cx="41" cy="40" r="3" fill="#000000"/>
+                    <polygon points="32,6 38,18 26,18" fill="#10B981"/>
+                </svg>
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        busMap = L.map('busSingleLocationMap', {
+            preferCanvas: true,
+            updateWhenIdle: true
+        }).setView([busLat, busLng], 15);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            subdomains: 'abcd',
+            attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+        }).addTo(busMap);
+
+        const icon = L.divIcon({
+            className: '',
+            html: busMarkerHtml(),
+            iconSize: [44, 44],
+            iconAnchor: [22, 22],
+        });
+
+        busLocationMarker = L.marker([busLat, busLng], { icon, zIndexOffset: 1000 }).addTo(busMap);
+
+        const busDetailsHtml = `
+            <div style="font-family:inherit;min-width:180px;padding:2px;">
+                <div style="font-weight:700;font-size:14px;color:#111827;">🚍 Bus #${busNumber}</div>
+                <div style="font-size:12px;color:#4B5563;margin-top:3px;">Route: <strong>${routeName}</strong></div>
+                <div style="font-size:12px;color:#4B5563;">Driver: <strong>${driverName}</strong></div>
+                <div style="font-size:12px;color:#4B5563;">Speed: <strong>${speedVal} km/h</strong></div>
+                <div style="font-size:11px;color:#6B7280;margin-top:4px;">Recorded: ${recordedTime}</div>
+            </div>
+        `;
+
+        busLocationMarker.bindTooltip(busDetailsHtml, {
+            direction: 'top',
+            offset: [0, -10],
+            opacity: 1,
+        });
+    });
+
+    function recenterMapOnBus() {
+        if (busMap) {
+            busMap.flyTo([busLat, busLng], 16, { duration: 0.8 });
+        }
+    }
+</script>

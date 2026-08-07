@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bus;
+use App\Models\BusLocation;
 use App\Models\Driver;
 use App\Models\Route;
 use App\Models\School;
@@ -143,9 +144,22 @@ class BusController extends Controller
     {
         $this->authorizeBus($bus);
 
-        $bus->load(['school', 'creator', 'route', 'driver']);
+        $bus->load(['school', 'creator', 'route', 'driver', 'gpsDevice']);
 
-        return view('buses.show', compact('bus'));
+        $latestLocation = null;
+        if ($bus->gps_device_id) {
+            $latestLocation = BusLocation::where('gps_device_id', $bus->gps_device_id)
+                ->latest('recorded_at')
+                ->first();
+        }
+
+        if (! $latestLocation) {
+            $latestLocation = BusLocation::whereHas('gpsDevice', fn ($q) => $q->where('bus_id', $bus->id))
+                ->latest('recorded_at')
+                ->first();
+        }
+
+        return view('buses.show', compact('bus', 'latestLocation'));
     }
 
     /**
