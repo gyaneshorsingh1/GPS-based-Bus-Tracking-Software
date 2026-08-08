@@ -82,6 +82,11 @@
             </div>
         </div>
 
+        @include('partials.fleet-map', [
+            'fleetMap' => $fleetMap,
+            'fleetMapRefreshUrl' => route('dashboard.fleet-data'),
+        ])
+
         <div class="mt-6 grid grid-cols-12 gap-4 md:gap-6">
             <div class="col-span-12 xl:col-span-7">
                 <div class="flex h-full min-h-[460px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">

@@ -156,11 +156,17 @@
         <!-- Live Bus GPS Location Map Card (Single Point API Location) -->
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.03]">
             @php
-                $lat = $latestLocation?->latitude ?? 27.7172;
-                $lng = $latestLocation?->longitude ?? 85.3240;
-                $hasGps = $latestLocation && $latestLocation->latitude && $latestLocation->longitude;
-                $isOnline = $hasGps && $latestLocation->recorded_at?->gt(now()->subMinutes(10));
-                $speed = $latestLocation->speed ?? 0;
+                $lat = $latestLocation['latitude'] ?? 27.7172;
+                $lng = $latestLocation['longitude'] ?? 85.3240;
+                $hasGps = ! empty($latestLocation['latitude']) && ! empty($latestLocation['longitude']);
+                $isOnline = $hasGps && ($latestLocation['status'] ?? 'offline') !== 'offline';
+                $speed = (float) ($latestLocation['speed_kmh'] ?? 0);
+                $statusLabel = $latestLocation['status_label'] ?? ($hasGps ? 'Online' : 'No GPS Data Yet');
+                $lastSignalText = ! empty($latestLocation['gps_time'])
+                    ? date('M d, Y H:i:s', strtotime($latestLocation['gps_time']))
+                    : (! empty($latestLocation['last_updated_at'])
+                        ? date('M d, Y H:i:s', strtotime($latestLocation['last_updated_at']))
+                        : 'No telemetry recorded');
             @endphp
 
             <div class="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
@@ -180,18 +186,18 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <!-- Telemetry Stats -->
                     <div class="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-                        <span>Speed: <strong class="text-gray-900 dark:text-white font-mono">{{ $speed }} km/h</strong></span>
+                        <span>Speed: <strong id="liveSpeedText" class="text-gray-900 dark:text-white font-mono">{{ $speed }} km/h</strong></span>
                         <span class="text-gray-300 dark:text-gray-600">•</span>
-                        <span>Coords: <strong class="text-brand-600 dark:text-brand-400 font-mono">{{ number_format($lat, 4) }}, {{ number_format($lng, 4) }}</strong></span>
+                        <span>Coords: <strong id="liveCoordsText" class="text-brand-600 dark:text-brand-400 font-mono">{{ number_format($lat, 4) }}, {{ number_format($lng, 4) }}</strong></span>
                     </div>
 
                     @if ($isOnline)
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
+                        <span id="liveStatusBadge" class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
                             <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Online & Transmitting
+                            {{ $statusLabel }}
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                        <span id="liveStatusBadge" class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
                             <span class="h-2 w-2 rounded-full bg-gray-400"></span>
                             {{ $hasGps ? 'Offline / Parked' : 'No GPS Data Yet' }}
                         </span>
@@ -226,7 +232,7 @@
                     </div>
                     <div class="h-3 w-px bg-gray-300 dark:bg-gray-700"></div>
                     <div class="text-gray-600 dark:text-gray-400">
-                        Last Signal: <strong>{{ $latestLocation?->recorded_at?->format('M d, Y H:i:s') ?? 'No telemetry recorded' }}</strong>
+                        Last Signal: <strong id="lastSignalText">{{ $lastSignalText }}</strong>
                     </div>
                 </div>
             </div>
@@ -242,18 +248,21 @@
 <script>
     let busMap = null;
     let busLocationMarker = null;
+    let busPollTimer = null;
 
-    const busLat = {{ $lat }};
-    const busLng = {{ $lng }};
+    let busLat = {{ $lat }};
+    let busLng = {{ $lng }};
+    let speedVal = {{ $speed }};
+    let lastSignalText = @json($lastSignalText);
+
     const busNumber = @json($bus->bus_number);
     const driverName = @json($bus->driver?->full_name ?? '—');
     const routeName = @json($bus->route?->name ?? '—');
-    const recordedTime = @json($latestLocation?->recorded_at?->format('M d, Y H:i:s') ?? 'N/A');
-    const speedVal = {{ $speed }};
+    const gpsEndpoint = @json(route('bus_location.latest', ['bus_id' => $bus->id]));
 
     function busMarkerHtml() {
         return `
-            <div style="display:flex;flex-direction:column;align-items:center;">
+            <div id="busLocationMarkerInner" style="display:flex;flex-direction:column;align-items:center;transition:transform 0.3s ease-out;">
                 <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0px 4px 6px rgba(0,0,0,0.4));">
                     <circle cx="32" cy="32" r="30" fill="#4F46E5" fill-opacity="0.25"/>
                     <circle cx="32" cy="32" r="24" fill="#312E81" stroke="#FFFFFF" stroke-width="3"/>
@@ -265,6 +274,100 @@
                 </svg>
             </div>
         `;
+    }
+
+    function formatGpsTime(value) {
+        if (!value) return 'No telemetry recorded';
+        const d = new Date(value);
+        if (isNaN(d.getTime())) return value;
+        return d.toLocaleString('en-US', { hour12: true });
+    }
+
+    function updateBusGps(data) {
+        if (!data || data.latitude == null || data.longitude == null) return;
+
+        busLat = parseFloat(data.latitude);
+        busLng = parseFloat(data.longitude);
+        speedVal = parseFloat(data.speed_kmh) || 0;
+
+        const heading = data.course != null ? parseFloat(data.course) : parseFloat((data.marker || {}).heading);
+        const course = isNaN(heading) ? 0 : heading;
+        const isOnline = data.status !== 'offline';
+        const statusLabel = data.status_label || 'Offline';
+        const statusColor = data.status_color || '#6b7280';
+
+        if (busLocationMarker) {
+            busLocationMarker.setLatLng([busLat, busLng]);
+            const inner = document.getElementById('busLocationMarkerInner');
+            if (inner) inner.style.transform = 'rotate(' + course + 'deg)';
+        }
+
+        const speedEl = document.getElementById('liveSpeedText');
+        if (speedEl) speedEl.innerText = Math.round(speedVal);
+
+        const coordsEl = document.getElementById('liveCoordsText');
+        if (coordsEl) coordsEl.innerText = busLat.toFixed(4) + ', ' + busLng.toFixed(4);
+
+        const badge = document.getElementById('liveStatusBadge');
+        if (badge) {
+            if (isOnline) {
+                badge.innerHTML = '<span class="h-2 w-2 rounded-full animate-pulse" style="background-color:' + statusColor + '"></span>' + statusLabel;
+                badge.className = 'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border border-emerald-200/50 dark:border-emerald-800/40';
+                badge.style.backgroundColor = statusColor + '1a';
+                badge.style.color = statusColor;
+            } else {
+                badge.innerHTML = '<span class="h-2 w-2 rounded-full bg-gray-400"></span>Offline';
+                badge.className = 'inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700';
+                badge.style.backgroundColor = '';
+                badge.style.color = '';
+            }
+        }
+
+        const timeEl = document.getElementById('lastSignalText');
+        if (timeEl) {
+            lastSignalText = formatGpsTime(data.gps_time || data.last_updated_at);
+            timeEl.innerText = lastSignalText;
+        }
+
+        if (busLocationMarker) {
+            const popupHtml = `
+                <div style="font-family:inherit;min-width:180px;padding:2px;">
+                    <div style="font-weight:700;font-size:14px;color:#111827;">🚍 Bus #${busNumber}</div>
+                    <div style="font-size:12px;color:#4B5563;margin-top:3px;">Route: <strong>${routeName}</strong></div>
+                    <div style="font-size:12px;color:#4B5563;">Driver: <strong>${driverName}</strong></div>
+                    <div style="font-size:12px;color:#4B5563;">Speed: <strong>${Math.round(speedVal)} km/h</strong></div>
+                    <div style="font-size:11px;color:#6B7280;margin-top:4px;">Recorded: ${lastSignalText}</div>
+                </div>
+            `;
+            busLocationMarker.setTooltipContent(popupHtml);
+        }
+    }
+
+    async function pollBusGps() {
+        try {
+            const response = await fetch(gpsEndpoint, {
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+            updateBusGps(data);
+        } catch (err) {
+            console.warn('Live GPS poll failed:', err);
+        }
+    }
+
+    function startLivePolling() {
+        stopLivePolling();
+        pollBusGps();
+        busPollTimer = setInterval(pollBusGps, 5000);
+    }
+
+    function stopLivePolling() {
+        if (busPollTimer) {
+            clearInterval(busPollTimer);
+            busPollTimer = null;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -293,8 +396,8 @@
                 <div style="font-weight:700;font-size:14px;color:#111827;">🚍 Bus #${busNumber}</div>
                 <div style="font-size:12px;color:#4B5563;margin-top:3px;">Route: <strong>${routeName}</strong></div>
                 <div style="font-size:12px;color:#4B5563;">Driver: <strong>${driverName}</strong></div>
-                <div style="font-size:12px;color:#4B5563;">Speed: <strong>${speedVal} km/h</strong></div>
-                <div style="font-size:11px;color:#6B7280;margin-top:4px;">Recorded: ${recordedTime}</div>
+                <div style="font-size:12px;color:#4B5563;">Speed: <strong>${Math.round(speedVal)} km/h</strong></div>
+                <div style="font-size:11px;color:#6B7280;margin-top:4px;">Recorded: ${lastSignalText}</div>
             </div>
         `;
 
@@ -303,6 +406,8 @@
             offset: [0, -10],
             opacity: 1,
         });
+
+        startLivePolling();
     });
 
     function recenterMapOnBus() {

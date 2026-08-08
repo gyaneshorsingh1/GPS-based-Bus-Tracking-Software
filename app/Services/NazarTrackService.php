@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Exception;
@@ -12,6 +13,13 @@ class NazarTrackService
     protected string $apiKey;
     protected int $timeout;
     protected int $cacheTtl;
+
+    /**
+     * Live devices fetched in this request, indexed by IMEI.
+     *
+     * @var array<string, array>|null
+     */
+    protected ?array $devicesByImei = null;
 
     public function __construct()
     {
@@ -52,41 +60,133 @@ class NazarTrackService
     }
 
     /**
+     * Fetch the live device list once per request and index it by IMEI.
+     * Returns an empty array when the provider is unreachable so callers
+     * can degrade gracefully (every bus simply shows as offline).
+     *
+     * @return array<string, array>
+     */
+    protected function devicesIndexedByImei(): array
+    {
+        if ($this->devicesByImei !== null) {
+            return $this->devicesByImei;
+        }
+
+        $this->devicesByImei = [];
+
+        try {
+            $response = $this->getLiveTracking();
+
+            foreach ($response['data'] ?? [] as $device) {
+                $imei = $device['imei'] ?? null;
+
+                if ($imei !== null) {
+                    $this->devicesByImei[$imei] = $device;
+                }
+            }
+        } catch (Exception $e) {
+            $this->devicesByImei = [];
+        }
+
+        return $this->devicesByImei;
+    }
+
+    /**
      * Find a GPS device by its IMEI.
      */
     public function findDeviceByImei(string $imei): ?array
     {
-        $response = $this->getLiveTracking();
-
-        if (! isset($response['data'])) {
-            return null;
-        }
-
-        foreach ($response['data'] as $device) {
-
-            if (($device['imei'] ?? null) === $imei) {
-                return $device;
-            }
-        }
-
-        return null;
+        return $this->devicesIndexedByImei()[$imei] ?? null;
     }
-
-
 
     /**
      * Get live GPS data for a Bus model.
      */
-    /**
- * Get live GPS data for a Bus model.
- */
-public function getBusLocation(\App\Models\Bus $bus): ?array
-{
-    if (empty($bus->gps_device_id)) {
-        return null;
+    public function getBusLocation(Bus $bus): ?array
+    {
+        if (empty($bus->gps_device_id)) {
+            return null;
+        }
+
+        return $this->findDeviceByImei($bus->gps_device_id);
     }
 
-    return $this->findDeviceByImei($bus->gps_device_id);
-}
+    /**
+     * Get live GPS data for many buses in a single API request.
+     *
+     * @param  iterable<Bus>  $buses
+     * @return array<int, array|null>  keyed by bus id
+     */
+    public function getBusLocations(iterable $buses): array
+    {
+        $result = [];
+        $indexed = $this->devicesIndexedByImei();
 
+        foreach ($buses as $bus) {
+            if (! empty($bus->gps_device_id)) {
+                $result[$bus->id] = $indexed[$bus->gps_device_id] ?? null;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Build the normalized "latest GPS" payload for a single bus, consumed by
+     * the live map pages (parent view, principal bus view, etc).
+     */
+    public function locationPayload(?Bus $bus): ?array
+    {
+        if (! $bus || empty($bus->gps_device_id)) {
+            return null;
+        }
+
+        $location = $this->getBusLocation($bus);
+
+        if (! $location) {
+            return null;
+        }
+
+        $status = strtolower((string) ($location['status'] ?? 'offline'));
+        $course = (float) ($location['course'] ?? $location['marker']['heading'] ?? 0);
+
+        return [
+            'latitude'        => $location['latitude'] ?? null,
+            'longitude'       => $location['longitude'] ?? null,
+            'speed_kmh'       => (float) ($location['speed_kmh'] ?? $location['speed'] ?? 0),
+            'course'          => $course,
+            'status'          => $status,
+            'status_label'    => $location['status_label'] ?? self::statusLabel($status),
+            'status_color'    => $location['status_color'] ?? self::statusColor($status),
+            'is_moving'       => (bool) ($location['is_moving'] ?? ($status === 'moving')),
+            'gps_time'        => $location['gps_time'] ?? null,
+            'last_updated_at' => $location['last_updated_at'] ?? null,
+            'last_updated_ago'=> $location['last_updated_ago'] ?? null,
+            'asset_name'      => $location['asset_name'] ?? null,
+            'imei'            => $location['imei'] ?? $bus->gps_device_id,
+            'animate'         => (bool) ($location['animate'] ?? true),
+            'marker'          => $location['marker'] ?? ['heading' => $course],
+        ];
+    }
+
+    public static function statusLabel(string $status): string
+    {
+        return match ($status) {
+            'moving'  => 'Moving',
+            'stopped' => 'Stopped',
+            'idle'    => 'Idle',
+            'offline' => 'Offline',
+            default   => ucfirst($status),
+        };
+    }
+
+    public static function statusColor(string $status): string
+    {
+        return match ($status) {
+            'moving'  => '#22c55e',
+            'stopped' => '#f59e0b',
+            'idle'    => '#eab308',
+            default   => '#6b7280',
+        };
+    }
 }

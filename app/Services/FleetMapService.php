@@ -7,6 +7,7 @@ use App\Models\BusLocation;
 use App\Models\Route;
 use App\Models\RouteStop;
 use App\Models\School;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -16,9 +17,9 @@ use Illuminate\Support\Collection;
  * embedded directly into a Blade view with @json and re-serialized by a JSON
  * endpoint without any mapping differences.
  *
- * When a real GPS provider API is connected later, only the location source in
- * this service needs to change (e.g. an API client instead of the BusLocation
- * table) — the payload shape and the map view stay the same.
+ * Live bus positions are sourced from the NazarTrack GPS provider API through
+ * NazarTrackService (the BusLocation table is only used by the legacy
+ * latestLocationsByDevice() helper).
  */
 class FleetMapService
 {
@@ -30,6 +31,8 @@ class FleetMapService
 
     /** Distance (km) within which a stopped bus is treated as "Arrived" at a stop. */
     public const ARRIVED_RADIUS_KM = 0.25;
+
+    public function __construct(private readonly NazarTrackService $gps) {}
 
     /**
      * Latest BusLocation per GPS device, optionally restricted to a set of bus ids.
@@ -66,25 +69,26 @@ class FleetMapService
      * Build the full fleet map payload for a school.
      *
      * @param  int|null  $schoolId  Null = all schools (used by super admin contexts).
+     * @param  Collection<int, int>|null  $busIds  Restrict to these bus ids (e.g. a driver's buses).
      */
-    public function forSchool(?int $schoolId): array
+    public function forSchool(?int $schoolId, ?Collection $busIds = null): array
     {
-        $busQuery = Bus::query()->with(['driver', 'route.stops', 'gpsDevice']);
+        $busQuery = Bus::query()->with(['driver', 'route.stops', 'gpsDevice', 'school']);
 
         if ($schoolId) {
             $busQuery->where('school_id', $schoolId);
         }
 
+        if ($busIds !== null) {
+            $busQuery->whereIn('id', $busIds);
+        }
+
         $buses = $busQuery->get();
 
-        $locations = $this->latestLocationsByDevice($buses->pluck('id'), ['gpsDevice.bus']);
-
-        $locationsByBus = $locations
-            ->filter(fn (BusLocation $location) => $location->gpsDevice?->bus_id)
-            ->keyBy(fn (BusLocation $location) => $location->gpsDevice->bus_id);
+        $locationsByBus = $this->gps->getBusLocations($buses);
 
         $busArrays = $buses->map(
-            fn (Bus $bus) => $this->busToArray($bus, $locationsByBus->get($bus->id))
+            fn (Bus $bus) => $this->busToArray($bus, $locationsByBus[$bus->id] ?? null)
         )->values();
 
         $routeQuery = Route::query()->with('stops');
@@ -128,9 +132,11 @@ class FleetMapService
     }
 
     /**
-     * Serialize a bus (with its latest location) into the map payload shape.
+     * Serialize a bus (with its latest API location) into the map payload shape.
+     *
+     * @param  array|null  $location  A normalized device payload from NazarTrackService.
      */
-    private function busToArray(Bus $bus, ?BusLocation $location): array
+    private function busToArray(Bus $bus, ?array $location): array
     {
         $nearestStop = $location ? $this->nearestStop($bus, $location) : null;
         $status = $this->trackingStatus($bus, $location, $nearestStop);
@@ -143,32 +149,40 @@ class FleetMapService
             'driver_name' => $bus->driver?->full_name,
             'route_id' => $bus->route_id,
             'route_name' => $bus->route?->name,
-            'latitude' => $location?->latitude,
-            'longitude' => $location?->longitude,
-            'speed' => $location?->speed ?? 0,
-            'heading' => $location?->heading,
-            'recorded_at' => $location?->recorded_at?->toIso8601String(),
+            'school_name' => $bus->school?->name,
+            'latitude' => $location['latitude'] ?? null,
+            'longitude' => $location['longitude'] ?? null,
+            'speed' => (float) ($location['speed_kmh'] ?? $location['speed'] ?? 0),
+            'heading' => $location['course'] ?? ($location['marker']['heading'] ?? null),
+            'recorded_at' => $this->gpsTimestampIso($location),
             'tracking_status' => $status,
             'next_stop' => $nearestStop['stop']?->name ?? null,
             'eta_minutes' => $this->etaMinutes($status, $location, $nearestStop),
+            'imei' => $location['imei'] ?? $bus->gps_device_id ?? null,
+            'last_updated_ago' => $location['last_updated_ago'] ?? null,
+            'status_label' => $location['status_label'] ?? null,
+            'status_color' => $location['status_color'] ?? null,
+            'is_online' => (bool) ($location['is_online'] ?? false),
         ];
     }
 
     /**
      * Resolve the per-bus tracking status.
      *
-     * - Offline: no fresh location.
+     * - Offline: bus is not online on the GPS provider / no fresh location.
      * - Arrived: stopped within ARRIVED_RADIUS_KM of a configured stop.
-     * - Moving:  fresh location with speed above the stopped threshold.
-     * - Stopped: fresh location, but effectively stationary.
+     * - Moving:  online with speed above the stopped threshold.
+     * - Stopped: online, but effectively stationary.
+     *
+     * @param  array|null  $location
      */
-    private function trackingStatus(Bus $bus, ?BusLocation $location, ?array $nearestStop): string
+    private function trackingStatus(Bus $bus, ?array $location, ?array $nearestStop): string
     {
         if (! $this->isLive($location)) {
             return 'Offline';
         }
 
-        $stopped = ($location->speed ?? 0) <= self::STOPPED_SPEED_KPH;
+        $stopped = (float) ($location['speed_kmh'] ?? $location['speed'] ?? 0) <= self::STOPPED_SPEED_KPH;
 
         if ($stopped && $nearestStop && $nearestStop['distance_km'] <= self::ARRIVED_RADIUS_KM) {
             return 'Arrived';
@@ -180,10 +194,18 @@ class FleetMapService
     /**
      * Find the nearest configured stop to the current bus position.
      *
+     * @param  array  $location
      * @return array{stop: RouteStop|null, distance_km: float|null}|null
      */
-    private function nearestStop(Bus $bus, BusLocation $location): ?array
+    private function nearestStop(Bus $bus, array $location): ?array
     {
+        $lat = $location['latitude'] ?? null;
+        $lng = $location['longitude'] ?? null;
+
+        if ($lat === null || $lng === null) {
+            return null;
+        }
+
         if (! $bus->route?->stops || $bus->route->stops->isEmpty()) {
             return null;
         }
@@ -193,8 +215,8 @@ class FleetMapService
 
         foreach ($bus->route->stops as $stop) {
             $distance = $this->haversineKm(
-                $location->latitude,
-                $location->longitude,
+                (float) $lat,
+                (float) $lng,
                 (float) $stop->latitude,
                 (float) $stop->longitude,
             );
@@ -217,25 +239,75 @@ class FleetMapService
 
     /**
      * Estimated minutes to reach the next stop (based on current speed).
+     *
+     * @param  array|null  $location
      */
-    private function etaMinutes(string $status, ?BusLocation $location, ?array $nearestStop): ?float
+    private function etaMinutes(string $status, ?array $location, ?array $nearestStop): ?float
     {
-        if ($status !== 'Moving' || ! $nearestStop || ! $location || $location->speed <= 0) {
+        $speed = (float) ($location['speed_kmh'] ?? $location['speed'] ?? 0);
+
+        if ($status !== 'Moving' || ! $nearestStop || ! $location || $speed <= 0) {
             return null;
         }
 
-        return round(($nearestStop['distance_km'] / $location->speed) * 60, 1);
+        return round(($nearestStop['distance_km'] / $speed) * 60, 1);
     }
 
     /**
-     * Whether the latest location is fresh enough to be treated as live.
+     * Whether the provider marks the device online with a valid position.
+     *
+     * @param  array|null  $location
      */
-    private function isLive(?BusLocation $location): bool
+    private function isLive(?array $location): bool
     {
-        return $location
-            && $location->latitude
-            && $location->longitude
-            && $location->recorded_at?->gt(now()->subMinutes(self::STALE_MINUTES));
+        if (! $location) {
+            return false;
+        }
+
+        if (empty($location['latitude']) || empty($location['longitude'])) {
+            return false;
+        }
+
+        // Trust the GPS provider's own online flag when it is present.
+        if (array_key_exists('is_online', $location) && ! $location['is_online']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Normalize the provider timestamp into an ISO-8601 string.
+     *
+     * @param  array|null  $location
+     */
+    private function gpsTimestampIso(?array $location): ?string
+    {
+        if (! $location) {
+            return null;
+        }
+
+        $gpsTime = $location['gps_time'] ?? null;
+
+        if ($gpsTime) {
+            try {
+                return Carbon::parse($gpsTime)->toIso8601String();
+            } catch (\Exception $e) {
+                // fall through to the provider's last_updated_at field
+            }
+        }
+
+        $lastUpdated = $location['last_updated_at'] ?? null;
+
+        if ($lastUpdated) {
+            try {
+                return Carbon::parse($lastUpdated, config('app.timezone'))->toIso8601String();
+            } catch (\Exception $e) {
+                // give up and return null below
+            }
+        }
+
+        return null;
     }
 
     /**
