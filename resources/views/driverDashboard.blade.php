@@ -25,7 +25,8 @@
             @php
                 $totalStudents = $buses->sum('students_count');
                 $checkedIn = $checkedInByBus->sum();
-                $onlineCount = $locationsByBus->filter(fn ($l) => $l->recorded_at?->gt(now()->subMinutes(10)))->count();
+                $fleetBuses = collect($fleetMap['buses'] ?? []);
+                $onlineCount = $fleetBuses->filter(fn ($bus) => ! empty($bus['is_online']))->count();
             @endphp
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
@@ -79,21 +80,16 @@
                 </div>
             </div>
 
-            <div class="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">My Bus Location</h2>
-                    <a href="{{ route('bus_location') }}" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
-                        Open Full Map
-                    </a>
-                </div>
-                <div id="driverLocationMap" class="h-[420px] w-full"></div>
-            </div>
+            @include('partials.fleet-map', [
+                'fleetMap' => $fleetMap,
+                'fleetMapRefreshUrl' => $fleetMapRefreshUrl,
+            ])
 
             <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 @foreach ($buses as $bus)
                     @php
-                        $location = $locationsByBus->get($bus->id);
-                        $online = $location && $location->recorded_at?->gt(now()->subMinutes(10));
+                        $fleetBus = $fleetBuses->firstWhere('id', $bus->id);
+                        $online = ! empty($fleetBus['is_online']);
                     @endphp
                     <div class="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
                         <div class="mb-3 flex items-start justify-between gap-3">
@@ -133,17 +129,19 @@
                                     @if ($online)
                                         <span class="inline-flex items-center gap-1.5 text-green-700 dark:text-green-400">
                                             <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                                            {{ $location->speed }} km/h
+                                            {{ number_format($fleetBus['speed'] ?? 0, 0) }} km/h
                                         </span>
                                     @else
                                         <span class="text-gray-400 dark:text-gray-500">No live signal</span>
                                     @endif
                                 </dd>
                             </div>
-                            @if ($location)
+                            @if ($fleetBus)
                                 <div class="flex justify-between gap-3">
                                     <dt class="text-gray-500 dark:text-gray-400">Last Update</dt>
-                                    <dd class="font-medium text-gray-900 dark:text-white">{{ $location->recorded_at?->format('M d, H:i:s') ?? '—' }}</dd>
+                                    <dd class="font-medium text-gray-900 dark:text-white">
+                                        {{ $fleetBus['last_updated_ago'] ?? (\Illuminate\Support\Carbon::parse($fleetBus['recorded_at'])->format('M d, H:i:s') ?? '—') }}
+                                    </dd>
                                 </div>
                             @endif
                         </dl>
@@ -157,7 +155,7 @@
                             </a>
                             <button
                                 type="button"
-                                x-on:click="focusBusOnMap({{ $location?->latitude ?? 'null' }}, {{ $location?->longitude ?? 'null' }})"
+                                x-on:click="focusBusOnMap({{ $fleetBus['latitude'] ?? 'null' }}, {{ $fleetBus['longitude'] ?? 'null' }})"
                                 class="rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-white/[0.03]"
                             >
                                 Track Bus
@@ -170,72 +168,11 @@
     </div>
 </x-app-layout>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 @if ($buses->isNotEmpty())
 <script>
-    const driverLocations = @json($locationsByBus->values());
-
     function focusBusOnMap(lat, lng) {
-        if (typeof driverLiveMap === 'undefined' || !lat || !lng) return;
-        driverLiveMap.flyTo([lat, lng], 15, { duration: 0.8 });
+        if (typeof window.fleetMapInstance === 'undefined' || !lat || !lng) return;
+        window.fleetMapInstance.flyTo([lat, lng], 15, { duration: 0.8 });
     }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const hasLocations = driverLocations.some(l => l.latitude && l.longitude);
-        const center = hasLocations
-            ? [driverLocations.find(l => l.latitude && l.longitude).latitude, driverLocations.find(l => l.latitude && l.longitude).longitude]
-            : [27.7172, 85.3240];
-
-        window.driverLiveMap = L.map('driverLocationMap', {
-            preferCanvas: true,
-            updateWhenIdle: true,
-        }).setView(center, hasLocations ? 12 : 12);
-
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-        }).addTo(window.driverLiveMap);
-
-        const markers = [];
-
-        driverLocations.forEach(l => {
-            if (!l.latitude || !l.longitude) return;
-
-            const bus = l.gps_device?.bus;
-            const online = l.recorded_at && new Date(l.recorded_at) > new Date(Date.now() - 10 * 60 * 1000);
-            const label = (bus?.bus_number || 'BUS').substring(0, 4).toUpperCase();
-
-            const icon = L.divIcon({
-                className: '',
-                html: `
-                    <div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#4F46E5;border:2px solid #fff;box-shadow:0 4px 6px rgba(0,0,0,0.3);color:#fff;font-size:10px;font-weight:700;text-align:center;line-height:1.2;padding:2px;white-space:nowrap;overflow:hidden;">${label}</div>
-                `,
-                iconSize: [40, 40],
-                iconAnchor: [20, 20],
-            });
-
-            const marker = L.marker([l.latitude, l.longitude], {
-                icon,
-                zIndexOffset: online ? 1000 : 500,
-            }).addTo(window.driverLiveMap);
-
-            marker.bindPopup(`
-                <div style="font-family:inherit;min-width:180px;">
-                    <div style="font-weight:700;font-size:14px;">${bus?.bus_number || 'Unknown Bus'}</div>
-                    <div style="font-size:12px;color:#666;margin-top:2px;">${bus?.route?.name || 'No route assigned'}</div>
-                    <div style="font-size:12px;color:#666;">Speed: ${l.speed} km/h</div>
-                    <div style="font-size:12px;color:#666;">Recorded: ${l.recorded_at || '—'}</div>
-                </div>
-            `);
-            markers.push(marker);
-        });
-
-        if (markers.length > 1) {
-            window.driverLiveMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [50, 50] });
-        }
-    });
 </script>
 @endif

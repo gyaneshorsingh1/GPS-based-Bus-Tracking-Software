@@ -92,6 +92,13 @@ Route::middleware('auth')->group(function () {
         ])
         ->name('driver.dashboard');
 
+    Route::get('/driver/live-tracking', [DriverDashboardController::class, 'liveTracking'])
+        ->middleware([
+            'permission:dashboard.view',
+            'role:Driver',
+        ])
+        ->name('driver.live-tracking');
+
     /*
     |--------------------------------------------------------------------------
     | Parent Dashboard

@@ -133,7 +133,7 @@
         [
             'title' => 'Monitoring',
             'items' => [
-                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'driver.dashboard', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'driver.live-tracking', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'driver.dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],
         ],

@@ -25,7 +25,9 @@
             @php
                 $usedBusIds = $children->pluck('bus_id')->filter()->unique();
                 $onlineCount = $locationsByBus->filter(fn ($l) => $l->recorded_at?->gt(now()->subMinutes(10)))->count();
-                $pickedUp = $attendanceByStudent->filter(fn ($a) => $a->check_in_at)->count();
+                $pickedUp = $attendanceByStudent->filter(fn ($records) => $records->contains(
+                    fn ($a) => $a->trip === \App\Models\Attendance::TRIP_HOME_TO_SCHOOL && $a->check_in_at
+                ))->count();
             @endphp
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
@@ -108,7 +110,9 @@
                                     $bus = $child->bus;
                                     $location = $bus ? $locationsByBus->get($bus->id) : null;
                                     $online = $location && $location->recorded_at?->gt(now()->subMinutes(10));
-                                    $attendance = $attendanceByStudent->get($child->id);
+                                    $records = $attendanceByStudent->get($child->id, collect());
+                                    $pickup = $records->firstWhere('trip', \App\Models\Attendance::TRIP_HOME_TO_SCHOOL);
+                                    $drop = $records->firstWhere('trip', \App\Models\Attendance::TRIP_SCHOOL_TO_HOME);
                                 @endphp
                                 <div class="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
                                     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -129,7 +133,7 @@
                                         </span>
                                     </div>
 
-                                    <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                    <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <div class="rounded-lg bg-gray-50 p-3 dark:bg-white/[0.03]">
                                             <p class="text-theme-xs text-gray-500 dark:text-gray-400">Assigned Bus</p>
                                             <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">{{ $bus?->bus_number ?? 'Not assigned' }}</p>
@@ -141,13 +145,27 @@
                                             <p class="text-theme-xs text-gray-500 dark:text-gray-400">Speed: {{ $location?->speed ?? '—' }} km/h</p>
                                         </div>
                                         <div class="rounded-lg bg-gray-50 p-3 dark:bg-white/[0.03]">
-                                            <p class="text-theme-xs text-gray-500 dark:text-gray-400">Today's Trip</p>
-                                            @if ($attendance)
+                                            <p class="text-theme-xs text-gray-500 dark:text-gray-400">Pickup (Home → School)</p>
+                                            @if ($pickup)
                                                 <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">
-                                                    {{ $attendance->check_in_at ? 'Picked up '.$attendance->check_in_at->format('H:i') : 'Not picked up' }}
+                                                    {{ $pickup->check_in_at ? 'Picked '.$pickup->check_in_at->format('H:i') : 'Not picked up' }}
                                                 </p>
                                                 <p class="text-theme-xs text-gray-500 dark:text-gray-400">
-                                                    {{ $attendance->check_out_at ? 'Dropped '.$attendance->check_out_at->format('H:i') : '—' }}
+                                                    {{ $pickup->check_out_at ? 'At school '.$pickup->check_out_at->format('H:i') : '—' }}
+                                                </p>
+                                            @else
+                                                <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">No record yet</p>
+                                                <p class="text-theme-xs text-gray-500 dark:text-gray-400">—</p>
+                                            @endif
+                                        </div>
+                                        <div class="rounded-lg bg-gray-50 p-3 dark:bg-white/[0.03]">
+                                            <p class="text-theme-xs text-gray-500 dark:text-gray-400">Drop (School → Home)</p>
+                                            @if ($drop)
+                                                <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">
+                                                    {{ $drop->check_in_at ? 'Left '.$drop->check_in_at->format('H:i') : 'Not yet' }}
+                                                </p>
+                                                <p class="text-theme-xs text-gray-500 dark:text-gray-400">
+                                                    {{ $drop->check_out_at ? 'Dropped home '.$drop->check_out_at->format('H:i') : '—' }}
                                                 </p>
                                             @else
                                                 <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">No record yet</p>
@@ -192,16 +210,23 @@
                         <div class="mt-5 min-h-0 flex-1 overflow-y-auto custom-scrollbar pr-1">
                             <div class="space-y-3">
                                 @forelse ($children as $child)
-                                    @php $attendance = $attendanceByStudent->get($child->id); @endphp
+                                    @php
+                                        $records = $attendanceByStudent->get($child->id, collect());
+                                        $pickup = $records->firstWhere('trip', \App\Models\Attendance::TRIP_HOME_TO_SCHOOL);
+                                        $drop = $records->firstWhere('trip', \App\Models\Attendance::TRIP_SCHOOL_TO_HOME);
+                                    @endphp
                                     <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 p-3 dark:border-gray-800">
                                         <div>
                                             <p class="text-theme-sm font-medium text-gray-800 dark:text-white/90">{{ $child->full_name }}</p>
                                             <p class="text-theme-xs text-gray-500 dark:text-gray-400">{{ $child->bus?->bus_number ?? 'No bus' }}</p>
                                         </div>
                                         <div class="text-right">
-                                            @if ($attendance?->check_in_at)
+                                            @if ($pickup?->check_in_at && $drop?->check_out_at)
+                                                <p class="text-theme-sm font-medium text-success-600 dark:text-success-500">Completed</p>
+                                                <p class="text-theme-xs text-gray-500 dark:text-gray-400">P {{ $pickup->check_in_at->format('H:i') }} · D {{ $drop->check_out_at->format('H:i') }}</p>
+                                            @elseif ($pickup?->check_in_at)
                                                 <p class="text-theme-sm font-medium text-success-600 dark:text-success-500">Picked up</p>
-                                                <p class="text-theme-xs text-gray-500 dark:text-gray-400">{{ $attendance->check_in_at->format('H:i') }}</p>
+                                                <p class="text-theme-xs text-gray-500 dark:text-gray-400">{{ $pickup->check_in_at->format('H:i') }} · drop —</p>
                                             @else
                                                 <p class="text-theme-sm font-medium text-gray-400 dark:text-gray-500">Not yet</p>
                                                 <p class="text-theme-xs text-gray-500 dark:text-gray-400">—</p>

@@ -75,6 +75,7 @@
                         <tr class="text-gray-500 dark:text-gray-400">
                             <th class="px-5 py-3 font-medium">Date</th>
                             <th class="px-5 py-3 font-medium">Student</th>
+                            <th class="px-5 py-3 font-medium">Trip</th>
                             <th class="px-5 py-3 font-medium">Check In</th>
                             <th class="px-5 py-3 font-medium">Check Out</th>
                             <th class="px-5 py-3 font-medium">Status</th>
@@ -88,6 +89,11 @@
                                 <td class="px-5 py-3">
                                     <p class="font-medium text-gray-900 dark:text-white">{{ $record->student?->full_name ?? '—' }}</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ $record->student?->admission_no ?? '' }}</p>
+                                </td>
+                                <td class="px-5 py-3 whitespace-nowrap">
+                                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                                        {{ $record->tripLabel() }}
+                                    </span>
                                 </td>
                                 <td class="px-5 py-3 whitespace-nowrap">
                                     @if ($record->check_in_at)
@@ -120,7 +126,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="7" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
                                     No attendance records found for this period.
                                 </td>
                             </tr>
