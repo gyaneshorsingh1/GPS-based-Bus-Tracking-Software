@@ -113,11 +113,11 @@
                         {{ $route->stops->skip(1)->first()->name ?? $route->end_location }}
                     </p>
                     <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white font-mono">
-                        <span id="liveEtaCardText">In 4 mins</span>
+                        <span id="liveEtaCardText">Awaiting signal</span>
                     </p>
                     <p class="mt-1 text-[11px] text-gray-400 dark:text-gray-500 flex items-center justify-between">
                         <span>Distance:</span>
-                        <span id="liveDistCardText" class="font-mono font-semibold text-gray-700 dark:text-gray-300">0.8 km away</span>
+                        <span id="liveDistCardText" class="font-mono font-semibold text-gray-700 dark:text-gray-300">—</span>
                     </p>
                 </div>
             </div>
@@ -315,9 +315,9 @@
                         </div>
                     </div>
 
-                    <span id="journeyStatusPill" class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
-                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        In Transit
+                    <span id="journeyStatusPill" class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                        <span class="h-2 w-2 rounded-full bg-gray-400"></span>
+                        Awaiting Signal
                     </span>
                 </div>
 
@@ -325,13 +325,13 @@
                 <div class="mb-5 rounded-xl bg-gray-50/80 p-4 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60">
                     <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
                         <span class="text-gray-600 dark:text-gray-400">Overall Route Progress</span>
-                        <span id="progressBarLabel" class="text-brand-600 dark:text-brand-400 font-mono">15% Completed</span>
+                        <span id="progressBarLabel" class="text-brand-600 dark:text-brand-400 font-mono">0% Completed</span>
                     </div>
                     <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                         <div
                             id="journeyProgressBar"
                             class="h-full rounded-full bg-gradient-to-r from-brand-500 to-emerald-500 transition-all duration-500 ease-out"
-                            style="width: 15%;"></div>
+                            style="width: 0%;"></div>
                     </div>
                 </div>
 
@@ -340,7 +340,6 @@
                     <div class="space-y-5" id="journeyTimelineContainer">
                         @forelse ($route->stops as $index => $stop)
                         @php
-                        $isFirst = $index === 0;
                         $isLast = $index === ($route->stops->count() - 1);
                         @endphp
 
@@ -353,12 +352,8 @@
                                 <!-- Node Icon -->
                                 <div
                                     id="stopNodeIcon-{{ $index }}"
-                                    class="node-icon flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300 z-10 {{ $isFirst ? 'bg-brand-500 border-brand-500 text-white ring-4 ring-brand-500/20' : 'bg-white border-gray-300 text-gray-400 dark:bg-gray-900 dark:border-gray-700' }}">
-                                    @if ($isFirst)
-                                    <span class="text-xs">🚌</span>
-                                    @else
+                                    class="node-icon flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300 z-10 bg-white border-gray-300 text-gray-400 dark:bg-gray-900 dark:border-gray-700">
                                     <span class="text-xs font-mono font-bold">{{ $stop->stop_order }}</span>
-                                    @endif
                                 </div>
 
                                 <!-- Vertical Connector Line -->
@@ -372,37 +367,29 @@
                             <!-- Stop Info Box -->
                             <div
                                 id="stopCardBox-{{ $index }}"
-                                class="stop-card-box flex-1 rounded-xl p-3 border transition-all duration-300 {{ $isFirst ? 'bg-brand-50/60 border-brand-200 dark:bg-brand-500/10 dark:border-brand-500/30' : 'bg-gray-50/50 border-gray-100 dark:bg-gray-800/30 dark:border-gray-800/60' }}">
+                                class="stop-card-box flex-1 rounded-xl p-3 border transition-all duration-300 bg-gray-50/50 border-gray-100 dark:bg-gray-800/30 dark:border-gray-800/60">
                                 <div class="flex flex-wrap items-center justify-between gap-1.5">
                                     <div class="flex items-center gap-2">
-                                        <h3 id="stopTitleText-{{ $index }}" class="text-xs font-bold {{ $isFirst ? 'text-brand-700 dark:text-brand-300' : 'text-gray-900 dark:text-white' }}">
+                                        <h3 id="stopTitleText-{{ $index }}" class="text-xs font-semibold text-gray-900 dark:text-white">
                                             {{ $stop->name }}
                                         </h3>
 
                                         <span
                                             id="stopBadge-{{ $index }}"
-                                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold {{ $isFirst ? 'bg-brand-500 text-white animate-pulse' : 'hidden' }}">
-                                            @if ($isFirst)
-                                            <span>Current Stop</span>
-                                            @endif
-                                        </span>
+                                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold hidden"></span>
                                     </div>
 
                                     <div class="text-right">
                                         <div class="text-[11px] font-mono font-semibold text-gray-700 dark:text-gray-300">
                                             Sched: {{ $stop->pickup_time ? date('h:i A', strtotime($stop->pickup_time)) : ($stop->drop_time ? date('h:i A', strtotime($stop->drop_time)) : '07:00 AM') }}
                                         </div>
-                                        <div id="stopEtaText-{{ $index }}" class="text-[11px] font-mono font-semibold text-brand-600 dark:text-brand-400">
-                                            {{ $isFirst ? 'Bus Arriving' : 'ETA: ' . (($index * 6) + 3) . ' mins' }}
-                                        </div>
+                                        <div id="stopEtaText-{{ $index }}" class="text-[11px] font-mono font-medium text-gray-600 dark:text-gray-400">—</div>
                                     </div>
                                 </div>
 
                                 <div class="mt-1 text-[11px] text-gray-500 dark:text-gray-400 flex items-center justify-between">
                                     <span>Stop #{{ $stop->stop_order }}</span>
-                                    <span id="stopDistanceText-{{ $index }}" class="font-mono">
-                                        {{ $isFirst ? 'Distance: 0.2 km' : 'Approx ' . ($index * 1.5) . ' km away' }}
-                                    </span>
+                                    <span id="stopDistanceText-{{ $index }}" class="font-mono">—</span>
                                 </div>
                             </div>
                         </div>
@@ -476,7 +463,19 @@
     const gpsEndpoint = '{{ route('bus_location.latest') }}' + '?child_id=' + @json($selectedChild?->id);
 
     let liveBusGps = null;
-    let liveJourneyLastIdx = null;
+
+    // Journey progression: index of the furthest stop the bus has arrived at.
+    // null = no stop reached yet; only ever increases (the bus never goes backwards).
+    let journeyReachedIdx = null;
+
+    // Distance (km) within which a stop is treated as "reached".
+    const ARRIVED_RADIUS_KM = 0.2;
+
+    // Speed (km/h) at or below which the bus is treated as stationary.
+    const STOPPED_SPEED_KPH = 3;
+
+    // A bus further than this from every configured stop is considered off-route.
+    const ON_ROUTE_THRESHOLD_KM = 1.5;
 
     document.addEventListener('DOMContentLoaded', function() {
         initHighPerformanceMap();
@@ -588,6 +587,11 @@
             map.flyTo(startPos, 16);
         }
 
+        // Reset the journey timeline to a neutral state so it never shows a fake
+        // "current stop" before the first live GPS fix arrives.
+        renderJourneyNeutral(liveJourneyStops.length);
+        setJourneyPill('Awaiting Signal', '#6b7280');
+
         // Initial render + start real-time polling (every 5 seconds, no reload).
         updateLiveGps(latestLocation);
         startLivePolling();
@@ -671,7 +675,19 @@
      * popup and the journey timeline (nearest stop, real ETA, real distance).
      */
     function updateLiveGps(data) {
-        if (!data || data.latitude == null || data.longitude == null) return;
+        if (!data || data.latitude == null || data.longitude == null) {
+            // No usable fix (offline / no data yet): show offline telemetry and a
+            // neutral journey timeline instead of stale "first stop" defaults.
+            updateTelemetryCards({
+                speed_kmh: 0,
+                status: 'offline',
+                status_label: 'No Signal',
+                status_color: '#6b7280',
+                last_updated_ago: null,
+            });
+            updateLiveJourneyState(null);
+            return;
+        }
 
         const lat = parseFloat(data.latitude);
         const lng = parseFloat(data.longitude);
@@ -748,22 +764,22 @@
     }
 
     // Nearest stop is found purely by Haversine distance from the live GPS fix.
-    function liveCurrentStopIndex(gps) {
-        let nearestIdx = 0;
-        let nearestDist = Infinity;
+    function liveNearestStop(gps) {
+        let idx = -1;
+        let distance = Infinity;
 
         for (let i = 0; i < liveJourneyStops.length; i++) {
             const stop = liveJourneyStops[i];
             if (stop && stop.latitude && stop.longitude && parseFloat(stop.latitude) !== 0 && parseFloat(stop.longitude) !== 0) {
                 const dist = liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(stop.latitude), parseFloat(stop.longitude));
-                if (dist < nearestDist) {
-                    nearestDist = dist;
-                    nearestIdx = i;
+                if (dist < distance) {
+                    distance = dist;
+                    idx = i;
                 }
             }
         }
 
-        return nearestIdx;
+        return { idx, distance };
     }
 
     function liveStopEtaMinutes(gps, stop) {
@@ -773,56 +789,38 @@
         return (distKm / gps.speed_kmh) * 60;
     }
 
-    function updateLiveJourneyState(gps) {
-        const totalStops = liveJourneyStops.length;
-        if (totalStops === 0 || !gps) return;
+    function setJourneyPill(label, color) {
+        const pill = document.getElementById('journeyStatusPill');
+        if (!pill) return;
+        pill.innerHTML = '<span class="h-2 w-2 rounded-full animate-pulse" style="background-color:' + color + '"></span>' + label;
+        pill.style.backgroundColor = color + '1a';
+        pill.style.borderColor = color + '40';
+        pill.style.color = color;
+    }
 
-        let currentIdx = liveCurrentStopIndex(gps);
-        currentIdx = Math.min(currentIdx, totalStops - 1);
+    function liveStopDistanceKm(gps, stop) {
+        if (!stop || !stop.latitude || !stop.longitude) return null;
+        return liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(stop.latitude), parseFloat(stop.longitude));
+    }
 
-        // The bus never goes backwards along the route.
-        if (liveJourneyLastIdx !== null && currentIdx < liveJourneyLastIdx) {
-            currentIdx = liveJourneyLastIdx;
-        }
-        liveJourneyLastIdx = currentIdx;
-
-        // Real progress derived from the actual nearest stop (no fake percentages).
-        const progress = totalStops > 1 ? Math.round((currentIdx / (totalStops - 1)) * 100) : 0;
+    /**
+     * Reset the journey UI to a neutral "waiting for signal" state. Used on page
+     * load and whenever there is no usable GPS fix, so the route never fakes a
+     * "current stop" or progress before real telemetry arrives.
+     */
+    function renderJourneyNeutral(totalStops) {
         const progressBar = document.getElementById('journeyProgressBar');
         const progressLabel = document.getElementById('progressBarLabel');
-        if (progressBar) progressBar.style.width = progress + '%';
-        if (progressLabel) progressLabel.innerText = progress + '% Completed';
-
-        // Next Stop & ETA card (real distance + real ETA from current speed)
-        const nextIdx = Math.min(currentIdx + 1, totalStops - 1);
-        const nextStop = liveJourneyStops[nextIdx] ? liveJourneyStops[nextIdx].name : 'Destination';
-        const arrived = nextIdx === currentIdx && currentIdx === totalStops - 1;
-        const nextDist = liveJourneyStops[nextIdx]
-            ? liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(liveJourneyStops[nextIdx].latitude), parseFloat(liveJourneyStops[nextIdx].longitude))
-            : 0;
-        const nextEta = liveStopEtaMinutes(gps, liveJourneyStops[nextIdx]);
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressLabel) progressLabel.innerText = '0% Completed';
 
         const cardNextStop = document.getElementById('liveNextStopCardText');
         const cardEta = document.getElementById('liveEtaCardText');
         const cardDist = document.getElementById('liveDistCardText');
+        if (cardNextStop) cardNextStop.innerText = '—';
+        if (cardEta) cardEta.innerText = 'Awaiting signal';
+        if (cardDist) cardDist.innerText = '—';
 
-        if (cardNextStop) cardNextStop.innerText = nextStop;
-
-        if (cardEta) {
-            if (arrived) {
-                cardEta.innerText = 'Arrived';
-            } else if (nextEta == null) {
-                cardEta.innerText = 'Stopped';
-            } else if (nextEta <= 1) {
-                cardEta.innerText = 'In under a minute';
-            } else {
-                cardEta.innerText = 'In ' + Math.round(nextEta) + ' mins';
-            }
-        }
-
-        if (cardDist) cardDist.innerText = nextDist.toFixed(1) + ' km away';
-
-        // Timeline Stops Loop
         for (let i = 0; i < totalStops; i++) {
             const iconNode = document.getElementById('stopNodeIcon-' + i);
             const connector = document.getElementById('stopConnectorLine-' + i);
@@ -832,7 +830,126 @@
             const etaText = document.getElementById('stopEtaText-' + i);
             const distText = document.getElementById('stopDistanceText-' + i);
 
-            if (i < currentIdx) {
+            if (iconNode) {
+                iconNode.className = 'node-icon flex h-8 w-8 items-center justify-center rounded-full bg-white border-2 border-gray-300 text-gray-400 dark:bg-gray-900 dark:border-gray-700 z-10';
+                iconNode.innerHTML = '<span class="text-xs font-mono font-bold">' + (i + 1) + '</span>';
+            }
+            if (connector) connector.className = 'connector-line w-0.5 h-12 bg-gray-200 dark:bg-gray-800 transition-colors duration-500 my-1';
+            if (cardBox) cardBox.className = 'stop-card-box flex-1 rounded-xl p-3 border bg-gray-50/40 border-gray-100 dark:bg-gray-800/20 dark:border-gray-800/50';
+            if (titleText) titleText.className = 'text-xs font-semibold text-gray-900 dark:text-white';
+            if (badge) badge.className = 'hidden';
+            if (etaText) {
+                etaText.className = 'text-[11px] font-mono font-medium text-gray-600 dark:text-gray-400';
+                etaText.innerText = '—';
+            }
+            if (distText) distText.innerText = '—';
+        }
+    }
+
+    /**
+     * Recompute and render the route progress bar using the real GPS position:
+     * completed stops + the fraction of the segment already travelled toward the
+     * next stop. Uses live distance and speed, never hard-coded percentages.
+     */
+    function renderJourneyProgress(gps, reachedIdx, totalStops) {
+        const progressBar = document.getElementById('journeyProgressBar');
+        const progressLabel = document.getElementById('progressBarLabel');
+        const denominator = totalStops - 1;
+        let percent = 0;
+
+        if (reachedIdx >= totalStops - 1) {
+            percent = 100;
+        } else if (reachedIdx >= 0) {
+            const anchor = liveJourneyStops[reachedIdx];
+            const next = liveJourneyStops[reachedIdx + 1];
+            let frac = 1;
+            if (anchor && next && anchor.latitude && anchor.longitude && next.latitude && next.longitude) {
+                const distToNext = liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(next.latitude), parseFloat(next.longitude));
+                const anchorToNext = liveGpsDistanceKm(parseFloat(anchor.latitude), parseFloat(anchor.longitude), parseFloat(next.latitude), parseFloat(next.longitude));
+                frac = anchorToNext > 0 ? Math.max(0, Math.min(1, 1 - distToNext / anchorToNext)) : 1;
+            }
+            percent = ((reachedIdx + frac) / denominator) * 100;
+        } else if (denominator > 0) {
+            // Heading toward the first stop: reflect how close the bus is.
+            const nearest = liveNearestStop(gps);
+            const approachKm = 2;
+            const frac = Math.max(0, Math.min(1, 1 - nearest.distance / approachKm));
+            percent = (frac / denominator) * 100;
+        }
+
+        percent = Math.round(Math.max(0, Math.min(100, percent)));
+
+        if (progressBar) progressBar.style.width = percent + '%';
+        if (progressLabel) progressLabel.innerText = percent + '% Completed';
+    }
+
+    /**
+     * Update the "Next Stop & ETA" card with the real target stop, distance and
+     * ETA computed from the live speed.
+     */
+    function renderNextStopCard(gps, reachedIdx, totalStops, offRoute) {
+        const cardNextStop = document.getElementById('liveNextStopCardText');
+        const cardEta = document.getElementById('liveEtaCardText');
+        const cardDist = document.getElementById('liveDistCardText');
+
+        if (reachedIdx >= totalStops - 1) {
+            if (cardNextStop) cardNextStop.innerText = 'Destination';
+            if (cardEta) cardEta.innerText = 'Arrived';
+            if (cardDist) cardDist.innerText = 'Journey complete';
+            return;
+        }
+
+        if (offRoute && reachedIdx < 0) {
+            if (cardNextStop) cardNextStop.innerText = '—';
+            if (cardEta) cardEta.innerText = 'Off Route';
+            if (cardDist) cardDist.innerText = 'No signal near route';
+            return;
+        }
+
+        const targetIdx = reachedIdx + 1;
+        const target = liveJourneyStops[targetIdx];
+        if (!target) return;
+
+        const dist = liveStopDistanceKm(gps, target);
+        const eta = liveStopEtaMinutes(gps, target);
+
+        if (cardNextStop) cardNextStop.innerText = target.name;
+
+        if (cardEta) {
+            if (offRoute) {
+                cardEta.innerText = '—';
+            } else if (eta == null) {
+                cardEta.innerText = gps.speed_kmh <= 0 ? 'Stopped' : '—';
+            } else if (eta <= 1) {
+                cardEta.innerText = 'In under a minute';
+            } else {
+                cardEta.innerText = 'In ' + Math.round(eta) + ' mins';
+            }
+        }
+
+        if (cardDist) cardDist.innerText = dist == null ? '—' : dist.toFixed(1) + ' km away';
+    }
+
+    /**
+     * Render the vertical stop timeline. Each stop has a lifecycle:
+     *   Passed   -> reached earlier and left behind (greyed out with a check)
+     *   Arrived  -> the bus has reached this stop (green, "Arrived" badge)
+     *   Arriving -> the next stop the bus is heading toward (highlighted)
+     *   Upcoming -> later stops with a live ETA and distance
+     */
+    function renderJourneyTimeline(gps, reachedIdx, totalStops, offRoute) {
+        for (let i = 0; i < totalStops; i++) {
+            const stop = liveJourneyStops[i];
+            const iconNode = document.getElementById('stopNodeIcon-' + i);
+            const connector = document.getElementById('stopConnectorLine-' + i);
+            const cardBox = document.getElementById('stopCardBox-' + i);
+            const titleText = document.getElementById('stopTitleText-' + i);
+            const badge = document.getElementById('stopBadge-' + i);
+            const etaText = document.getElementById('stopEtaText-' + i);
+            const distText = document.getElementById('stopDistanceText-' + i);
+
+            if (i < reachedIdx) {
+                // Passed
                 if (iconNode) {
                     iconNode.className = 'node-icon flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-emerald-500 text-white z-10 shadow-xs';
                     iconNode.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
@@ -847,7 +964,31 @@
                 }
                 if (distText) distText.innerText = 'Completed';
 
-            } else if (i === currentIdx) {
+            } else if (i === reachedIdx) {
+                // Arrived
+                const dist = liveStopDistanceKm(gps, stop);
+                if (iconNode) {
+                    iconNode.className = 'node-icon flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 border-2 border-white text-white z-10 ring-4 ring-emerald-500/30 shadow-md';
+                    iconNode.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+                }
+                if (connector) connector.className = 'connector-line w-0.5 h-12 bg-emerald-500 transition-colors duration-500 my-1';
+                if (cardBox) cardBox.className = 'stop-card-box flex-1 rounded-xl p-3 border bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-800/40 shadow-sm ring-1 ring-emerald-500/20';
+                if (titleText) titleText.className = 'text-xs font-bold text-emerald-700 dark:text-emerald-300';
+                if (badge) {
+                    badge.className = 'inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold text-white';
+                    badge.innerHTML = '<span>Arrived</span>';
+                }
+                if (etaText) {
+                    etaText.className = 'text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400';
+                    etaText.innerText = 'Arrived';
+                }
+                if (distText) distText.innerText = dist == null ? 'At stop' : 'At stop (' + dist.toFixed(2) + ' km)';
+
+            } else if (i === reachedIdx + 1 && !(offRoute && reachedIdx < 0)) {
+                // Next stop the bus is heading toward
+                const dist = liveStopDistanceKm(gps, stop);
+                const eta = liveStopEtaMinutes(gps, stop);
+
                 if (iconNode) {
                     iconNode.className = 'node-icon flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 border-2 border-white text-white z-10 ring-4 ring-brand-500/30 animate-bounce shadow-md';
                     iconNode.innerHTML = '<span class="text-xs">🚌</span>';
@@ -857,18 +998,19 @@
                 if (titleText) titleText.className = 'text-xs font-bold text-brand-700 dark:text-brand-300';
                 if (badge) {
                     badge.className = 'inline-flex items-center gap-1 rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-semibold text-white animate-pulse';
-                    badge.innerHTML = '<span>Current Stop</span>';
+                    badge.innerHTML = offRoute ? '<span>Off Route</span>' : '<span>Arriving</span>';
                 }
                 if (etaText) {
                     etaText.className = 'text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400';
-                    etaText.innerText = 'Bus Arriving';
+                    etaText.innerText = offRoute ? 'Off Route' : 'Arriving';
                 }
-                if (distText) {
-                    const distToCurrent = liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(liveJourneyStops[i].latitude), parseFloat(liveJourneyStops[i].longitude));
-                    distText.innerText = 'Distance: ' + distToCurrent.toFixed(2) + ' km';
-                }
+                if (distText) distText.innerText = dist == null ? '—' : dist.toFixed(1) + ' km away';
 
             } else {
+                // Upcoming stops with live ETA / distance
+                const eta = liveStopEtaMinutes(gps, stop);
+                const dist = liveStopDistanceKm(gps, stop);
+
                 if (iconNode) {
                     iconNode.className = 'node-icon flex h-8 w-8 items-center justify-center rounded-full bg-white border-2 border-gray-300 text-gray-400 dark:bg-gray-900 dark:border-gray-700 z-10';
                     iconNode.innerHTML = '<span class="text-xs font-mono font-bold">' + (i + 1) + '</span>';
@@ -878,15 +1020,92 @@
                 if (titleText) titleText.className = 'text-xs font-semibold text-gray-900 dark:text-white';
                 if (badge) badge.className = 'hidden';
                 if (etaText) {
-                    const stopEta = liveStopEtaMinutes(gps, liveJourneyStops[i]);
                     etaText.className = 'text-[11px] font-mono font-medium text-gray-600 dark:text-gray-400';
-                    etaText.innerText = stopEta == null ? 'ETA: —' : 'ETA: ' + Math.round(stopEta) + ' mins';
+                    etaText.innerText = eta == null ? 'ETA: —' : 'ETA: ' + Math.round(eta) + ' mins';
                 }
-                if (distText) {
-                    const distToStop = liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(liveJourneyStops[i].latitude), parseFloat(liveJourneyStops[i].longitude));
-                    distText.innerText = distToStop.toFixed(1) + ' km away';
+                if (distText) distText.innerText = dist == null ? '—' : dist.toFixed(1) + ' km away';
+            }
+        }
+    }
+
+    /**
+     * Core journey update. Tracks how many stops the bus has genuinely arrived at
+     * (monotonic) and drives the progress bar, next-stop card and timeline.
+     * Offline / off-route positions never fake stop progression.
+     */
+    function updateLiveJourneyState(gps) {
+        const totalStops = liveJourneyStops.length;
+        if (totalStops === 0) return;
+
+        // No usable fix: never fake a stop or progress. If we already rendered a
+        // real timeline, keep showing that last-known state; otherwise the
+        // neutral markup stays untouched.
+        if (!gps || gps.latitude == null || gps.longitude == null) {
+            if (journeyReachedIdx === null) {
+                renderJourneyNeutral(totalStops);
+            }
+            setJourneyPill('No Signal', '#6b7280');
+            return;
+        }
+
+        const speed = parseFloat(gps.speed_kmh) || 0;
+        const isOnline = gps.status !== 'offline';
+        const isStopped = speed <= STOPPED_SPEED_KPH;
+
+        const { idx: nearestIdx, distance: nearestDist } = liveNearestStop(gps);
+
+        if (nearestIdx === -1) {
+            if (journeyReachedIdx === null) {
+                renderJourneyNeutral(totalStops);
+            }
+            setJourneyPill('No Signal', '#6b7280');
+            return;
+        }
+
+        const offRoute = nearestDist > ON_ROUTE_THRESHOLD_KM;
+        const atNearestStop = nearestDist <= ARRIVED_RADIUS_KM;
+
+        // First usable fix: guess how far along the route the bus already is.
+        // Never trust an off-route position as evidence of stop progression.
+        if (journeyReachedIdx === null) {
+            if (!isOnline || offRoute) {
+                journeyReachedIdx = -1;
+            } else if (atNearestStop && isStopped) {
+                journeyReachedIdx = nearestIdx;
+            } else if (nearestIdx > 0) {
+                journeyReachedIdx = nearestIdx - 1;
+            } else {
+                journeyReachedIdx = -1;
+            }
+        } else if (!offRoute && nearestIdx > journeyReachedIdx + 1) {
+            // Bus skipped ahead (e.g. it came online mid-route): catch up, but
+            // only when it is actually near the route.
+            journeyReachedIdx = nearestIdx - 1;
+        }
+
+        // Arrival at the target stop: the bus must be near the stop AND stationary.
+        const targetIdx = journeyReachedIdx + 1;
+        if (targetIdx < totalStops && !offRoute) {
+            const target = liveJourneyStops[targetIdx];
+            if (target && target.latitude && target.longitude) {
+                const distToTarget = liveGpsDistanceKm(gps.latitude, gps.longitude, parseFloat(target.latitude), parseFloat(target.longitude));
+                if (isOnline && isStopped && distToTarget <= ARRIVED_RADIUS_KM) {
+                    journeyReachedIdx = targetIdx;
                 }
             }
+        }
+
+        if (journeyReachedIdx >= totalStops - 1) {
+            journeyReachedIdx = totalStops - 1; // destination reached
+        }
+        if (journeyReachedIdx < -1) journeyReachedIdx = -1;
+
+        renderJourneyProgress(gps, journeyReachedIdx, totalStops);
+        renderNextStopCard(gps, journeyReachedIdx, totalStops, offRoute);
+        renderJourneyTimeline(gps, journeyReachedIdx, totalStops, offRoute);
+
+        if (offRoute && journeyReachedIdx < totalStops - 1) {
+            setJourneyPill('Off Route', '#f59e0b');
         }
     }
 
