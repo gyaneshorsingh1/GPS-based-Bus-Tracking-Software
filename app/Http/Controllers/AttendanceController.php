@@ -38,10 +38,13 @@ class AttendanceController extends Controller
             $driverId = Driver::where('user_id', $user->id)->value('id');
 
             if (! $driverId) {
+                $today = $request->query('date') ?: now()->toDateString();
+
                 return view('attendance.index', [
                     'buses' => collect(),
                     'checkedIn' => collect(),
-                    'today' => $request->query('date') ?: now()->toDateString(),
+                    'today' => $today,
+                    'nextDate' => Carbon::parse($today)->addDay()->toDateString(),
                     'groupedBySchool' => false,
                 ]);
             }
@@ -59,12 +62,16 @@ class AttendanceController extends Controller
             ->whereNotNull('check_in_at')
             ->get()
             ->groupBy('bus_id')
-            ->map
-            ->count();
+            ->map(fn ($group) => [
+                Attendance::TRIP_HOME_TO_SCHOOL => $group->where('trip', Attendance::TRIP_HOME_TO_SCHOOL)->pluck('student_id')->unique()->count(),
+                Attendance::TRIP_SCHOOL_TO_HOME => $group->where('trip', Attendance::TRIP_SCHOOL_TO_HOME)->pluck('student_id')->unique()->count(),
+            ]);
+
+        $nextDate = Carbon::parse($today)->addDay()->toDateString();
 
         $groupedBySchool = $user->hasRole('Super Admin');
 
-        return view('attendance.index', compact('buses', 'checkedIn', 'today', 'groupedBySchool'));
+        return view('attendance.index', compact('buses', 'checkedIn', 'today', 'nextDate', 'groupedBySchool'));
     }
 
     /**
@@ -77,6 +84,12 @@ class AttendanceController extends Controller
 
         $date = $request->query('date') ?: now()->toDateString();
 
+        $activeTrip = $request->query('trip');
+
+        if ($activeTrip && ! in_array($activeTrip, array_keys(Attendance::trips()), true)) {
+            $activeTrip = null;
+        }
+
         $bus->load(['school', 'driver', 'route']);
 
         $students = $bus->students()
@@ -85,13 +98,39 @@ class AttendanceController extends Controller
             ->orderBy('roll_no')
             ->get();
 
-        $attendance = Attendance::query()
+        $attendanceRecords = Attendance::query()
             ->whereDate('date', $date)
             ->whereIn('student_id', $students->pluck('id'))
-            ->get()
-            ->keyBy('student_id');
+            ->get();
 
-        return view('attendance.show', compact('bus', 'students', 'attendance', 'date'));
+        $attendance = collect(Attendance::trips())
+            ->mapWithKeys(fn ($label, $trip) => [
+                $trip => $attendanceRecords->where('trip', $trip)->keyBy('student_id'),
+            ]);
+
+        $homeToSchoolChecked = ($attendance[Attendance::TRIP_HOME_TO_SCHOOL] ?? collect())
+            ->filter(fn ($a) => $a->isCheckedIn())
+            ->count();
+
+        $schoolToHomeChecked = ($attendance[Attendance::TRIP_SCHOOL_TO_HOME] ?? collect())
+            ->filter(fn ($a) => $a->isCheckedIn())
+            ->count();
+
+        $nextDate = Carbon::parse($date)->addDay()->toDateString();
+
+        $homeToSchoolCompleted = $students->isNotEmpty() && $homeToSchoolChecked >= $students->count();
+
+        return view('attendance.show', compact(
+            'bus',
+            'students',
+            'attendance',
+            'date',
+            'nextDate',
+            'activeTrip',
+            'homeToSchoolCompleted',
+            'homeToSchoolChecked',
+            'schoolToHomeChecked'
+        ));
     }
 
     /**
@@ -104,6 +143,7 @@ class AttendanceController extends Controller
 
         $validated = $request->validate([
             'action' => ['required', 'in:check_in,check_out'],
+            'trip' => ['required', 'in:home_to_school,school_to_home'],
             'date' => ['nullable', 'date'],
         ]);
 
@@ -113,18 +153,35 @@ class AttendanceController extends Controller
 
         $date = ! empty($validated['date']) ? Carbon::parse($validated['date']) : now();
 
+        if ($validated['trip'] === Attendance::TRIP_SCHOOL_TO_HOME) {
+            $homeToSchoolCount = Attendance::query()
+                ->where('bus_id', $bus->id)
+                ->where('trip', Attendance::TRIP_HOME_TO_SCHOOL)
+                ->whereDate('date', $date)
+                ->whereNotNull('check_in_at')
+                ->distinct('student_id')
+                ->count('student_id');
+
+            $studentCount = $bus->students()->count();
+
+            if ($studentCount === 0 || $homeToSchoolCount < $studentCount) {
+                return back()->withErrors(['trip' => 'Complete the Home to School attendance before marking School to Home.']);
+            }
+        }
+
         $attendance = Attendance::query()
             ->where('student_id', $student->id)
+            ->where('trip', $validated['trip'])
             ->whereDate('date', $date)
             ->first();
 
         if ($validated['action'] === 'check_in') {
             if ($attendance?->isCheckedIn()) {
-                return back()->withErrors(['check_in' => "{$student->full_name} is already checked in."]);
+                return back()->withErrors(['check_in' => "{$student->full_name} is already checked in for {$this->tripLabel($validated['trip'])}."]);
             }
 
             Attendance::updateOrCreate(
-                ['student_id' => $student->id, 'date' => $date],
+                ['student_id' => $student->id, 'date' => $date, 'trip' => $validated['trip']],
                 [
                     'bus_id' => $bus->id,
                     'check_in_at' => now(),
@@ -132,7 +189,7 @@ class AttendanceController extends Controller
                 ]
             );
 
-            $message = "{$student->full_name} checked in successfully.";
+            $message = "{$student->full_name} checked in for {$this->tripLabel($validated['trip'])} successfully.";
         } else {
             if (! $attendance || ! $attendance->isCheckedIn()) {
                 return back()->withErrors(['check_out' => "{$student->full_name} must check in before checking out."]);
@@ -147,7 +204,7 @@ class AttendanceController extends Controller
                 'marked_by' => Auth::id(),
             ]);
 
-            $message = "{$student->full_name} checked out successfully.";
+            $message = "{$student->full_name} checked out for {$this->tripLabel($validated['trip'])} successfully.";
         }
 
         return redirect()
@@ -199,6 +256,14 @@ class AttendanceController extends Controller
         if ($bus->status !== 'Active') {
             abort(403, 'Attendance is only available for active buses.');
         }
+    }
+
+    /**
+     * Human-readable label for a trip key.
+     */
+    private function tripLabel(string $trip): string
+    {
+        return Attendance::trips()[$trip] ?? $trip;
     }
 
     /**

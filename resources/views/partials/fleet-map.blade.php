@@ -4,6 +4,9 @@
     $fleetSchool = $fleetMap['school'] ?? null;
     $fleetRoutes = $fleetMap['routes'] ?? [];
     $fleetMapRefreshUrl = $fleetMapRefreshUrl ?? null;
+    $fleetMapTitle = $fleetMapTitle ?? 'Fleet Overview Map';
+    $fleetMapSubtitle = $fleetMapSubtitle ?? 'Live location of every school bus, route paths, and stops';
+    $fleetMapHeight = $fleetMapHeight ?? 'h-[520px]';
 
     $fleetCards = [
         'total' => ['label' => 'Total Buses', 'value' => $fleetSummary['total'] ?? 0, 'classes' => 'text-gray-800 dark:text-white/90'],
@@ -29,14 +32,29 @@
 <div class="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800">
         <div>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Fleet Overview Map</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Live location of every school bus, route paths, and stops</p>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $fleetMapTitle }}</h2>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $fleetMapSubtitle }}</p>
         </div>
-        <span id="fleetMapLastUpdate" class="rounded-full bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"></span>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="fleetMapRecenterBtn"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4l6 6M20 4l-6 6M4 20l6-6M20 20l-6-6M4 4h16M4 4v16M20 4v16"/></svg>
+                Recenter
+            </button>
+            <button type="button" id="fleetMapRefreshBtn"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M20 8A8 8 0 005.6 5.6L4 8m16 8l-1.6 2.4A8 8 0 014 16"/></svg>
+                Refresh
+            </button>
+            <span id="fleetMapLastUpdate" class="rounded-full bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"></span>
+        </div>
     </div>
 
     <div class="relative overflow-hidden rounded-xl border-t border-gray-200 bg-gray-900 dark:border-gray-800" style="min-height: 520px;">
-        <div id="fleetMapCanvas" class="h-[520px] w-full z-0"></div>
+        <div id="fleetMapCanvas" class="{{ $fleetMapHeight }} w-full z-0"></div>
+
+        <!-- Bus Quick-Nav Strip -->
+        <div id="fleetBusStrip" class="absolute left-3 top-3 z-10 hidden max-w-[calc(100%-6rem)] gap-2 overflow-x-auto rounded-xl bg-white/90 p-2 shadow-lg backdrop-blur-md border border-gray-200/80 dark:bg-gray-900/90 dark:border-gray-800 md:flex no-scrollbar"></div>
 
         <!-- Legend Overlay -->
         <div class="absolute bottom-4 left-4 z-10 hidden flex-wrap items-center gap-3 rounded-xl bg-white/90 p-3 text-xs shadow-lg backdrop-blur-md sm:flex dark:bg-gray-900/90 border border-gray-200/80 dark:border-gray-800">
@@ -238,6 +256,9 @@
 
                 marker = L.marker(latlng, { icon, zIndexOffset: 1000 }).addTo(fleetMap);
                 marker.bindPopup(busPopupHtml(bus));
+                marker.on('click', function () {
+                    focusBus(bus.id);
+                });
                 busMarkers.set(bus.id, marker);
             } else {
                 marker.setLatLng(latlng);
@@ -250,6 +271,47 @@
                 marker.setPopupContent(busPopupHtml(bus));
             }
         }
+
+        function renderBusStrip(buses) {
+            const strip = document.getElementById('fleetBusStrip');
+            if (!strip) return;
+
+            strip.innerHTML = '';
+            if (!buses.length) {
+                strip.classList.add('hidden');
+                return;
+            }
+
+            strip.classList.remove('hidden');
+            buses.forEach(bus => {
+                if (!bus.latitude || !bus.longitude) return;
+                const color = STATUS_COLORS[bus.tracking_status] || '#9CA3AF';
+                const speed = Number(bus.speed || 0).toFixed(0);
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.dataset.busId = bus.id;
+                chip.className = 'flex shrink-0 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700';
+                chip.innerHTML = `
+                    <span class="h-2 w-2 rounded-full" style="background-color:${color}"></span>
+                    <span class="font-semibold">${bus.bus_number || 'Bus ' + bus.id}</span>
+                    <span class="text-gray-400 dark:text-gray-500">${speed} km/h</span>
+                `;
+                chip.addEventListener('click', function () {
+                    focusBus(bus.id);
+                });
+                strip.appendChild(chip);
+            });
+        }
+
+        function focusBus(busId) {
+            const marker = busMarkers.get(busId);
+            if (!marker) return;
+            const latlng = marker.getLatLng();
+            fleetMap.flyTo([latlng.lat, latlng.lng], 15, { duration: 0.8 });
+            marker.openPopup();
+        }
+
+        window.fleetMapFocusBus = focusBus;
 
         function renderFleet(payload) {
             const buses = payload.buses || [];
@@ -266,6 +328,8 @@
                     busMarkers.delete(id);
                 }
             }
+
+            renderBusStrip(buses);
 
             const summary = payload.summary || {};
             const summaryEls = {
@@ -340,6 +404,28 @@
             addRoutes(initialPayload.routes);
             renderFleet(initialPayload);
             fitAllBounds();
+
+            const recenterBtn = document.getElementById('fleetMapRecenterBtn');
+            if (recenterBtn) recenterBtn.addEventListener('click', fitAllBounds);
+
+            const refreshBtn = document.getElementById('fleetMapRefreshBtn');
+            if (refreshBtn && refreshUrl) {
+                refreshBtn.addEventListener('click', async function () {
+                    refreshBtn.disabled = true;
+                    try {
+                        const res = await fetch(refreshUrl, {
+                            headers: { 'Accept': 'application/json' },
+                            credentials: 'same-origin',
+                        });
+                        if (!res.ok) return;
+                        renderFleet(await res.json());
+                    } catch (err) {
+                        // Transient network failures should not break the dashboard.
+                    } finally {
+                        refreshBtn.disabled = false;
+                    }
+                });
+            }
 
             if (refreshUrl) {
                 setInterval(async () => {

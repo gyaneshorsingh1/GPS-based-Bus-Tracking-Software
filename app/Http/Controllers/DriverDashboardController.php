@@ -25,7 +25,8 @@ class DriverDashboardController extends Controller
                 'user' => $user,
                 'driver' => null,
                 'buses' => collect(),
-                'locationsByBus' => collect(),
+                'fleetMap' => $this->fleetMap->forSchool(null, collect()),
+                'fleetMapRefreshUrl' => route('bus_location.latest'),
                 'checkedInByBus' => collect(),
             ]);
         }
@@ -38,14 +39,11 @@ class DriverDashboardController extends Controller
 
         $busIds = $buses->pluck('id');
 
-        $locationsByBus = collect();
-        if ($busIds->isNotEmpty()) {
-            $locations = $this->fleetMap->latestLocationsByDevice($busIds, ['gpsDevice']);
+        // Live positions come straight from the GPS provider, matched to each
+        // bus by its IMEI (gps_device_id).
+        $fleetMap = $this->fleetMap->forSchool(null, $busIds);
 
-            $locationsByBus = $locations
-                ->filter(fn ($location) => $location->gpsDevice?->bus_id)
-                ->keyBy(fn ($location) => $location->gpsDevice->bus_id);
-        }
+        $fleetMapRefreshUrl = route('bus_location.latest');
 
         $checkedInByBus = Attendance::query()
             ->whereDate('date', now()->toDateString())
@@ -53,15 +51,52 @@ class DriverDashboardController extends Controller
             ->whereNotNull('check_in_at')
             ->get()
             ->groupBy('bus_id')
-            ->map
-            ->count();
+            ->map(fn ($group) => $group->pluck('student_id')->unique()->count());
 
         return view('driverDashboard', compact(
             'user',
             'driver',
             'buses',
-            'locationsByBus',
+            'fleetMap',
+            'fleetMapRefreshUrl',
             'checkedInByBus',
         ));
+    }
+
+    /**
+     * Show the dedicated live tracking page for the driver's assigned bus(es).
+     */
+    public function liveTracking()
+    {
+        $user = Auth::user();
+
+        $driver = Driver::where('user_id', $user->id)->first();
+
+        if (! $driver) {
+            return view('driver_live_tracking', [
+                'user' => $user,
+                'driver' => null,
+                'buses' => collect(),
+                'fleetMap' => $this->fleetMap->forSchool(null, collect()),
+                'fleetMapRefreshUrl' => route('bus_location.latest'),
+            ]);
+        }
+
+        $buses = $driver->buses()
+            ->with(['route', 'school'])
+            ->orderBy('bus_number')
+            ->get();
+
+        $busIds = $buses->pluck('id');
+
+        $fleetMap = $this->fleetMap->forSchool(null, $busIds);
+
+        return view('driver_live_tracking', [
+            'user' => $user,
+            'driver' => $driver,
+            'buses' => $buses,
+            'fleetMap' => $fleetMap,
+            'fleetMapRefreshUrl' => route('bus_location.latest'),
+        ]);
     }
 }

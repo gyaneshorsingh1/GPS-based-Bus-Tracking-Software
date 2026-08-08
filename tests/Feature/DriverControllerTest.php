@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\School;
+use App\Models\Bus;
+use App\Models\Driver;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
@@ -12,6 +14,67 @@ use Tests\TestCase;
 class DriverControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_driver_can_open_dedicated_live_tracking_page(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        $driverUser = User::factory()->create();
+        $driverUser->assignRole('Driver');
+
+        $school = School::create([
+            'name' => 'Bright Future School',
+            'code' => 'SCH-LT1',
+            'email' => 'lt@brightfuture.com',
+            'phone' => '9800000000',
+            'address' => 'Kathmandu',
+            'principal_name' => 'Principal Name',
+            'status' => 'active',
+        ]);
+
+        $driver = Driver::create([
+            'school_id' => $school->id,
+            'user_id' => $driverUser->id,
+            'employee_id' => 'DR-LT1',
+            'first_name' => 'Ramesh',
+            'last_name' => 'Sharma',
+            'gender' => 'Male',
+            'date_of_birth' => '1990-01-01',
+            'phone' => '9800000001',
+            'address' => 'Kathmandu',
+            'license_number' => 'LIC-LT1',
+            'license_type' => 'Bus',
+            'license_issue_date' => '2020-01-01',
+            'license_expiry_date' => '2030-01-01',
+            'joining_date' => '2024-01-01',
+            'status' => 'Active',
+            'created_by' => $driverUser->id,
+        ]);
+
+        Bus::create([
+            'school_id' => $school->id,
+            'driver_id' => $driver->id,
+            'bus_number' => 'LT-BUS-1',
+            'registration_number' => 'BA LT-BUS-1',
+            'capacity' => 40,
+            'status' => 'Active',
+        ]);
+
+        $response = $this->actingAs($driverUser)->get(route('driver.live-tracking'));
+        $response->assertOk();
+        $response->assertSee('Live Tracking');
+        $response->assertSee('LT-BUS-1');
+    }
+
+    public function test_driver_live_tracking_page_requires_driver_role(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        $parentUser = User::factory()->create();
+        $parentUser->assignRole('Parent');
+
+        $this->actingAs($parentUser)->get(route('driver.live-tracking'))->assertForbidden();
+    }
 
     public function test_super_admin_can_create_driver(): void
     {

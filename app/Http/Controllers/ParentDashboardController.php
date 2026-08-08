@@ -48,7 +48,7 @@ class ParentDashboardController extends Controller
         $attendanceByStudent = Attendance::whereIn('student_id', $children->pluck('id'))
             ->where('date', today())
             ->get()
-            ->keyBy('student_id');
+            ->groupBy('student_id');
 
         return view('parentDashboard', compact(
             'user',
