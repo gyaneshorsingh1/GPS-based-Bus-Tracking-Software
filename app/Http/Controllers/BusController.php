@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bus;
-use App\Models\BusLocation;
 use App\Models\Driver;
 use App\Models\Route;
 use App\Models\School;
 use App\Models\SchoolAdmin;
 use App\Models\User;
+use App\Services\NazarTrackService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +18,7 @@ use Throwable;
 
 class BusController extends Controller
 {
+    public function __construct(private readonly NazarTrackService $gpsService) {}
     /**
      * Display all buses.
      */
@@ -146,18 +147,7 @@ class BusController extends Controller
 
         $bus->load(['school', 'creator', 'route', 'driver', 'gpsDevice']);
 
-        $latestLocation = null;
-        if ($bus->gps_device_id) {
-            $latestLocation = BusLocation::where('gps_device_id', $bus->gps_device_id)
-                ->latest('recorded_at')
-                ->first();
-        }
-
-        if (! $latestLocation) {
-            $latestLocation = BusLocation::whereHas('gpsDevice', fn ($q) => $q->where('bus_id', $bus->id))
-                ->latest('recorded_at')
-                ->first();
-        }
+        $latestLocation = $this->gpsService->locationPayload($bus);
 
         return view('buses.show', compact('bus', 'latestLocation'));
     }

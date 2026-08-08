@@ -43,6 +43,7 @@
         [
             'title' => 'Monitoring',
             'items' => [
+                ['key' => 'live-tracking', 'label' => 'Live Tracking', 'route' => 'bus_location', 'active' => 'live-tracking', 'icon' => 'heroicon-o-eye', 'permission' => null, 'dropdown' => null],
                 ['key' => 'attendance', 'label' => 'Attendance', 'route' => 'attendance.index', 'active' => 'attendance', 'icon' => 'heroicon-o-document-check', 'permission' => 'attendance.view', 'dropdown' => null],
                 // ['key' => 'notifications', 'label' => 'Notifications', 'route' => 'dashboard', 'active' => 'notifications', 'icon' => 'heroicon-o-bell', 'permission' => null, 'dropdown' => null],
             ],

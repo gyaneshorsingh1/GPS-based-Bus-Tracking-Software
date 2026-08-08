@@ -59,6 +59,7 @@ class BusLocationController extends Controller
         }
 
         $allowedBusIds = null;
+        $schoolId = null;
 
         if ($user->hasRole('Driver')) {
             $driver = Driver::where('user_id', $user->id)->first();
@@ -66,44 +67,70 @@ class BusLocationController extends Controller
         } elseif ($user->hasRole('School Admin')) {
             $schoolId = $user->school_id
                 ?? SchoolAdmin::where('user_id', $user->id)->value('school_id');
-            $allowedBusIds = $schoolId
-                ? Bus::where('school_id', $schoolId)->pluck('id')
-                : collect();
         }
 
-        $locations = $this->fleetMap->latestLocationsByDevice(
-            $allowedBusIds,
-            ['gpsDevice.bus.driver', 'gpsDevice.bus.route', 'gpsDevice.bus.school'],
-        );
+        $fleetMap = $this->fleetMap->forSchool($schoolId, $allowedBusIds);
 
         return view('bus_location.bus_location', [
-            'locations' => $locations,
+            'fleetMap' => $fleetMap,
         ]);
     }
 
     /**
      * JSON endpoint used by the live tracking page to poll the latest GPS fix.
+     *
+     * - Parents receive a single normalized device payload for the selected child's bus.
+     * - School Admin / Super Admin may pass `bus_id` to receive a single normalized
+     *   payload for that specific bus (used by the bus detail view).
+     * - Otherwise (Super Admin, School Admin, Driver) receive the full fleet map
+     *   payload for the buses/school they are allowed to see.
      */
     public function latestJson(Request $request)
     {
         $user = Auth::user();
 
-        if (! $user->hasRole('Parent')) {
-            abort(403, 'Only parents can poll live GPS data.');
+        if ($user->hasRole('Parent')) {
+            $parent = ParentProfile::where('user_id', $user->id)->first();
+
+            $children = $parent
+                ? $parent->children()->with('bus')->get()
+                : collect();
+
+            $selectedChildId = $request->query('child_id');
+            $selectedChild = $children->firstWhere('id', $selectedChildId)
+                ?? $children->firstWhere('bus_id', '!=', null)
+                ?? $children->first();
+
+            return response()->json($this->latestLocationForBus($selectedChild?->bus));
         }
 
-        $parent = ParentProfile::where('user_id', $user->id)->first();
+        $busId = $request->query('bus_id');
 
-        $children = $parent
-            ? $parent->children()->with('bus')->get()
-            : collect();
+        if ($busId && ($user->hasRole('School Admin') || $user->hasRole('Super Admin'))) {
+            $schoolId = $user->school_id
+                ?? SchoolAdmin::where('user_id', $user->id)->value('school_id');
 
-        $selectedChildId = $request->query('child_id');
-        $selectedChild = $children->firstWhere('id', $selectedChildId)
-            ?? $children->firstWhere('bus_id', '!=', null)
-            ?? $children->first();
+            $bus = Bus::with(['route.stops', 'driver', 'school'])->find($busId);
 
-        return response()->json($this->latestLocationForBus($selectedChild?->bus));
+            if (! $bus || ($schoolId && $bus->school_id != $schoolId)) {
+                abort(403, 'You are not authorized to view this bus.');
+            }
+
+            return response()->json($this->latestLocationForBus($bus));
+        }
+
+        $allowedBusIds = null;
+        $schoolId = null;
+
+        if ($user->hasRole('Driver')) {
+            $driver = Driver::where('user_id', $user->id)->first();
+            $allowedBusIds = $driver ? $driver->buses()->pluck('buses.id') : collect();
+        } elseif ($user->hasRole('School Admin')) {
+            $schoolId = $user->school_id
+                ?? SchoolAdmin::where('user_id', $user->id)->value('school_id');
+        }
+
+        return response()->json($this->fleetMap->forSchool($schoolId, $allowedBusIds));
     }
 
     /**
@@ -111,57 +138,7 @@ class BusLocationController extends Controller
      */
     private function latestLocationForBus(?Bus $bus): ?array
     {
-        if (! $bus || empty($bus->gps_device_id)) {
-            return null;
-        }
-
-        $location = $this->gpsService->getBusLocation($bus);
-
-        if (! $location) {
-            return null;
-        }
-
-        $status = strtolower((string) ($location['status'] ?? 'offline'));
-        $course = (float) ($location['course'] ?? $location['marker']['heading'] ?? 0);
-
-        return [
-            'latitude'        => $location['latitude'] ?? null,
-            'longitude'       => $location['longitude'] ?? null,
-            'speed_kmh'       => (float) ($location['speed_kmh'] ?? $location['speed'] ?? 0),
-            'course'          => $course,
-            'status'          => $status,
-            'status_label'    => $location['status_label'] ?? $this->gpsStatusLabel($status),
-            'status_color'    => $location['status_color'] ?? $this->gpsStatusColor($status),
-            'is_moving'       => (bool) ($location['is_moving'] ?? ($status === 'moving')),
-            'gps_time'        => $location['gps_time'] ?? null,
-            'last_updated_at' => $location['last_updated_at'] ?? null,
-            'last_updated_ago'=> $location['last_updated_ago'] ?? null,
-            'asset_name'      => $location['asset_name'] ?? null,
-            'imei'            => $location['imei'] ?? $bus->gps_device_id,
-            'animate'         => (bool) ($location['animate'] ?? true),
-            'marker'          => $location['marker'] ?? ['heading' => $course],
-        ];
-    }
-
-    private function gpsStatusLabel(string $status): string
-    {
-        return match ($status) {
-            'moving'  => 'Moving',
-            'stopped' => 'Stopped',
-            'idle'    => 'Idle',
-            'offline' => 'Offline',
-            default   => ucfirst($status),
-        };
-    }
-
-    private function gpsStatusColor(string $status): string
-    {
-        return match ($status) {
-            'moving'  => '#22c55e',
-            'stopped' => '#f59e0b',
-            'idle'    => '#eab308',
-            default   => '#6b7280',
-        };
+        return $this->gpsService->locationPayload($bus);
     }
 
     /**

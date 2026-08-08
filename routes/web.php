@@ -51,6 +51,14 @@ Route::middleware('auth')->group(function () {
         ])
         ->name('dashboard');
 
+    Route::get('/systemadmin/dashboard/fleet-data', [SuperAdminDashboardController::class, 'fleetData'])
+        ->middleware([
+            'verified',
+            'permission:dashboard.view',
+            'role:Super Admin',
+        ])
+        ->name('dashboard.fleet-data');
+
     /*
     |--------------------------------------------------------------------------
     | Principal Dashboard

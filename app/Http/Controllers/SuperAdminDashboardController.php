@@ -11,10 +11,13 @@ use App\Models\RouteStop;
 use App\Models\School;
 use App\Models\SchoolAdmin;
 use App\Models\Student;
+use App\Services\FleetMapService;
 use Illuminate\Support\Facades\Auth;
 
 class SuperAdminDashboardController extends Controller
 {
+    public function __construct(private readonly FleetMapService $fleetMap) {}
+
     /**
      * Show the super admin dashboard.
      */
@@ -37,9 +40,9 @@ class SuperAdminDashboardController extends Controller
         $totalParents = ParentProfile::count();
         $totalSchoolAdmins = SchoolAdmin::count();
 
-        $onlineBuses = Bus::whereHas('gpsDevice.locations', function ($query) {
-            $query->where('recorded_at', '>', now()->subMinutes(10));
-        })->count();
+        $fleetMap = $this->fleetMap->forSchool(null);
+
+        $onlineBuses = collect($fleetMap['buses'])->where('is_online', true)->count();
 
         $todayAttendance = Attendance::whereDate('date', today())->count();
         $todayCheckedIn = Attendance::whereDate('date', today())
@@ -106,6 +109,15 @@ class SuperAdminDashboardController extends Controller
             'suspendedDrivers',
             'unassignedBuses',
             'schools',
+            'fleetMap',
         ));
+    }
+
+    /**
+     * JSON payload of the live fleet map used by the dashboard auto-refresh.
+     */
+    public function fleetData()
+    {
+        return response()->json($this->fleetMap->forSchool(null));
     }
 }

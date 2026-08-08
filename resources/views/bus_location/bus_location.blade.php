@@ -1,204 +1,115 @@
 <x-app-layout page="bus-location">
     <div class="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
-        <div class="mb-6 flex items-center justify-between">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Bus Location</h1>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Live GPS positions and telemetry for every bus in the fleet.</p>
+                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Live Bus Tracking</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Real-time GPS positions and telemetry for every bus in the fleet, sourced directly from the live GPS provider.
+                </p>
             </div>
             <span id="lastUpdateBadge" class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"></span>
         </div>
 
-        <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Total Buses</p>
-                <p id="totalBuses" class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ $locations->count() }}</p>
-            </div>
-            <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Buses On Map</p>
-                <p id="onMapCount" class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">0</p>
-            </div>
-            <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Last Update</p>
-                <p id="lastUpdateStat" class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">—</p>
-            </div>
-        </div>
+        @include('partials.fleet-map', [
+            'fleetMap' => $fleetMap,
+            'fleetMapRefreshUrl' => route('bus_location.latest'),
+        ])
 
-        <div class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Live Fleet Map</h2>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Fleet Telemetry</h2>
             </div>
-            <div class="relative">
-                <div id="busLocationMap" class="h-[480px] w-full"></div>
-                <div class="absolute bottom-4 left-4 z-10 hidden items-center gap-3 rounded-xl bg-white/90 p-3 text-xs shadow-lg backdrop-blur-md sm:flex dark:bg-gray-900/90 dark:border dark:border-gray-800">
-                    <span class="flex items-center gap-1.5 font-medium text-gray-700 dark:text-gray-300">
-                        <span class="inline-block h-3 w-3 rounded-full bg-brand-500"></span> Online Bus
-                    </span>
-                    <span class="flex items-center gap-1.5 font-medium text-gray-700 dark:text-gray-300">
-                        <span class="inline-block h-3 w-3 rounded-full bg-gray-400"></span> Offline
-                    </span>
-                </div>
-            </div>
-        </div>
 
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <table class="w-full text-left text-sm">
-                <thead class="border-b border-gray-200 dark:border-gray-800">
-                    <tr class="text-gray-500 dark:text-gray-400">
-                        <th class="px-5 py-3 font-medium">Bus</th>
-                        <th class="px-5 py-3 font-medium">Route</th>
-                        <th class="px-5 py-3 font-medium">Driver</th>
-                        <th class="px-5 py-3 font-medium">School</th>
-                        <th class="px-5 py-3 font-medium">Speed</th>
-                        <th class="px-5 py-3 font-medium">Coordinates</th>
-                        <th class="px-5 py-3 font-medium">Recorded At</th>
-                        <th class="px-5 py-3 font-medium">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    @forelse ($locations as $location)
-                        @php
-                            $bus = $location->gpsDevice?->bus;
-                            $lat = $location->latitude;
-                            $lng = $location->longitude;
-                            $isOnline = $lat && $lng && $location->recorded_at?->gt(now()->subMinutes(10));
-                        @endphp
-                        <tr
-                            class="cursor-pointer text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800/40"
-                            x-on:click="focusBus({{ $lat ?? 'null' }}, {{ $lng ?? 'null' }})"
-                        >
-                            <td class="px-5 py-3 font-medium">{{ $bus?->bus_number ?? '—' }}</td>
-                            <td class="px-5 py-3">{{ $bus?->route?->name ?? '—' }}</td>
-                            <td class="px-5 py-3">{{ $bus?->driver?->full_name ?? '—' }}</td>
-                            <td class="px-5 py-3">{{ $bus?->school?->name ?? '—' }}</td>
-                            <td class="px-5 py-3 font-mono">{{ $location->speed }} km/h</td>
-                            <td class="px-5 py-3 font-mono">{{ $lat ?? '—' }}, {{ $lng ?? '—' }}</td>
-                            <td class="px-5 py-3">{{ $location->recorded_at?->format('M d, Y H:i:s') ?? '—' }}</td>
-                            <td class="px-5 py-3">
-                                @if ($isOnline)
-                                    <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">Online</span>
-                                @else
-                                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">Offline</span>
-                                @endif
-                            </td>
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-sm">
+                    <thead class="border-b border-gray-200 dark:border-gray-800">
+                        <tr class="text-gray-500 dark:text-gray-400">
+                            <th class="px-5 py-3 font-medium">Bus</th>
+                            <th class="px-5 py-3 font-medium">Route</th>
+                            <th class="px-5 py-3 font-medium">Driver</th>
+                            <th class="px-5 py-3 font-medium">School</th>
+                            <th class="px-5 py-3 font-medium">Speed</th>
+                            <th class="px-5 py-3 font-medium">Coordinates</th>
+                            <th class="px-5 py-3 font-medium">Last Signal</th>
+                            <th class="px-5 py-3 font-medium">Status</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
-                                No bus locations recorded yet.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @forelse ($fleetMap['buses'] as $bus)
+                            @php
+                                $lat = $bus['latitude'] ?? null;
+                                $lng = $bus['longitude'] ?? null;
+                                $status = $bus['tracking_status'] ?? 'Offline';
+                                $statusColor = $bus['status_color'] ?? '#9ca3af';
+                            @endphp
+                            <tr
+                                class="cursor-pointer text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800/40"
+                                x-on:click="focusBus({{ $lat ?? 'null' }}, {{ $lng ?? 'null' }})"
+                            >
+                                <td class="px-5 py-3 font-medium">
+                                    {{ $bus['bus_number'] ?? '—' }}
+                                    @if ($bus['registration_number'])
+                                        <span class="ml-1 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-mono text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                                            {{ $bus['registration_number'] }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3">{{ $bus['route_name'] ?? '—' }}</td>
+                                <td class="px-5 py-3">{{ $bus['driver_name'] ?? '—' }}</td>
+                                <td class="px-5 py-3">{{ $bus['school_name'] ?? '—' }}</td>
+                                <td class="px-5 py-3 font-mono">{{ number_format($bus['speed'] ?? 0, 0) }} km/h</td>
+                                <td class="px-5 py-3 font-mono">
+                                    {{ $lat !== null ? number_format((float) $lat, 5) : '—' }},
+                                    {{ $lng !== null ? number_format((float) $lng, 5) : '—' }}
+                                </td>
+                                <td class="px-5 py-3">
+                                    @if ($bus['last_updated_ago'])
+                                        {{ $bus['last_updated_ago'] }}
+                                    @elseif ($bus['recorded_at'])
+                                        {{ \Illuminate\Support\Carbon::parse($bus['recorded_at'])->format('M d, Y H:i:s') }}
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                                <td class="px-5 py-3">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                        style="background-color: {{ $statusColor }}1a; color: {{ $statusColor }};">
+                                        <span class="h-1.5 w-1.5 rounded-full" style="background-color: {{ $statusColor }};"></span>
+                                        {{ $status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                                    No buses found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </x-app-layout>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-    const busLocations = @json($locations);
+    document.addEventListener('DOMContentLoaded', function () {
+        const badge = document.getElementById('lastUpdateBadge');
+        const updateBadge = () => {
+            const el = document.getElementById('fleetMapLastUpdate');
+            if (el && el.textContent) {
+                badge.textContent = el.textContent;
+            }
+        };
 
-    function busMarkerHtml() {
-        return `
-            <div style="display:flex;flex-direction:column;align-items:center;">
-                <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0px 4px 6px rgba(0,0,0,0.4));">
-                    <circle cx="32" cy="32" r="30" fill="#4F46E5" fill-opacity="0.25"/>
-                    <circle cx="32" cy="32" r="24" fill="#312E81" stroke="#FFFFFF" stroke-width="3"/>
-                    <rect x="18" y="20" width="28" height="24" rx="4" fill="#F59E0B"/>
-                    <rect x="21" y="23" width="22" height="8" rx="2" fill="#1E293B"/>
-                    <circle cx="23" cy="40" r="3" fill="#000000"/>
-                    <circle cx="41" cy="40" r="3" fill="#000000"/>
-                    <polygon points="32,6 38,18 26,18" fill="#10B981"/>
-                </svg>
-            </div>
-        `;
-    }
+        // Mirror the fleet map's "updated" label into the page header badge.
+        updateBadge();
+        setInterval(updateBadge, 5000);
+    });
 
     function focusBus(lat, lng) {
-        if (typeof liveMap === 'undefined' || !lat || !lng) return;
-        liveMap.flyTo([lat, lng], 15, { duration: 0.8 });
+        if (typeof window.fleetMapInstance === 'undefined' || lat === null || lng === null) return;
+        window.fleetMapInstance.flyTo([lat, lng], 15, { duration: 0.8 });
     }
-
-    function timeAgo(dateStr) {
-        if (!dateStr) return '—';
-        const then = new Date(dateStr).getTime();
-        if (isNaN(then)) return dateStr;
-
-        const seconds = Math.floor((Date.now() - then) / 1000);
-        if (seconds < 10) return 'Just now';
-        if (seconds < 60) return `${seconds} seconds ago`;
-
-        const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
-
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
-
-        const days = Math.floor(hours / 24);
-        return `${days} day${days === 1 ? '' : 's'} ago`;
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const hasLocations = busLocations.some(l => l.latitude && l.longitude);
-        const defaultCenter = hasLocations ? [busLocations.find(l => l.latitude && l.longitude).latitude, busLocations.find(l => l.latitude && l.longitude).longitude] : [27.7172, 85.3240];
-
-        window.liveMap = L.map('busLocationMap', {
-            preferCanvas: true,
-            updateWhenIdle: true,
-        }).setView(defaultCenter, hasLocations ? 12 : 12);
-
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-        }).addTo(window.liveMap);
-
-        let onMap = 0;
-        const markers = [];
-
-        busLocations.forEach(l => {
-            if (!l.latitude || !l.longitude) return;
-
-            const bus = l.gps_device?.bus;
-            const online = l.recorded_at && new Date(l.recorded_at) > new Date(Date.now() - 10 * 60 * 1000);
-            if (online) onMap++;
-
-            const label = bus?.bus_number || 'BUS';
-            const icon = L.divIcon({
-                className: '',
-                html: busMarkerHtml(),
-                iconSize: [44, 44],
-                iconAnchor: [22, 22],
-            });
-
-            const marker = L.marker([l.latitude, l.longitude], { icon, zIndexOffset: online ? 1000 : 500 }).addTo(window.liveMap);
-
-            const busDetailsHtml = `
-                <div style="font-family:inherit;min-width:180px;">
-                    <div style="font-weight:700;font-size:14px;">🚍 Bus #${bus?.bus_number || 'Unknown Bus'}</div>
-                    <div style="font-size:12px;color:#666;margin-top:2px;">Route: <strong>${bus?.route?.name || 'No route assigned'}</strong></div>
-                    <div style="font-size:12px;color:#666;">Driver: <strong>${bus?.driver?.full_name || '—'}</strong></div>
-                    <div style="font-size:12px;color:#666;">Speed: <strong>${l.speed} km/h</strong></div>
-                    <div style="font-size:12px;color:#666;">Recorded: ${l.recorded_at || '—'}</div>
-                </div>
-            `;
-
-            marker.bindTooltip(busDetailsHtml, {
-                direction: 'top',
-                offset: [0, -10],
-                opacity: 1,
-            });
-            markers.push(marker);
-        });
-
-        if (markers.length > 1) {
-            window.liveMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [50, 50] });
-        }
-
-        document.getElementById('onMapCount').textContent = onMap;
-        document.getElementById('lastUpdateStat').textContent = busLocations.length ? timeAgo(busLocations[0].recorded_at) : '—';
-        document.getElementById('lastUpdateBadge').textContent = busLocations.length ? `Updated ${timeAgo(busLocations[0].recorded_at)}` : 'No data yet';
-    });
 </script>

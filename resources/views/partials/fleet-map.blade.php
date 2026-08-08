@@ -326,6 +326,10 @@
                 zoomAnimation: true,
             }).setView([27.7172, 85.3240], 12);
 
+            // Exposed so other scripts (e.g. the bus-location table row clicks)
+            // can recenter the camera on a specific bus.
+            window.fleetMapInstance = fleetMap;
+
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19,
                 subdomains: 'abcd',
