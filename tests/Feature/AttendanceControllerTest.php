@@ -299,7 +299,7 @@ class AttendanceControllerTest extends TestCase
                 'action' => 'check_out',
                 'trip' => 'home_to_school',
             ])
-            ->assertSessionHasErrors('check_out');
+            ->assertSessionHasErrors('trip');
 
         $this->assertDatabaseCount('attendances', 0);
     }
@@ -330,7 +330,7 @@ class AttendanceControllerTest extends TestCase
                 'action' => 'check_in',
                 'trip' => 'home_to_school',
             ])
-            ->assertSessionHasErrors('check_in');
+            ->assertSessionHasErrors('trip');
 
         $this->assertDatabaseCount('attendances', 1);
     }
@@ -368,7 +368,7 @@ class AttendanceControllerTest extends TestCase
                 'action' => 'check_out',
                 'trip' => 'home_to_school',
             ])
-            ->assertSessionHasErrors('check_out');
+            ->assertSessionHasErrors('trip');
     }
 
     public function test_student_from_another_bus_is_rejected(): void
@@ -605,6 +605,13 @@ class AttendanceControllerTest extends TestCase
 
         $this->actingAs($driverUser)
             ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), [
+                'action' => 'check_out',
+                'trip' => 'home_to_school',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($driverUser)
+            ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), [
                 'action' => 'check_in',
                 'trip' => 'school_to_home',
             ])
@@ -613,7 +620,56 @@ class AttendanceControllerTest extends TestCase
         $this->assertDatabaseCount('attendances', 2);
     }
 
-    public function test_attendance_index_shows_next_day_button_when_day_completed(): void
+    public function test_strict_sequence_is_enforced_at_each_stage(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        $driverUser = $this->createUser();
+        $driverUser->assignRole('Driver');
+
+        $school = $this->createSchool('SCH119B');
+        $driver = $this->createDriver($school, $driverUser, '119B');
+        $bus = $this->createBus($school, 'BUS-121B', $driver);
+        $student = $this->createStudent($school, $bus, 'ADM115B');
+
+        $mark = function (string $action, string $trip) use ($bus, $student, $driverUser) {
+            return $this->actingAs($driverUser)
+                ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), [
+                    'action' => $action,
+                    'trip' => $trip,
+                ]);
+        };
+
+        $mark('check_out', 'home_to_school')->assertSessionHasErrors('trip');
+        $mark('check_in', 'school_to_home')->assertSessionHasErrors('trip');
+        $mark('check_out', 'school_to_home')->assertSessionHasErrors('trip');
+        $this->assertDatabaseCount('attendances', 0);
+
+        $mark('check_in', 'home_to_school')->assertRedirect();
+        $mark('check_in', 'school_to_home')->assertSessionHasErrors('trip');
+        $mark('check_out', 'school_to_home')->assertSessionHasErrors('trip');
+        $this->assertDatabaseCount('attendances', 1);
+
+        $mark('check_out', 'home_to_school')->assertRedirect();
+        $mark('check_out', 'school_to_home')->assertSessionHasErrors('trip');
+        $this->assertDatabaseCount('attendances', 1);
+
+        $mark('check_in', 'school_to_home')->assertRedirect();
+        $mark('check_out', 'home_to_school')->assertSessionHasErrors('trip');
+        $this->assertDatabaseCount('attendances', 2);
+
+        $mark('check_out', 'school_to_home')->assertRedirect();
+        $this->assertDatabaseCount('attendances', 2);
+
+        $mark('check_in', 'home_to_school')->assertSessionHasErrors('trip');
+
+        $this->assertNotNull(Attendance::where('student_id', $student->id)->where('trip', 'home_to_school')->first()->check_in_at);
+        $this->assertNotNull(Attendance::where('student_id', $student->id)->where('trip', 'home_to_school')->first()->check_out_at);
+        $this->assertNotNull(Attendance::where('student_id', $student->id)->where('trip', 'school_to_home')->first()->check_in_at);
+        $this->assertNotNull(Attendance::where('student_id', $student->id)->where('trip', 'school_to_home')->first()->check_out_at);
+    }
+
+    public function test_attendance_index_shows_completed_state_when_day_completed(): void
     {
         $this->seed([PermissionSeeder::class, RoleSeeder::class]);
 
@@ -625,22 +681,25 @@ class AttendanceControllerTest extends TestCase
         $bus = $this->createBus($school, 'BUS-122', $driver);
         $student = $this->createStudent($school, $bus, 'ADM116');
 
-        foreach (['home_to_school', 'school_to_home'] as $trip) {
+        foreach ([
+            ['action' => 'check_in', 'trip' => 'home_to_school'],
+            ['action' => 'check_out', 'trip' => 'home_to_school'],
+            ['action' => 'check_in', 'trip' => 'school_to_home'],
+            ['action' => 'check_out', 'trip' => 'school_to_home'],
+        ] as $markup) {
             $this->actingAs($driverUser)
-                ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), [
-                    'action' => 'check_in',
-                    'trip' => $trip,
-                ])
+                ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), $markup)
                 ->assertRedirect();
         }
 
         $response = $this->actingAs($driverUser)->get(route('attendance.index'));
         $response->assertOk();
-        $response->assertSee('Add Next Day Attendance');
-        $response->assertDontSee('Add Today\'s Attendance');
+        $response->assertSee('Attendance Completed');
+        $response->assertDontSee('Add Next Day Attendance');
+        $response->assertDontSee("Add Today's Attendance", false);
     }
 
-    public function test_attendance_index_shows_school_to_home_button_after_pickup(): void
+    public function test_attendance_index_shows_today_button_until_day_completed(): void
     {
         $this->seed([PermissionSeeder::class, RoleSeeder::class]);
 
@@ -661,11 +720,11 @@ class AttendanceControllerTest extends TestCase
 
         $response = $this->actingAs($driverUser)->get(route('attendance.index'));
         $response->assertOk();
-        $response->assertSee('Add School to Home Attendance');
+        $response->assertSee("Add Today's Attendance", false);
         $response->assertDontSee('Add Next Day Attendance');
     }
 
-    public function test_school_to_home_trip_is_locked_on_show_page_until_pickup_complete(): void
+    public function test_show_page_renders_student_stage_progress(): void
     {
         $this->seed([PermissionSeeder::class, RoleSeeder::class]);
 
@@ -675,14 +734,18 @@ class AttendanceControllerTest extends TestCase
         $school = $this->createSchool('SCH122');
         $driver = $this->createDriver($school, $driverUser, '122');
         $bus = $this->createBus($school, 'BUS-124', $driver);
-        $this->createStudent($school, $bus, 'ADM118');
+        $student = $this->createStudent($school, $bus, 'ADM118');
 
         $response = $this->actingAs($driverUser)->get(route('attendance.buses.show', $bus));
         $response->assertOk();
-        $response->assertSee('Complete the Home to School (Pickup) attendance first to unlock this trip.');
+        $response->assertSee('Picked Up from Home');
+        $response->assertSee('Dropped at School');
+        $response->assertSee('Picked Up from School');
+        $response->assertSee('Dropped at Home');
+        $response->assertSee('Pick Up');
 
         $this->actingAs($driverUser)
-            ->post(route('attendance.mark', ['bus' => $bus, 'student' => $bus->students()->first()]), [
+            ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), [
                 'action' => 'check_in',
                 'trip' => 'home_to_school',
             ])
@@ -690,7 +753,87 @@ class AttendanceControllerTest extends TestCase
 
         $response = $this->actingAs($driverUser)->get(route('attendance.buses.show', $bus));
         $response->assertOk();
-        $response->assertDontSee('Complete the Home to School (Pickup) attendance first to unlock this trip.');
+        $response->assertSee('Drop at School');
+        $response->assertDontSee('name="action" value="check_in"');
+    }
+
+    public function test_attendance_cannot_be_marked_for_a_non_today_date(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        $driverUser = $this->createUser();
+        $driverUser->assignRole('Driver');
+
+        $school = $this->createSchool('SCH123');
+        $driver = $this->createDriver($school, $driverUser, '123');
+        $bus = $this->createBus($school, 'BUS-125', $driver);
+        $student = $this->createStudent($school, $bus, 'ADM119');
+
+        $tomorrow = now()->addDay()->toDateString();
+
+        $this->actingAs($driverUser)
+            ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), [
+                'action' => 'check_in',
+                'trip' => 'home_to_school',
+                'date' => $tomorrow,
+            ])
+            ->assertSessionHasErrors('date');
+
+        $this->assertDatabaseCount('attendances', 0);
+    }
+
+    public function test_show_page_blocks_attendance_with_alert_when_todays_attendance_taken(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        $driverUser = $this->createUser();
+        $driverUser->assignRole('Driver');
+
+        $school = $this->createSchool('SCH124');
+        $driver = $this->createDriver($school, $driverUser, '124');
+        $bus = $this->createBus($school, 'BUS-126', $driver);
+        $student = $this->createStudent($school, $bus, 'ADM120');
+
+        foreach ([
+            ['action' => 'check_in', 'trip' => 'home_to_school'],
+            ['action' => 'check_out', 'trip' => 'home_to_school'],
+            ['action' => 'check_in', 'trip' => 'school_to_home'],
+            ['action' => 'check_out', 'trip' => 'school_to_home'],
+        ] as $markup) {
+            $this->actingAs($driverUser)
+                ->post(route('attendance.mark', ['bus' => $bus, 'student' => $student]), $markup)
+                ->assertRedirect();
+        }
+
+        $response = $this->actingAs($driverUser)->get(route('attendance.buses.show', $bus));
+        $response->assertOk();
+        $response->assertSee("Today's attendance has already been taken. Please try again tomorrow.", false);
+        $response->assertDontSee('name="action" value="check_in"');
+        $response->assertDontSee('name="action" value="check_out"');
+    }
+
+    public function test_show_page_is_read_only_when_viewing_a_past_date(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        $driverUser = $this->createUser();
+        $driverUser->assignRole('Driver');
+
+        $school = $this->createSchool('SCH125');
+        $driver = $this->createDriver($school, $driverUser, '125');
+        $bus = $this->createBus($school, 'BUS-127', $driver);
+        $this->createStudent($school, $bus, 'ADM121');
+
+        $yesterday = now()->subDay()->toDateString();
+
+        $response = $this->actingAs($driverUser)->get(route('attendance.buses.show', [
+            'bus' => $bus,
+            'date' => $yesterday,
+        ]));
+        $response->assertOk();
+        $response->assertSee('read-only view');
+        $response->assertDontSee('name="action" value="check_in"');
+        $response->assertDontSee('name="action" value="check_out"');
     }
 
     public function test_history_shows_empty_state(): void
