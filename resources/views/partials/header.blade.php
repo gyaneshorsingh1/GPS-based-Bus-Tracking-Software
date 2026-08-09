@@ -183,12 +183,18 @@
                 <!-- Notification Menu Area -->
                 <div
                     class="relative"
-                    x-data="{ dropdownOpen: false, notifying: true }"
+                    x-data="{ dropdownOpen: false, unreadCount: {{ $headerUnreadCount }} }"
+                    x-init="setInterval(() => {
+                        fetch('{{ route('notifications.unread-count') }}', { headers: { 'Accept': 'application/json' } })
+                            .then(r => r.json())
+                            .then(d => { if (d.count != null) unreadCount = d.count; })
+                            .catch(() => {});
+                    }, 30000)"
                     @click.outside="dropdownOpen = false"
                 >
                     <button
                         class="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-                        @click.prevent="dropdownOpen = ! dropdownOpen; notifying = false"
+                        @click.prevent="dropdownOpen = ! dropdownOpen"
                     >
                         <svg
                             class="fill-current"
@@ -207,11 +213,10 @@
                         </svg>
 
                         <span
-                            x-show="notifying"
-                            class="absolute right-0.5 top-0.5 z-10 flex h-2 w-2 flex-col">
-                            <span
-                                class="h-1.5 w-1.5 rounded-full bg-error-500"
-                            ></span>
+                            x-show="unreadCount > 0"
+                            x-cloak
+                            class="absolute right-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-error-500 px-1 text-[10px] font-semibold text-white">
+                            <span x-text="unreadCount > 99 ? '99+' : unreadCount">0</span>
                         </span>
                     </button>
 
@@ -224,140 +229,70 @@
                             <p class="text-lg font-semibold text-gray-800 dark:text-white/90">
                                 Notifications
                             </p>
-                            <p
-                                class="text-theme-xs cursor-pointer rounded-md px-1 py-0.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
-                            >
-                                Clear All
-                            </p>
+                            @if ($headerUnreadCount > 0)
+                                <form method="POST" action="{{ route('notifications.read-all') }}">
+                                    @csrf
+                                    <button
+                                        type="submit"
+                                        class="text-theme-xs cursor-pointer rounded-md px-1 py-0.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
+                                    >
+                                        Mark all as read
+                                    </button>
+                                </form>
+                            @endif
                         </div>
 
                         <ul class="flex h-auto flex-col overflow-hidden overflow-y-auto custom-scrollbar">
-                            <li>
-                                <a
-                                    class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-                                    href="#"
-                                >
-                                    <span class="relative z-1 block h-10 w-full max-w-10 rounded-full">
-                                        <img
-                                            src="/images/user/user-02.jpg"
-                                            alt="User"
-                                            class="overflow-hidden rounded-full"
-                                        />
-                                        <span
-                                            class="bg-success-500 absolute bottom-0 right-0 z-10 h-2.5 w-full max-w-2.5 rounded-full border-[1.5px] border-white dark:border-gray-900"
-                                        ></span>
-                                    </span>
+                            @forelse ($headerNotifications as $notification)
+                                @php
+                                    $unread = is_null($notification->read_at);
+                                @endphp
+                                <li>
+                                    <a
+                                        href="{{ route('notifications.index') }}"
+                                        class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 {{ $unread ? 'bg-brand-50/60 dark:bg-brand-500/10' : '' }}"
+                                    >
+                                        <x-notification-icon :notification="$notification" size="sm" />
 
-                                    <span class="block">
-                                        <span
-                                            class="text-theme-sm mb-1.5 block text-gray-500 dark:text-gray-400"
-                                        >
-                                            <span class="font-medium text-gray-800 dark:text-white/90"
-                                                >Terry Franci</span
+                                        <span class="block min-w-0 flex-1">
+                                            <span
+                                                class="text-theme-sm mb-1 block truncate font-medium {{ $unread ? 'text-gray-800 dark:text-white/90' : 'text-gray-500 dark:text-gray-400' }}"
                                             >
-                                            requests permission to change
-                                            <span class="font-medium text-gray-800 dark:text-white/90"
-                                                >Project - Nganter App</span
-                                            >
-                                        </span>
+                                                {{ $notification->data['title'] ?? 'Notification' }}
+                                            </span>
 
-                                        <span
-                                            class="text-theme-xs flex items-center gap-2 text-gray-500 dark:text-gray-400"
-                                        >
-                                            <span>Project</span>
-                                            <span class="h-1 w-1 rounded-full bg-gray-400"></span>
-                                            <span>5 min ago</span>
+                                            <span class="text-theme-xs block truncate text-gray-500 dark:text-gray-400">
+                                                {{ $notification->data['message'] ?? '' }}
+                                            </span>
+
+                                            <span class="text-theme-xs mt-1 flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                                                <span>{{ $notification->created_at->diffForHumans() }}</span>
+                                                @if ($unread)
+                                                    <span class="h-1 w-1 rounded-full bg-brand-500"></span>
+                                                    <span class="font-semibold text-brand-600 dark:text-brand-400">New</span>
+                                                @endif
+                                            </span>
                                         </span>
+                                    </a>
+                                </li>
+                            @empty
+                                <li class="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                                    <span class="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                        </svg>
                                     </span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-                                    href="#"
-                                >
-                                    <span class="relative z-1 block h-10 w-full max-w-10 rounded-full">
-                                        <img
-                                            src="/images/user/user-04.jpg"
-                                            alt="User"
-                                            class="overflow-hidden rounded-full"
-                                        />
-                                        <span
-                                            class="bg-success-500 absolute bottom-0 right-0 z-10 h-2.5 w-full max-w-2.5 rounded-full border-[1.5px] border-white dark:border-gray-900"
-                                        ></span>
-                                    </span>
-
-                                    <span class="block">
-                                        <span
-                                            class="text-theme-sm mb-1.5 block text-gray-500 dark:text-gray-400"
-                                        >
-                                            <span class="font-medium text-gray-800 dark:text-white/90"
-                                                >Jocelyn Kenter</span
-                                            >
-                                            requests permission to change
-                                            <span class="font-medium text-gray-800 dark:text-white/90"
-                                                >Project - Nganter App</span
-                                            >
-                                        </span>
-
-                                        <span
-                                            class="text-theme-xs flex items-center gap-2 text-gray-500 dark:text-gray-400"
-                                        >
-                                            <span>Project</span>
-                                            <span class="h-1 w-1 rounded-full bg-gray-400"></span>
-                                            <span>15 min ago</span>
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a
-                                    class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-                                    href="#"
-                                >
-                                    <span class="relative z-1 block h-10 w-full max-w-10 rounded-full">
-                                        <img
-                                            src="/images/user/user-05.jpg"
-                                            alt="User"
-                                            class="overflow-hidden rounded-full"
-                                        />
-                                        <span
-                                            class="bg-error-500 absolute bottom-0 right-0 z-10 h-2.5 w-full max-w-2.5 rounded-full border-[1.5px] border-white dark:border-gray-900"
-                                        ></span>
-                                    </span>
-
-                                    <span class="block">
-                                        <span
-                                            class="text-theme-sm mb-1.5 block text-gray-500 dark:text-gray-400"
-                                        >
-                                            <span class="font-medium text-gray-800 dark:text-white/90"
-                                                >Brandon Philips</span
-                                            >
-                                            requests permission to change
-                                            <span class="font-medium text-gray-800 dark:text-white/90"
-                                                >Project - Nganter App</span
-                                            >
-                                        </span>
-
-                                        <span
-                                            class="text-theme-xs flex items-center gap-2 text-gray-500 dark:text-gray-400"
-                                        >
-                                            <span>Project</span>
-                                            <span class="h-1 w-1 rounded-full bg-gray-400"></span>
-                                            <span>1 hr ago</span>
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
+                                    <p class="text-theme-sm text-gray-500 dark:text-gray-400">No notifications yet</p>
+                                </li>
+                            @endforelse
                         </ul>
 
                         <a
-                            href="#"
+                            href="{{ route('notifications.index') }}"
                             class="text-theme-sm shadow-theme-xs mt-3 flex justify-center rounded-lg border border-gray-300 bg-white p-3 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                         >
-                            View All Notification
+                            View All Notifications
                         </a>
                     </div>
                     <!-- Dropdown End -->

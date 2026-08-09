@@ -11,6 +11,7 @@ use App\Services\FleetMapService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\NazarTrackService;
+use App\Notifications\BusStartedNotification;
 
 class BusLocationController extends Controller
 {
@@ -201,4 +202,24 @@ class BusLocationController extends Controller
     {
         //
     }
+
+    /**
+     * Test the notification system.
+     */
+    // public function testNotification()
+    // {
+    //     $user = auth()->user();
+
+    //     $bus = Bus::first();
+
+    //     if (!$bus) {
+    //         return back()->with('error', 'No bus found.');
+    //     }
+
+    //     $user->notify(
+    //         new BusStartedNotification($bus)
+    //     );
+
+    //     return back()->with('success', 'Notification created.');
+    // }
 }

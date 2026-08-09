@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\View\Composers\HeaderComposer;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,5 +29,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-users', function ($user) {
             return $user->hasRole('Super Admin');
         });
+
+        // Provide real notification data (badge count + dropdown list) to the
+        // header bell on every authenticated page.
+        View::composer('partials.header', HeaderComposer::class);
     }
 }

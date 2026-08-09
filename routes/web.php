@@ -5,6 +5,7 @@ use App\Http\Controllers\BusController;
 use App\Http\Controllers\BusLocationController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\DriverDashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParentDashboardController;
 use App\Http\Controllers\ParentProfileController;
 use App\Http\Controllers\PrincipalDashboardController;
@@ -109,6 +110,12 @@ Route::middleware('auth')->group(function () {
             'role:Driver',
         ])
         ->name('driver.dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Driver Live Tracking
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('/driver/live-tracking', [DriverDashboardController::class, 'liveTracking'])
         ->middleware([
@@ -523,19 +530,44 @@ Route::middleware('auth')->group(function () {
         ->middleware(['role:Super Admin', 'permission:role.delete'])
         ->name('roles.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Temporary UI Test Pages
-    |--------------------------------------------------------------------------
-    */
 
-    Route::get('/buttons', function () {
-        return view('buttons');
-    })->name('buttons');
+        // Notification Routes
 
-    Route::get('/images', function () {
-        return view('images');
-    })->name('images');
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
+        ->name('notifications.unread-count');
+
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+        ->name('notifications.read');
+
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])
+        ->name('notifications.read-all');
+
+    // Route::get('/test-notification', function () {
+    //     $user = auth()->user();
+
+    //     $bus = Bus::first();
+
+    //     $user->notify(
+    //         new BusStartedNotification($bus)
+    //     );
+
+    //     return 'Notification created';
+    // })->middleware('auth');
+
+    // Route::get('/test-notification', [BusLocationController::class, 'testNotification'])
+    // ->middleware('auth')
+    // ->name('test.notification');
+
+    // Route::get('/buttons', function () {
+    //     return view('buttons');
+    // })->name('buttons');
+
+    // Route::get('/images', function () {
+    //     return view('images');
+    // })->name('images');
 });
 
 /*
@@ -544,7 +576,8 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-
+use App\Models\Bus;
+use App\Notifications\BusStartedNotification;
 use App\Services\NazarTrackService;
 
 Route::get('/gps-test', function (NazarTrackService $gps) {
