@@ -76,7 +76,7 @@
                     <div class="mt-3 flex gap-3 border-t border-gray-100 pt-4">
                         @if (Route::has('login'))
                             @auth
-                                <a href="{{ $dashboardRoute }}" class="flex-1 rounded-full bg-brand-500 px-5 py-2.5 text-center text-theme-sm font-semibold text-white">Dashboard</a>
+                                <a href="{{ $dashboardRoute }}" class="flex-1 rounded-full bg-brand-500 px-5 py-2.5 text-center text-theme-sm font-semibold text-white">Go to dashboard</a>
                             @else
                                 <a href="{{ route('login') }}" class="flex-1 rounded-full border border-gray-200 px-5 py-2.5 text-center text-theme-sm font-semibold text-gray-700">Log in</a>
                                 @if (Route::has('register'))

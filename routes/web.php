@@ -26,6 +26,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    $user = auth()->user();
+
+    if ($user?->hasRole('Super Admin')) {
+        return redirect()->route('dashboard');
+    }
+
+    if ($user?->hasRole('School Admin')) {
+        return redirect()->route('principal.dashboard');
+    }
+
+    if ($user?->hasRole('Driver')) {
+        return redirect()->route('driver.dashboard');
+    }
+
+    if ($user?->hasRole('Parent')) {
+        return redirect()->route('parent.dashboard');
+    }
+
     return view('welcome');
 });
 
