@@ -8,6 +8,8 @@
     $fleetMapSubtitle = $fleetMapSubtitle ?? 'Live location of every school bus, route paths, and stops';
     $fleetMapHeight = $fleetMapHeight ?? 'h-[520px]';
     $fleetMapCompact = $fleetMapCompact ?? false;
+    $fleetMapShowCards = $fleetMapShowCards ?? true;
+    $fleetHereApiKey = config('gps.heremaps_api_key') ?? '';
 
     $fleetCards = [
         'total' => ['label' => 'Total Buses', 'value' => $fleetSummary['total'] ?? 0, 'classes' => 'text-gray-800 dark:text-white/90'],
@@ -20,6 +22,7 @@
 @endphp
 
 <!-- Fleet Overview Summary Cards -->
+@if ($fleetMapShowCards)
 <div class="mt-6 grid grid-cols-2 gap-4 {{ $fleetMapCompact ? 'sm:grid-cols-3' : 'md:grid-cols-3 xl:grid-cols-6' }}">
     @foreach ($fleetCards as $key => $card)
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -28,6 +31,7 @@
         </div>
     @endforeach
 </div>
+@endif
 
 <!-- Fleet Overview Map -->
 <div class="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -57,6 +61,58 @@
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M20 8A8 8 0 005.6 5.6L4 8m16 8l-1.6 2.4A8 8 0 014 16"/></svg>
                 Refresh
             </button>
+            <div class="relative" id="fleetMapLayersWrap">
+                <button type="button" id="fleetMapLayersBtn"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7l8-4 8 4-8 4-8-4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 12l8 4 8-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 17l8 4 8-4"/></svg>
+                    Map Type
+                </button>
+                <div id="fleetMapLayersMenu" class="absolute right-0 z-30 mt-2 hidden w-48 rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+                    <button type="button" class="fleetMapLayerItem flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.05]" data-map-type="street">
+                        <span class="flex items-center gap-2">
+                            <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M3 12h18M12 3c-2.5 2.5-2.5 15 0 18M12 3c2.5 2.5 2.5 15 0 18"/></svg>
+                            Street
+                        </span>
+                        <svg class="fleetMapLayerCheck hidden h-4 w-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                    <button type="button" class="fleetMapLayerItem flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.05]" data-map-type="satellite">
+                        <span class="flex items-center gap-2">
+                            <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v6M12 16v6M2 12h6M16 12h6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M19.1 4.9l-4.2 4.2M9.1 14.9l-4.2 4.2"/></svg>
+                            Satellite
+                        </span>
+                        <svg class="fleetMapLayerCheck hidden h-4 w-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                    <button type="button" class="fleetMapLayerItem flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.05]" data-map-type="hybrid">
+                        <span class="flex items-center gap-2">
+                            <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="15" height="15" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 17l4-6 3 4 2-2 4 5"/><path stroke-linecap="round" d="M14 3v3"/></svg>
+                            Hybrid
+                        </span>
+                        <svg class="fleetMapLayerCheck hidden h-4 w-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                    <button type="button" class="fleetMapLayerItem flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.05]" data-map-type="terrain">
+                        <span class="flex items-center gap-2">
+                            <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M3 19l6-9 4 5 3-3 5 7H3z"/></svg>
+                            Terrain
+                        </span>
+                        <svg class="fleetMapLayerCheck hidden h-4 w-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                    <div class="my-1 h-px bg-gray-200 dark:bg-gray-800"></div>
+                    <button type="button" class="fleetMapTrafficItem flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-white/[0.05]" data-traffic="1" @if(!$fleetHereApiKey) disabled title="Traffic layer requires a HERE Maps API key (HEREMAPS_API_KEY)" @endif>
+                        <span class="flex items-center gap-2">
+                            <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="3" width="10" height="18" rx="3"/><circle cx="12" cy="7" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="currentColor" stroke="none"/></svg>
+                            Traffic
+                        </span>
+                        <svg class="fleetMapLayerCheck hidden h-4 w-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                    <button type="button" class="fleetMapPoiItem flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.05]" data-poi="1">
+                        <span class="flex items-center gap-2">
+                            <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                            Points of Interest
+                        </span>
+                        <svg class="fleetMapLayerCheck hidden h-4 w-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                </div>
+            </div>
             <span id="fleetMapLastUpdate" class="rounded-full bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"></span>
         </div>
     </div>
@@ -86,6 +142,19 @@
                 <span class="inline-block h-3 w-3 rounded-full bg-rose-500"></span> School
             </span>
         </div>
+
+        <!-- Zoom Controls -->
+        <div class="absolute bottom-4 right-4 z-10 flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900">
+            <button type="button" id="fleetMapZoomInBtn" title="Zoom in"
+                class="flex h-9 w-9 items-center justify-center text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="h-px bg-gray-200 dark:bg-gray-800"></div>
+            <button type="button" id="fleetMapZoomOutBtn" title="Zoom out"
+                class="flex h-9 w-9 items-center justify-center text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" d="M5 12h14"/></svg>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -105,6 +174,29 @@
         width: 44px;
         height: 44px;
         filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .fleet-poi-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 9999px;
+        border: 2px solid #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .fleet-poi-tooltip {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        font-size: 10px;
+        font-weight: 600;
+        color: #111827;
+        text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 0 4px rgba(255, 255, 255, 0.9);
+    }
+
+    .fleet-poi-tooltip::before {
+        display: none;
     }
 </style>
 
@@ -137,6 +229,235 @@
         let schoolMarker = null;
         const stopMarkers = [];
         const routeLayers = [];
+
+        const BASE_LAYERS = {
+            street: function () {
+                return [
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                        maxZoom: 19,
+                        subdomains: 'abcd',
+                        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+                    }),
+                ];
+            },
+            satellite: function () {
+                return [
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, Imagery &copy; <a href="https://www.maxar.com/">Maxar</a>',
+                    }),
+                ];
+            },
+            hybrid: function () {
+                return [
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, Imagery &copy; <a href="https://www.maxar.com/">Maxar</a>',
+                    }),
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+                        maxZoom: 19,
+                        subdomains: 'abcd',
+                    }),
+                ];
+            },
+            terrain: function () {
+                return [
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+                        maxZoom: 18,
+                        attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+                    }),
+                ];
+            },
+        };
+
+        const hereApiKey = @json($fleetHereApiKey);
+
+        let currentBaseLayers = [];
+        let currentMapType = 'street';
+        let trafficLayer = null;
+        let trafficOn = false;
+
+        function setBaseMap(type) {
+            const create = BASE_LAYERS[type];
+            if (!create || typeof create !== 'function') return;
+
+            currentBaseLayers.forEach(layer => fleetMap.removeLayer(layer));
+            currentBaseLayers = (create() || []).map(layer => {
+                layer.addTo(fleetMap);
+                return layer;
+            });
+
+            currentMapType = type;
+            if (trafficLayer && trafficOn) trafficLayer.bringToFront();
+            updateLayerChecks(type);
+        }
+
+        function toggleTraffic(on) {
+            if (!hereApiKey) return;
+            trafficOn = on;
+
+            if (on) {
+                if (!trafficLayer) {
+                    trafficLayer = L.tileLayer(
+                        `https://traffic.ls.hereapi.com/traffic/6.1/tile/8/flowtile/{z}/{x}/{y}/256/png8?apiKey=${hereApiKey}`,
+                        {
+                            maxZoom: 19,
+                            opacity: 0.85,
+                            attribution: '&copy; <a href="https://www.here.com/">HERE</a>',
+                        }
+                    );
+                }
+                trafficLayer.addTo(fleetMap);
+            } else if (trafficLayer) {
+                fleetMap.removeLayer(trafficLayer);
+            }
+
+            updateTrafficCheck(on);
+        }
+
+        function updateLayerChecks(type) {
+            document.querySelectorAll('.fleetMapLayerItem').forEach(item => {
+                const check = item.querySelector('.fleetMapLayerCheck');
+                const active = item.dataset.mapType === type;
+                item.classList.toggle('bg-gray-50', active);
+                item.classList.toggle('dark:bg-white/[0.05]', active);
+                if (check) check.classList.toggle('hidden', !active);
+            });
+        }
+
+        function updateTrafficCheck(on) {
+            const item = document.querySelector('.fleetMapTrafficItem');
+            if (!item) return;
+            const check = item.querySelector('.fleetMapLayerCheck');
+            item.classList.toggle('bg-gray-50', on);
+            item.classList.toggle('dark:bg-white/[0.05]', on);
+            if (check) check.classList.toggle('hidden', !on);
+        }
+
+        const POI_MIN_ZOOM = 14;
+        const POI_CATEGORIES = [
+            { key: 'fuel', label: 'Petrol Pump', color: '#F97316', test: t => t.amenity === 'fuel' },
+            { key: 'shop', label: 'Store / Shop', color: '#8B5CF6', test: t => !!t.shop },
+            { key: 'food', label: 'Restaurant / Cafe', color: '#EF4444', test: t => ['restaurant', 'fast_food', 'cafe'].includes(t.amenity) },
+            { key: 'pharmacy', label: 'Pharmacy', color: '#10B981', test: t => t.amenity === 'pharmacy' },
+            { key: 'bank', label: 'Bank / ATM', color: '#3B82F6', test: t => ['bank', 'atm'].includes(t.amenity) },
+            { key: 'hotel', label: 'Hotel', color: '#EC4899', test: t => ['hotel', 'guest_house'].includes(t.tourism) },
+            { key: 'medical', label: 'Hospital / Clinic', color: '#DC2626', test: t => ['hospital', 'clinic'].includes(t.amenity) },
+        ];
+
+        const POI_QUERY = [
+            '[out:json][timeout:25]',
+            '(',
+            'node["amenity"~"^(fuel|restaurant|fast_food|cafe|pharmacy|bank|atm|hospital|clinic)$"]({bbox});',
+            'node["shop"]({bbox});',
+            'node["tourism"~"^(hotel|guest_house)$"]({bbox});',
+            'way["amenity"~"^(fuel|restaurant|fast_food|cafe|pharmacy|bank|atm|hospital|clinic)$"]({bbox});',
+            'way["shop"]({bbox});',
+            ');',
+            'out center tags 80;',
+        ].join('\n');
+
+        let poiLayerGroup = null;
+        let poiOn = true;
+        let poiFetchTimer = null;
+        let poiFetchSeq = 0;
+
+        function classifyPoi(tags) {
+            for (const cat of POI_CATEGORIES) {
+                if (cat.test(tags)) return cat;
+            }
+            return null;
+        }
+
+        function clearPois() {
+            if (poiLayerGroup) poiLayerGroup.clearLayers();
+        }
+
+        function renderPois(elements) {
+            clearPois();
+
+            elements.forEach(el => {
+                const lat = el.lat != null ? el.lat : (el.center && el.center.lat);
+                const lon = el.lon != null ? el.lon : (el.center && el.center.lon);
+                if (lat == null || lon == null) return;
+
+                const tags = el.tags || {};
+                const cat = classifyPoi(tags);
+                if (!cat) return;
+
+                const name = tags.name ? tags.name : cat.label;
+
+                const icon = L.divIcon({
+                    className: '',
+                    html: `<div class="fleet-poi-dot" style="background:${cat.color};"></div>`,
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7],
+                });
+
+                const marker = L.marker([lat, lon], { icon, zIndexOffset: 50 });
+                marker.bindTooltip(`<span>${name}</span>`, {
+                    direction: 'top',
+                    offset: [0, -8],
+                    permanent: true,
+                    className: 'fleet-poi-tooltip',
+                });
+                marker.bindPopup(`<b>${name}</b><br><span style="color:${cat.color};font-size:11px;">${cat.label}</span>`);
+                marker.addTo(poiLayerGroup);
+            });
+        }
+
+        async function fetchPois() {
+            const seq = ++poiFetchSeq;
+            const bounds = fleetMap.getBounds();
+            const bbox = [bounds.getSouth(), bounds.getWest(), bounds.getNorth(), bounds.getEast()].join(',');
+            const query = POI_QUERY.replace('{bbox}', bbox);
+
+            try {
+                const res = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'data=' + encodeURIComponent(query),
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (seq !== poiFetchSeq) return;
+                renderPois(data.elements || []);
+            } catch (err) {
+                // Transient network / rate-limit failures should not break the map.
+            }
+        }
+
+        function schedulePoiFetch() {
+            if (!poiOn || !fleetMap) return;
+            clearTimeout(poiFetchTimer);
+            poiFetchTimer = setTimeout(() => {
+                if (fleetMap.getZoom() >= POI_MIN_ZOOM) {
+                    fetchPois();
+                } else {
+                    clearPois();
+                }
+            }, 400);
+        }
+
+        function togglePois(on) {
+            poiOn = on;
+            if (on) {
+                schedulePoiFetch();
+            } else {
+                clearTimeout(poiFetchTimer);
+                clearPois();
+            }
+            updatePoiCheck(on);
+        }
+
+        function updatePoiCheck(on) {
+            const item = document.querySelector('.fleetMapPoiItem');
+            if (!item) return;
+            const check = item.querySelector('.fleetMapLayerCheck');
+            item.classList.toggle('bg-gray-50', on);
+            item.classList.toggle('dark:bg-white/[0.05]', on);
+            if (check) check.classList.toggle('hidden', !on);
+        }
 
         function busMarkerHtml(color) {
             return `
@@ -476,17 +797,16 @@
                 fadeAnimation: false,
                 markerZoomAnimation: false,
                 worldCopyJump: true,
+                zoomControl: false,
             }).setView([27.7172, 85.3240], 12);
 
             // Exposed so other scripts (e.g. the bus-location table row clicks)
             // can recenter the camera on a specific bus.
             window.fleetMapInstance = fleetMap;
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19,
-                subdomains: 'abcd',
-                attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-            }).addTo(fleetMap);
+            setBaseMap('street');
+
+            poiLayerGroup = L.layerGroup().addTo(fleetMap);
 
             addSchoolMarker();
             renderFleet(initialPayload);
@@ -521,6 +841,68 @@
                     }
                 });
             }
+
+            const layersWrap = document.getElementById('fleetMapLayersWrap');
+            const layersBtn = document.getElementById('fleetMapLayersBtn');
+            const layersMenu = document.getElementById('fleetMapLayersMenu');
+
+            function closeLayersMenu() {
+                if (layersMenu) layersMenu.classList.add('hidden');
+            }
+
+            if (layersBtn && layersMenu) {
+                layersBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    layersMenu.classList.toggle('hidden');
+                });
+            }
+
+            document.addEventListener('click', function (e) {
+                if (layersWrap && !layersWrap.contains(e.target)) closeLayersMenu();
+            });
+
+            document.querySelectorAll('.fleetMapLayerItem').forEach(item => {
+                item.addEventListener('click', function () {
+                    const type = item.dataset.mapType;
+                    if (!type) return;
+                    setBaseMap(type);
+                    closeLayersMenu();
+                });
+            });
+
+            const trafficItem = document.querySelector('.fleetMapTrafficItem');
+            if (trafficItem) {
+                trafficItem.addEventListener('click', function () {
+                    if (!hereApiKey) return;
+                    toggleTraffic(!trafficOn);
+                });
+            }
+
+            const poiItem = document.querySelector('.fleetMapPoiItem');
+            if (poiItem) {
+                poiItem.addEventListener('click', function () {
+                    togglePois(!poiOn);
+                });
+            }
+
+            const zoomInBtn = document.getElementById('fleetMapZoomInBtn');
+            const zoomOutBtn = document.getElementById('fleetMapZoomOutBtn');
+
+            function updateZoomButtons() {
+                const z = fleetMap.getZoom();
+                if (zoomInBtn) zoomInBtn.disabled = z >= fleetMap.getMaxZoom();
+                if (zoomOutBtn) zoomOutBtn.disabled = z <= fleetMap.getMinZoom();
+            }
+
+            if (zoomInBtn) zoomInBtn.addEventListener('click', function () { fleetMap.zoomIn(); });
+            if (zoomOutBtn) zoomOutBtn.addEventListener('click', function () { fleetMap.zoomOut(); });
+
+            fleetMap.on('zoomend', updateZoomButtons);
+            updateZoomButtons();
+
+            fleetMap.on('moveend zoomend', schedulePoiFetch);
+            updatePoiCheck(true);
+            schedulePoiFetch();
 
             let refreshing = false;
             if (refreshUrl) {
