@@ -80,12 +80,17 @@
                 </div>
             </div>
 
-            @include('partials.fleet-map', [
-                'fleetMap' => $fleetMap,
-                'fleetMapRefreshUrl' => $fleetMapRefreshUrl,
-            ])
+            <div class="grid grid-cols-1 gap-x-4 gap-y-6 xl:grid-cols-2 xl:gap-6">
+                <div class="min-w-0">
+                    @include('partials.fleet-map', [
+                        'fleetMap' => $fleetMap,
+                        'fleetMapRefreshUrl' => $fleetMapRefreshUrl,
+                        'fleetMapCompact' => true,
+                    ])
+                </div>
 
-            <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div class="min-w-0 xl:mt-6">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
                 @foreach ($buses as $bus)
                     @php
                         $fleetBus = $fleetBuses->firstWhere('id', $bus->id);
@@ -163,6 +168,8 @@
                         </div>
                     </div>
                 @endforeach
+                    </div>
+                </div>
             </div>
         @endif
     </div>
