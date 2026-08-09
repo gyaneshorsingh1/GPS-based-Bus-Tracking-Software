@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\ParentProfile;
+use App\Models\Student;
 use App\Services\FleetMapService;
 use Illuminate\Support\Facades\Auth;
 
@@ -80,5 +81,34 @@ class ParentDashboardController extends Controller
             ->get();
 
         return view('parents.children', compact('user', 'children'));
+    }
+
+    /**
+     * Show the attendance history for a single one of the parent's children.
+     *
+     * A parent can only ever see the attendance of their own linked children.
+     */
+    public function studentAttendance(Student $student)
+    {
+        $user = Auth::user();
+
+        $parent = ParentProfile::where('user_id', $user->id)->first();
+
+        if (! $parent || $parent->children()->whereKey($student->id)->doesntExist()) {
+            abort(403, 'You are not authorized to view this student\'s attendance.');
+        }
+
+        $student->load(['school', 'bus.route']);
+
+        $records = Attendance::query()
+            ->with(['bus', 'markedBy'])
+            ->where('student_id', $student->id)
+            ->orderByDesc('date')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $totalRecords = $records->count();
+
+        return view('parents.student-attendance', compact('student', 'records', 'totalRecords'));
     }
 }

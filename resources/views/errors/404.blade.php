@@ -58,7 +58,7 @@
             <p
                 class="absolute bottom-6 left-1/2 -translate-x-1/2 text-center text-sm text-gray-500 dark:text-gray-400"
             >
-                &copy; <span id="year"></span> - TailAdmin
+                &copy; <span id="year"></span> - GPS Based Tracking System.
             </p>
         </div>
         <!-- ===== Page Wrapper End ===== -->
