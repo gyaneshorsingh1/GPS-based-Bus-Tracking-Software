@@ -48,13 +48,17 @@ class BusLocationController extends Controller
 
             $latestLocation = $this->latestLocationForBus($bus);
 
+            $fleetBusIds = $children->pluck('bus_id')->filter()->unique();
+            $fleetMap = $this->fleetMap->forSchool(null, $fleetBusIds);
+
             return view('bus_location.parent_bus_location', compact(
                 'parent',
                 'children',
                 'selectedChild',
                 'bus',
                 'route',
-                'latestLocation'
+                'latestLocation',
+                'fleetMap'
             ));
         }
 
@@ -97,11 +101,20 @@ class BusLocationController extends Controller
                 : collect();
 
             $selectedChildId = $request->query('child_id');
-            $selectedChild = $children->firstWhere('id', $selectedChildId)
-                ?? $children->firstWhere('bus_id', '!=', null)
-                ?? $children->first();
 
-            return response()->json($this->latestLocationForBus($selectedChild?->bus));
+            // With a specific child selected, return the single normalized payload
+            // consumed by the parent telemetry cards / stop timeline.
+            if ($selectedChildId) {
+                $selectedChild = $children->firstWhere('id', $selectedChildId);
+
+                return response()->json($this->latestLocationForBus($selectedChild?->bus));
+            }
+
+            // Otherwise return the shared fleet map payload, scoped to the buses
+            // of the parent's children so the shared map renders the same data.
+            $fleetBusIds = $children->pluck('bus_id')->filter()->unique();
+
+            return response()->json($this->fleetMap->forSchool(null, $fleetBusIds));
         }
 
         $busId = $request->query('bus_id');

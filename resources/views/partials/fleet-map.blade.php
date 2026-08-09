@@ -207,50 +207,87 @@
             }).addTo(fleetMap).bindPopup(`<b>🏫 ${initialPayload.school.name || 'School'}</b>`);
         }
 
-        function addRoutes(routes) {
-            (routes || []).forEach((route, index) => {
-                const color = ROUTE_PALETTE[index % ROUTE_PALETTE.length];
-                const stops = (route.stops || []).filter(
-                    s => s.latitude && s.longitude && Number(s.latitude) !== 0 && Number(s.longitude) !== 0
-                );
+        /**
+         * Fetch the actual road path (via OSRM) between a route's ordered stops.
+         * Falls back to null so callers can draw the straight stop-to-stop path.
+         */
+        async function fetchRoadLatLngs(waypoints) {
+            const MAX_WAYPOINTS = 90;
+            const latlngs = [];
 
-                if (stops.length < 2) return;
+            for (let i = 0; i < waypoints.length; i += MAX_WAYPOINTS) {
+                const chunk = waypoints.slice(i, i + MAX_WAYPOINTS);
+                const coordStr = chunk.map(w => `${w[1]},${w[0]}`).join(';');
+                const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
 
-                const latlngs = stops.map(s => [Number(s.latitude), Number(s.longitude)]);
+                const response = await fetch(url);
+                const data = await response.json();
 
-                const outer = L.polyline(latlngs, {
-                    color,
-                    weight: 7,
-                    opacity: 0.18,
-                    lineCap: 'round',
-                }).addTo(fleetMap);
+                if (data.code === 'Ok' && data.routes && data.routes[0] && data.routes[0].geometry) {
+                    data.routes[0].geometry.coordinates.forEach(c => latlngs.push([c[1], c[0]]));
+                }
+            }
 
-                const inner = L.polyline(latlngs, {
-                    color,
-                    weight: 3,
-                    opacity: 0.8,
-                    lineCap: 'round',
-                }).addTo(fleetMap);
+            return latlngs.length >= 2 ? latlngs : null;
+        }
 
-                routeLayers.push(outer, inner);
+        async function addRoute(route, index) {
+            const color = ROUTE_PALETTE[index % ROUTE_PALETTE.length];
+            const stops = (route.stops || []).filter(
+                s => s.latitude && s.longitude && Number(s.latitude) !== 0 && Number(s.longitude) !== 0
+            );
 
-                stops.forEach(stop => {
-                    const stopIcon = L.divIcon({
-                        className: '',
-                        html: `
-                            <div style="background:${color};color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${stop.stop_order}</div>
-                        `,
-                        iconSize: [22, 22],
-                        iconAnchor: [11, 11],
-                    });
+            if (stops.length < 2) return;
 
-                    stopMarkers.push(
-                        L.marker([Number(stop.latitude), Number(stop.longitude)], { icon: stopIcon, zIndexOffset: 100 })
-                            .addTo(fleetMap)
-                            .bindTooltip(`<b>Stop ${stop.stop_order}:</b> ${stop.name}`)
-                    );
+            const waypoints = stops.map(s => [Number(s.latitude), Number(s.longitude)]);
+
+            let latlngs = null;
+            try {
+                latlngs = await fetchRoadLatLngs(waypoints);
+            } catch (err) {
+                console.warn('OSRM routing failed, falling back to stop-to-stop path:', err);
+            }
+            if (!latlngs) latlngs = waypoints;
+
+            const outer = L.polyline(latlngs, {
+                color,
+                weight: 7,
+                opacity: 0.18,
+                lineCap: 'round',
+            }).addTo(fleetMap);
+
+            const inner = L.polyline(latlngs, {
+                color,
+                weight: 3,
+                opacity: 0.8,
+                lineCap: 'round',
+            }).addTo(fleetMap);
+
+            routeLayers.push(outer, inner);
+
+            stops.forEach(stop => {
+                const stopIcon = L.divIcon({
+                    className: '',
+                    html: `
+                        <div style="background:${color};color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${stop.stop_order}</div>
+                    `,
+                    iconSize: [22, 22],
+                    iconAnchor: [11, 11],
                 });
+
+                stopMarkers.push(
+                    L.marker([Number(stop.latitude), Number(stop.longitude)], { icon: stopIcon, zIndexOffset: 100 })
+                        .addTo(fleetMap)
+                        .bindTooltip(`<b>Stop ${stop.stop_order}:</b> ${stop.name}`)
+                );
             });
+        }
+
+        async function addRoutes(routes) {
+            const list = routes || [];
+            for (let i = 0; i < list.length; i++) {
+                await addRoute(list[i], i);
+            }
         }
 
         function upsertBusMarker(bus) {
@@ -396,6 +433,7 @@
 
             if (schoolMarker) group.addLayer(schoolMarker);
             stopMarkers.forEach(m => group.addLayer(m));
+            routeLayers.forEach(l => group.addLayer(l));
 
             if (group.getLayers().length > 0) {
                 fleetMap.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 14 });
@@ -429,7 +467,7 @@
         window.fleetMapFitRoute = fitRouteBounds;
         window.fleetMapRecenterBus = recenterBus;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             fleetMap = L.map(mapEl, {
                 preferCanvas: true,
                 updateWhenIdle: true,
@@ -451,9 +489,9 @@
             }).addTo(fleetMap);
 
             addSchoolMarker();
-            addRoutes(initialPayload.routes);
             renderFleet(initialPayload);
             fitAllBounds();
+            await addRoutes(initialPayload.routes);
 
             const recenterBtn = document.getElementById('fleetMapRecenterBtn');
             if (recenterBtn) recenterBtn.addEventListener('click', fitAllBounds);

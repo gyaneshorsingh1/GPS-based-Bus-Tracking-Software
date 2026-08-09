@@ -137,6 +137,13 @@ Route::middleware('auth')->group(function () {
         ])
         ->name('parent.children');
 
+    Route::get('/parent/students/{student}/attendance', [ParentDashboardController::class, 'studentAttendance'])
+        ->middleware([
+            'permission:student.view',
+            'role:Parent',
+        ])
+        ->name('parent.student.attendance');
+
     /*
     |--------------------------------------------------------------------------
     | Drivers

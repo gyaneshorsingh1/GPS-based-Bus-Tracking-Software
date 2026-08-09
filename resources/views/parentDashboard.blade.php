@@ -175,7 +175,7 @@
                                     </div>
 
                                     @if ($bus)
-                                        <div class="mt-3 flex items-center gap-2">
+                                        <div class="mt-3 flex flex-wrap items-center gap-2">
                                             <a href="{{ route('bus_location') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-theme-xs font-medium text-white hover:bg-brand-600">
                                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -183,11 +183,22 @@
                                                 </svg>
                                                 Track Bus
                                             </a>
+                                            <a href="{{ route('parent.student.attendance', $child) }}" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-theme-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M8 2v2m8-2v2M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                                                View Attendance
+                                            </a>
                                             @if ($location)
                                                 <span class="text-theme-xs text-gray-400 dark:text-gray-500">
                                                     Last update: {{ $location->recorded_at?->format('M d, H:i:s') ?? '—' }}
                                                 </span>
                                             @endif
+                                        </div>
+                                    @else
+                                        <div class="mt-3">
+                                            <a href="{{ route('parent.student.attendance', $child) }}" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-theme-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M8 2v2m8-2v2M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                                                View Attendance
+                                            </a>
                                         </div>
                                     @endif
                                 </div>

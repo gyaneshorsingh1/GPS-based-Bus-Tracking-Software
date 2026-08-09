@@ -209,93 +209,15 @@
         <!-- Main Content: Route Map (Left) & Bus Stops Timeline (Right) -->
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
 
-            <!-- Left Column: Live Bus Route Map -->
-            <div class="xl:col-span-7 rounded-2xl border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-800 dark:bg-white/[0.03]">
-                <div class="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4 dark:border-gray-800">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Live Route Map</h2>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Road navigation path, live position marker & stops</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
-                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Live Tracking Active
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Map Container with Floating Controls -->
-                <div class="relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-900" style="min-height: 480px;">
-                    <!-- Map Canvas -->
-                    <div id="routeMapCanvas" class="h-[480px] w-full z-0"></div>
-
-                    <!-- Floating Controls -->
-                    <div class="absolute top-4 right-4 z-10 flex flex-col gap-2">
-                        <!-- Recenter Camera -->
-                        <button
-                            type="button"
-                            id="recenterBusBtn"
-                            onclick="recenterCameraOnBus()"
-                            title="Recenter Camera on Bus"
-                            class="flex items-center gap-2 rounded-xl bg-white/95 px-3 py-2 text-xs font-semibold text-gray-800 shadow-md backdrop-blur-md transition hover:bg-brand-500 hover:text-white dark:bg-gray-900/95 dark:text-gray-200 dark:hover:bg-brand-500 dark:hover:text-white border border-gray-200 dark:border-gray-700">
-                            <svg class="h-4 w-4 text-brand-500 dark:text-brand-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                            <span>Recenter Bus</span>
-                        </button>
-
-                        <!-- Fit Route Bounds -->
-                        <button
-                            type="button"
-                            onclick="fitFullRouteBounds()"
-                            title="Fit Full Route"
-                            class="flex items-center gap-2 rounded-xl bg-white/95 px-3 py-2 text-xs font-semibold text-gray-800 shadow-md backdrop-blur-md transition hover:bg-gray-100 dark:bg-gray-900/95 dark:text-gray-200 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                            <svg class="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                            </svg>
-                            <span>Fit Full Route</span>
-                        </button>
-
-                        <!-- Toggle Simulation -->
-                        <button
-                            type="button"
-                            id="toggleTrackingBtn"
-                            onclick="toggleTrackingSimulation()"
-                            title="Toggle Live Tracking Simulation"
-                            class="flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-700 border border-emerald-500/30">
-                            <svg id="trackingIcon" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span id="trackingBtnText">Pause Live</span>
-                        </button>
-                    </div>
-
-                    <!-- Legend Overlay -->
-                    <div class="absolute bottom-4 left-4 z-10 hidden sm:flex items-center gap-3 rounded-xl bg-white/90 p-3 text-xs shadow-lg backdrop-blur-md dark:bg-gray-900/90 border border-gray-200/80 dark:border-gray-800">
-                        <div class="flex items-center gap-1.5 font-medium text-gray-700 dark:text-gray-300">
-                            <span class="h-3 w-3 rounded-full bg-emerald-500 inline-block"></span>
-                            Start: <strong class="text-gray-900 dark:text-white">{{ $route->start_location }}</strong>
-                        </div>
-                        <div class="h-3 w-px bg-gray-300 dark:bg-gray-700"></div>
-                        <div class="flex items-center gap-1.5 font-medium text-gray-700 dark:text-gray-300">
-                            <span class="h-3 w-3 rounded-full bg-brand-500 inline-block"></span>
-                            Stops: <strong class="text-gray-900 dark:text-white">{{ $route->stops->count() }} Configured</strong>
-                        </div>
-                        <div class="h-3 w-px bg-gray-300 dark:bg-gray-700"></div>
-                        <div class="flex items-center gap-1.5 font-medium text-gray-700 dark:text-gray-300">
-                            <span class="h-3 w-3 rounded-full bg-rose-500 inline-block"></span>
-                            End: <strong class="text-gray-900 dark:text-white">{{ $route->end_location }}</strong>
-                        </div>
-                    </div>
-                </div>
+            <!-- Left Column: Live Fleet Map (shared map component, same filters as every role) -->
+            <div class="xl:col-span-7 min-w-0">
+                @include('partials.fleet-map', [
+                    'fleetMap' => $fleetMap,
+                    'fleetMapRefreshUrl' => route('bus_location.latest'),
+                    'fleetMapTitle' => 'My Bus Location',
+                    'fleetMapSubtitle' => 'Live GPS position of your children\'s buses, route paths, and stops.',
+                    'fleetMapCompact' => true,
+                ])
             </div>
 
             <!-- Right Column: Bus Stops Vertical Timeline ("Where Is My Bus") -->
@@ -410,51 +332,9 @@
 </x-app-layout>
 
 <!-- Leaflet CSS & JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<style>
-    /* Bus Marker Container & Rotation */
-    .bus-marker-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease-out;
-    }
-
-    .bus-marker-svg {
-        width: 36px;
-        height: 36px;
-        filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.4));
-    }
-
-    /* Stop Marker Pin Styling */
-    .stop-marker-pin {
-        background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
-        color: white;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 11px;
-        border: 2px solid #FFFFFF;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    }
-</style>
-
 @if ($route)
 <script>
-    let map = null;
-    let busMarker = null;
-    let fullPolyline = null;
-    let routeCoordinates = [];
-    let isTrackingActive = true;
-    let autoFollowCamera = true;
     let gpsPollTimer = null;
-    let fullRouteBounds = null;
 
     const liveJourneyStops = @json($route->stops);
 
@@ -478,115 +358,6 @@
     const ON_ROUTE_THRESHOLD_KM = 1.5;
 
     document.addEventListener('DOMContentLoaded', function() {
-        initHighPerformanceMap();
-    });
-
-    async function initHighPerformanceMap() {
-        const startName = @json($route-> start_location);
-        const endName = @json($route-> end_location);
-        const stopsData = @json($route-> stops);
-
-        // Extract key waypoints with fallback Kathmandu/Nepal defaults if missing
-        let waypoints = stopsData
-            .filter(s => s.latitude && s.longitude && parseFloat(s.latitude) !== 0 && parseFloat(s.longitude) !== 0)
-            .map(s => [parseFloat(s.latitude), parseFloat(s.longitude), s.name, s.stop_order]);
-
-        if (waypoints.length === 0) {
-            waypoints = [
-                [27.7172, 85.3240, startName || 'Start Station', 1],
-                [27.7220, 85.3300, 'Stop 1 - City Center', 2],
-                [27.7280, 85.3380, 'Stop 2 - Park Square', 3],
-                [27.7340, 85.3450, endName || 'End Station', 4]
-            ];
-        }
-
-        const boundsPoints = waypoints.map(w => [w[0], w[1]]);
-        fullRouteBounds = L.latLngBounds(boundsPoints);
-
-        // Initialize Leaflet Map
-        map = L.map('routeMapCanvas', {
-            preferCanvas: true,
-            updateWhenIdle: true,
-            keepBuffer: 1,
-            zoomAnimation: true,
-            maxBoundsViscosity: 0.8
-        });
-
-        map.fitBounds(fullRouteBounds, {
-            padding: [50, 50],
-            maxZoom: 16
-        });
-
-        // CartoDB Voyager tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-        }).addTo(map);
-
-        map.on('movestart dragstart zoomstart touchstart', function(e) {
-            if (e.originalEvent) {
-                autoFollowCamera = false;
-                updateRecenterButtonState(false);
-            }
-        });
-
-        // Add Stop Pin Markers
-        waypoints.forEach(point => {
-            const [lat, lng, name, order] = point;
-            const stopIcon = L.divIcon({
-                className: 'custom-stop-pin',
-                html: `<div class="stop-marker-pin">${order}</div>`,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
-            });
-
-            L.marker([lat, lng], {
-                    icon: stopIcon
-                })
-                .addTo(map)
-                .bindPopup(`<b>Stop #${order}: ${name}</b>`);
-        });
-
-        // Fetch OSRM Road Polyline
-        routeCoordinates = await fetchRoadPolyline(waypoints);
-
-        if (routeCoordinates.length > 0) {
-            // Background glow polyline
-            L.polyline(routeCoordinates, {
-                color: '#6366F1',
-                weight: 8,
-                opacity: 0.35,
-                lineCap: 'round'
-            }).addTo(map);
-
-            // Foreground crisp polyline
-            fullPolyline = L.polyline(routeCoordinates, {
-                color: '#4F46E5',
-                weight: 4,
-                opacity: 0.9,
-                lineCap: 'round'
-            }).addTo(map);
-
-            fullRouteBounds = fullPolyline.getBounds();
-            map.fitBounds(fullRouteBounds, {
-                padding: [50, 50]
-            });
-        }
-
-        // Place the bus marker at the real GPS position (or the first stop until
-        // the first live fix arrives). The marker is only moved by updateLiveGps().
-        const hasLiveFix = latestLocation && latestLocation.latitude != null && latestLocation.longitude != null;
-        const startPos = hasLiveFix
-            ? [parseFloat(latestLocation.latitude), parseFloat(latestLocation.longitude)]
-            : [waypoints[0][0], waypoints[0][1]];
-
-        initBusMarker(startPos);
-
-        if (hasLiveFix) {
-            map.flyTo(startPos, 16);
-        }
-
         // Reset the journey timeline to a neutral state so it never shows a fake
         // "current stop" before the first live GPS fix arrives.
         renderJourneyNeutral(liveJourneyStops.length);
@@ -595,84 +366,13 @@
         // Initial render + start real-time polling (every 5 seconds, no reload).
         updateLiveGps(latestLocation);
         startLivePolling();
-    }
-
-    async function fetchRoadPolyline(waypoints) {
-        try {
-            const coordStr = waypoints.map(w => `${w[1]},${w[0]}`).join(';');
-            const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
-
-            const response = await fetch(url);
-            const data = await response.json();
-
-            if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
-                return data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-            }
-        } catch (err) {
-            console.warn('OSRM routing failed, falling back to stop-to-stop path:', err);
-        }
-
-        return waypoints.map(w => [w[0], w[1]]);
-    }
-
-    function initBusMarker(startLatLng) {
-        const busSvgHtml = `
-            <div id="busMarkerInner" class="bus-marker-container">
-                <svg class="bus-marker-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="32" cy="32" r="30" fill="#4F46E5" fill-opacity="0.25" />
-                    <circle cx="32" cy="32" r="24" fill="#312E81" stroke="#FFFFFF" stroke-width="3" />
-                    <rect x="18" y="20" width="28" height="24" rx="4" fill="#F59E0B" />
-                    <rect x="21" y="23" width="22" height="8" rx="2" fill="#1E293B" />
-                    <circle cx="23" cy="40" r="3" fill="#000000" />
-                    <circle cx="41" cy="40" r="3" fill="#000000" />
-                    <polygon points="32,6 38,18 26,18" fill="#10B981" />
-                </svg>
-            </div>
-        `;
-
-        const busIcon = L.divIcon({
-            className: 'bus-marker-wrap',
-            html: busSvgHtml,
-            iconSize: [44, 44],
-            iconAnchor: [22, 22]
-        });
-
-        busMarker = L.marker(startLatLng, {
-            icon: busIcon,
-            zIndexOffset: 1000
-        }).addTo(map);
-
-        busMarker.bindPopup('<div style="min-width:210px;"><b>Loading bus data…</b></div>');
-    }
-
-    function rotateBusMarker(deg) {
-        const inner = document.getElementById('busMarkerInner');
-        if (inner) inner.style.transform = 'rotate(' + deg + 'deg)';
-    }
-
-    function updateBusPopup(gps) {
-        if (!busMarker) return;
-
-        const gpsTime = gps.gps_time
-            ? new Date(gps.gps_time).toLocaleString('en-US', { hour12: true })
-            : (gps.last_updated_at || '—');
-
-        busMarker.setPopupContent(
-            '<div style="min-width:210px;">' +
-            '<div style="font-weight:700;font-size:13px;color:#111827;">' + (gps.asset_name || 'School Bus') + '</div>' +
-            '<div style="font-size:11px;color:#6b7280;margin-top:2px;">IMEI: ' + (gps.imei || '—') + '</div>' +
-            '<hr style="margin:8px 0;border:0;border-top:1px solid #e5e7eb;">' +
-            '<div style="font-size:12px;color:#111827;"><b>Speed:</b> ' + Math.round(gps.speed_kmh) + ' km/h</div>' +
-            '<div style="font-size:12px;color:#111827;"><b>Status:</b> <span style="color:' + gps.status_color + ';font-weight:700;">' + gps.status_label + '</span></div>' +
-            '<div style="font-size:12px;color:#111827;"><b>GPS Time:</b> ' + gpsTime + '</div>' +
-            '</div>'
-        );
-    }
+    });
 
     /**
      * Single entry point that applies a live GPS JSON payload to every UI
-     * component: marker position/rotation, speed, status, last updated,
-     * popup and the journey timeline (nearest stop, real ETA, real distance).
+     * component: speed, status, last updated and the journey timeline
+     * (nearest stop, real ETA, real distance). The map itself is driven by
+     * the shared fleet-map partial, not by this script.
      */
     function updateLiveGps(data) {
         if (!data || data.latitude == null || data.longitude == null) {
@@ -710,22 +410,10 @@
             imei: data.imei
         };
 
-        // 1. Bus marker position + rotation (never simulated)
-        if (busMarker) {
-            busMarker.setLatLng([lat, lng]);
-            rotateBusMarker(course);
-
-            if (autoFollowCamera) {
-                map.setView([lat, lng], Math.max(map.getZoom(), 15), { animate: true });
-            }
-
-            updateBusPopup(liveBusGps);
-        }
-
-        // 2/3/4. Telemetry cards: speed, status, last updated
+        // 1. Telemetry cards: speed, status, last updated
         updateTelemetryCards(liveBusGps);
 
-        // 7/8/9. Journey timeline, ETA and distance
+        // 2. Journey timeline, ETA and distance
         updateLiveJourneyState(liveBusGps);
     }
 
@@ -1109,29 +797,6 @@
         }
     }
 
-    function recenterCameraOnBus() {
-        if (busMarker && map) {
-            autoFollowCamera = true;
-            const currentPos = busMarker.getLatLng();
-            map.flyTo(currentPos, Math.max(map.getZoom(), 15), {
-                duration: 0.8
-            });
-            updateRecenterButtonState(true);
-        }
-    }
-
-    function fitFullRouteBounds() {
-        if (fullRouteBounds && map) {
-            autoFollowCamera = false;
-            updateRecenterButtonState(false);
-            map.fitBounds(fullRouteBounds, {
-                padding: [50, 50],
-                animate: true,
-                duration: 0.8
-            });
-        }
-    }
-
     async function pollLiveGps() {
         try {
             const response = await fetch(gpsEndpoint, {
@@ -1156,33 +821,6 @@
         if (gpsPollTimer) {
             clearInterval(gpsPollTimer);
             gpsPollTimer = null;
-        }
-    }
-
-    function toggleTrackingSimulation() {
-        isTrackingActive = !isTrackingActive;
-        const btnText = document.getElementById('trackingBtnText');
-        const btnBtn = document.getElementById('toggleTrackingBtn');
-
-        if (isTrackingActive) {
-            btnText.innerText = 'Pause Live';
-            btnBtn.className = 'flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-700 border border-emerald-500/30';
-            startLivePolling();
-        } else {
-            btnText.innerText = 'Resume Live';
-            btnBtn.className = 'flex items-center gap-2 rounded-xl bg-amber-600 px-3 py-2 text-xs font-semibold text-white shadow-md transition hover:bg-amber-700 border border-amber-500/30';
-            stopLivePolling();
-        }
-    }
-
-    function updateRecenterButtonState(isActive) {
-        const btn = document.getElementById('recenterBusBtn');
-        if (btn) {
-            if (isActive) {
-                btn.classList.add('ring-2', 'ring-brand-500', 'bg-brand-50');
-            } else {
-                btn.classList.remove('ring-2', 'ring-brand-500', 'bg-brand-50');
-            }
         }
     }
 </script>
