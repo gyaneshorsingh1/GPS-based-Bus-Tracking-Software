@@ -97,6 +97,11 @@ class FleetMapService
             $routeQuery->where('school_id', $schoolId);
         }
 
+        if ($busIds !== null) {
+            $routeIds = $buses->pluck('route_id')->filter()->values();
+            $routeQuery->whereIn('id', $routeIds);
+        }
+
         $routes = $routeQuery->orderBy('name')->get();
 
         return [

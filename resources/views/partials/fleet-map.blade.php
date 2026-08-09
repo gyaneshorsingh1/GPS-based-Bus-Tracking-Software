@@ -7,6 +7,7 @@
     $fleetMapTitle = $fleetMapTitle ?? 'Fleet Overview Map';
     $fleetMapSubtitle = $fleetMapSubtitle ?? 'Live location of every school bus, route paths, and stops';
     $fleetMapHeight = $fleetMapHeight ?? 'h-[520px]';
+    $fleetMapCompact = $fleetMapCompact ?? false;
 
     $fleetCards = [
         'total' => ['label' => 'Total Buses', 'value' => $fleetSummary['total'] ?? 0, 'classes' => 'text-gray-800 dark:text-white/90'],
@@ -19,7 +20,7 @@
 @endphp
 
 <!-- Fleet Overview Summary Cards -->
-<div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+<div class="mt-6 grid grid-cols-2 gap-4 {{ $fleetMapCompact ? 'sm:grid-cols-3' : 'md:grid-cols-3 xl:grid-cols-6' }}">
     @foreach ($fleetCards as $key => $card)
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
             <span class="text-sm text-gray-500 dark:text-gray-400">{{ $card['label'] }}</span>
@@ -36,10 +37,20 @@
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $fleetMapSubtitle }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="fleetMapFitRouteBtn"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="19" r="2.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 16.5H13a3.5 3.5 0 000-7H11a3.5 3.5 0 010-7h8.5"/><circle cx="19.5" cy="2.5" r="2.5"/></svg>
+                Fit Route
+            </button>
+            <button type="button" id="fleetMapRecenterBusBtn"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+                Recenter Bus
+            </button>
             <button type="button" id="fleetMapRecenterBtn"
                 class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4l6 6M20 4l-6 6M4 20l6-6M20 20l-6-6M4 4h16M4 4v16M20 4v16"/></svg>
-                Recenter
+                Fit All
             </button>
             <button type="button" id="fleetMapRefreshBtn"
                 class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
@@ -125,6 +136,7 @@
         const busMarkers = new Map();
         let schoolMarker = null;
         const stopMarkers = [];
+        const routeLayers = [];
 
         function busMarkerHtml(color) {
             return `
@@ -206,19 +218,21 @@
 
                 const latlngs = stops.map(s => [Number(s.latitude), Number(s.longitude)]);
 
-                L.polyline(latlngs, {
+                const outer = L.polyline(latlngs, {
                     color,
                     weight: 7,
                     opacity: 0.18,
                     lineCap: 'round',
                 }).addTo(fleetMap);
 
-                L.polyline(latlngs, {
+                const inner = L.polyline(latlngs, {
                     color,
                     weight: 3,
                     opacity: 0.8,
                     lineCap: 'round',
                 }).addTo(fleetMap);
+
+                routeLayers.push(outer, inner);
 
                 stops.forEach(stop => {
                     const stopIcon = L.divIcon({
@@ -255,6 +269,7 @@
                 });
 
                 marker = L.marker(latlng, { icon, zIndexOffset: 1000 }).addTo(fleetMap);
+                marker.busColor = color;
                 marker.bindPopup(busPopupHtml(bus));
                 marker.on('click', function () {
                     focusBus(bus.id);
@@ -262,12 +277,17 @@
                 busMarkers.set(bus.id, marker);
             } else {
                 marker.setLatLng(latlng);
-                marker.setIcon(L.divIcon({
-                    className: '',
-                    html: busMarkerHtml(color),
-                    iconSize: [44, 44],
-                    iconAnchor: [22, 22],
-                }));
+
+                if (marker.busColor !== color) {
+                    marker.busColor = color;
+                    marker.setIcon(L.divIcon({
+                        className: '',
+                        html: busMarkerHtml(color),
+                        iconSize: [44, 44],
+                        iconAnchor: [22, 22],
+                    }));
+                }
+
                 marker.setPopupContent(busPopupHtml(bus));
             }
         }
@@ -382,12 +402,42 @@
             }
         }
 
+        function fitRouteBounds() {
+            if (routeLayers.length === 0) {
+                fitAllBounds();
+                return;
+            }
+
+            fleetMap.fitBounds(
+                L.featureGroup(routeLayers).getBounds(),
+                { padding: [50, 50], maxZoom: 15 }
+            );
+        }
+
+        function recenterBus() {
+            const marker = busMarkers.values().next().value;
+            if (!marker) {
+                fitAllBounds();
+                return;
+            }
+
+            const latlng = marker.getLatLng();
+            fleetMap.flyTo([latlng.lat, latlng.lng], 15, { duration: 0.8 });
+            marker.openPopup();
+        }
+
+        window.fleetMapFitRoute = fitRouteBounds;
+        window.fleetMapRecenterBus = recenterBus;
+
         document.addEventListener('DOMContentLoaded', function () {
             fleetMap = L.map(mapEl, {
                 preferCanvas: true,
                 updateWhenIdle: true,
                 keepBuffer: 1,
                 zoomAnimation: true,
+                fadeAnimation: false,
+                markerZoomAnimation: false,
+                worldCopyJump: true,
             }).setView([27.7172, 85.3240], 12);
 
             // Exposed so other scripts (e.g. the bus-location table row clicks)
@@ -408,9 +458,16 @@
             const recenterBtn = document.getElementById('fleetMapRecenterBtn');
             if (recenterBtn) recenterBtn.addEventListener('click', fitAllBounds);
 
+            const fitRouteBtn = document.getElementById('fleetMapFitRouteBtn');
+            if (fitRouteBtn) fitRouteBtn.addEventListener('click', fitRouteBounds);
+
+            const recenterBusBtn = document.getElementById('fleetMapRecenterBusBtn');
+            if (recenterBusBtn) recenterBusBtn.addEventListener('click', recenterBus);
+
             const refreshBtn = document.getElementById('fleetMapRefreshBtn');
             if (refreshBtn && refreshUrl) {
                 refreshBtn.addEventListener('click', async function () {
+                    if (refreshBtn.disabled) return;
                     refreshBtn.disabled = true;
                     try {
                         const res = await fetch(refreshUrl, {
@@ -427,8 +484,11 @@
                 });
             }
 
+            let refreshing = false;
             if (refreshUrl) {
                 setInterval(async () => {
+                    if (refreshing) return;
+                    refreshing = true;
                     try {
                         const res = await fetch(refreshUrl, {
                             headers: { 'Accept': 'application/json' },
@@ -438,6 +498,8 @@
                         renderFleet(await res.json());
                     } catch (err) {
                         // Transient network failures should not break the dashboard.
+                    } finally {
+                        refreshing = false;
                     }
                 }, REFRESH_INTERVAL_MS);
             }
