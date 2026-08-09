@@ -85,6 +85,7 @@
         @include('partials.fleet-map', [
             'fleetMap' => $fleetMap,
             'fleetMapRefreshUrl' => route('dashboard.fleet-data'),
+            'fleetMapShowCards' => false,
         ])
 
         <div class="mt-6 grid grid-cols-12 gap-4 md:gap-6">
