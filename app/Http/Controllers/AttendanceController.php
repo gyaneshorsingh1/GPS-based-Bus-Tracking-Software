@@ -44,7 +44,6 @@ class AttendanceController extends Controller
                     'buses' => collect(),
                     'checkedIn' => collect(),
                     'today' => $today,
-                    'nextDate' => Carbon::parse($today)->addDay()->toDateString(),
                     'groupedBySchool' => false,
                 ]);
             }
@@ -59,23 +58,22 @@ class AttendanceController extends Controller
         $checkedIn = Attendance::query()
             ->whereDate('date', $today)
             ->whereIn('bus_id', $buses->pluck('id'))
-            ->whereNotNull('check_in_at')
             ->get()
             ->groupBy('bus_id')
             ->map(fn ($group) => [
-                Attendance::TRIP_HOME_TO_SCHOOL => $group->where('trip', Attendance::TRIP_HOME_TO_SCHOOL)->pluck('student_id')->unique()->count(),
-                Attendance::TRIP_SCHOOL_TO_HOME => $group->where('trip', Attendance::TRIP_SCHOOL_TO_HOME)->pluck('student_id')->unique()->count(),
+                'picked_up_home' => $group->where('trip', Attendance::TRIP_HOME_TO_SCHOOL)->whereNotNull('check_in_at')->pluck('student_id')->unique()->count(),
+                'dropped_school' => $group->where('trip', Attendance::TRIP_HOME_TO_SCHOOL)->whereNotNull('check_out_at')->pluck('student_id')->unique()->count(),
+                'picked_up_school' => $group->where('trip', Attendance::TRIP_SCHOOL_TO_HOME)->whereNotNull('check_in_at')->pluck('student_id')->unique()->count(),
+                'dropped_home' => $group->where('trip', Attendance::TRIP_SCHOOL_TO_HOME)->whereNotNull('check_out_at')->pluck('student_id')->unique()->count(),
             ]);
-
-        $nextDate = Carbon::parse($today)->addDay()->toDateString();
 
         $groupedBySchool = $user->hasRole('Super Admin');
 
-        return view('attendance.index', compact('buses', 'checkedIn', 'today', 'nextDate', 'groupedBySchool'));
+        return view('attendance.index', compact('buses', 'checkedIn', 'today', 'groupedBySchool'));
     }
 
     /**
-     * Display a bus and its assigned students for check-in/check-out.
+     * Display a bus and its assigned students with the next valid attendance action.
      */
     public function show(Request $request, Bus $bus)
     {
@@ -84,11 +82,7 @@ class AttendanceController extends Controller
 
         $date = $request->query('date') ?: now()->toDateString();
 
-        $activeTrip = $request->query('trip');
-
-        if ($activeTrip && ! in_array($activeTrip, array_keys(Attendance::trips()), true)) {
-            $activeTrip = null;
-        }
+        $isToday = Carbon::parse($date)->isSameDay(now());
 
         $bus->load(['school', 'driver', 'route']);
 
@@ -108,33 +102,29 @@ class AttendanceController extends Controller
                 $trip => $attendanceRecords->where('trip', $trip)->keyBy('student_id'),
             ]);
 
-        $homeToSchoolChecked = ($attendance[Attendance::TRIP_HOME_TO_SCHOOL] ?? collect())
-            ->filter(fn ($a) => $a->isCheckedIn())
-            ->count();
+        $studentStages = $students->map(function (Student $student) use ($attendance) {
+            $state = $this->stagesForStudent(
+                $attendance[Attendance::TRIP_HOME_TO_SCHOOL][$student->id] ?? null,
+                $attendance[Attendance::TRIP_SCHOOL_TO_HOME][$student->id] ?? null,
+            );
 
-        $schoolToHomeChecked = ($attendance[Attendance::TRIP_SCHOOL_TO_HOME] ?? collect())
-            ->filter(fn ($a) => $a->isCheckedIn())
-            ->count();
+            return [
+                'student' => $student,
+                'stages' => $state['stages'],
+                'next_action' => $state['next_action'],
+                'completed' => $state['completed'],
+                'buttons' => $this->stageButtons($state['stages'], $state['next_action']),
+            ];
+        });
 
-        $nextDate = Carbon::parse($date)->addDay()->toDateString();
+        $allCompleted = $students->isNotEmpty()
+            && $studentStages->every(fn ($entry) => $entry['completed']);
 
-        $homeToSchoolCompleted = $students->isNotEmpty() && $homeToSchoolChecked >= $students->count();
-
-        return view('attendance.show', compact(
-            'bus',
-            'students',
-            'attendance',
-            'date',
-            'nextDate',
-            'activeTrip',
-            'homeToSchoolCompleted',
-            'homeToSchoolChecked',
-            'schoolToHomeChecked'
-        ));
+        return view('attendance.show', compact('bus', 'studentStages', 'date', 'isToday', 'allCompleted'));
     }
 
     /**
-     * Check a student in or out on a bus.
+     * Check a student's next valid attendance action and store it.
      */
     public function mark(Request $request, Bus $bus, Student $student)
     {
@@ -153,33 +143,35 @@ class AttendanceController extends Controller
 
         $date = ! empty($validated['date']) ? Carbon::parse($validated['date']) : now();
 
-        if ($validated['trip'] === Attendance::TRIP_SCHOOL_TO_HOME) {
-            $homeToSchoolCount = Attendance::query()
-                ->where('bus_id', $bus->id)
-                ->where('trip', Attendance::TRIP_HOME_TO_SCHOOL)
-                ->whereDate('date', $date)
-                ->whereNotNull('check_in_at')
-                ->distinct('student_id')
-                ->count('student_id');
-
-            $studentCount = $bus->students()->count();
-
-            if ($studentCount === 0 || $homeToSchoolCount < $studentCount) {
-                return back()->withErrors(['trip' => 'Complete the Home to School attendance before marking School to Home.']);
-            }
+        if ($date->toDateString() !== now()->toDateString()) {
+            return back()->withErrors(['date' => 'Attendance can only be marked for today.']);
         }
 
-        $attendance = Attendance::query()
+        $home = Attendance::query()
             ->where('student_id', $student->id)
-            ->where('trip', $validated['trip'])
+            ->where('trip', Attendance::TRIP_HOME_TO_SCHOOL)
             ->whereDate('date', $date)
             ->first();
 
-        if ($validated['action'] === 'check_in') {
-            if ($attendance?->isCheckedIn()) {
-                return back()->withErrors(['check_in' => "{$student->full_name} is already checked in for {$this->tripLabel($validated['trip'])}."]);
-            }
+        $school = Attendance::query()
+            ->where('student_id', $student->id)
+            ->where('trip', Attendance::TRIP_SCHOOL_TO_HOME)
+            ->whereDate('date', $date)
+            ->first();
 
+        $state = $this->stagesForStudent($home, $school);
+
+        if ($state['completed']) {
+            return back()->withErrors(['trip' => "{$student->full_name}'s attendance is already completed for this day."]);
+        }
+
+        $expected = $state['next_action'];
+
+        if ($validated['action'] !== $expected['action'] || $validated['trip'] !== $expected['trip']) {
+            return back()->withErrors(['trip' => "{$student->full_name}'s next valid action is \"{$expected['label']}\"."]);
+        }
+
+        if ($validated['action'] === 'check_in') {
             Attendance::updateOrCreate(
                 ['student_id' => $student->id, 'date' => $date, 'trip' => $validated['trip']],
                 [
@@ -189,22 +181,20 @@ class AttendanceController extends Controller
                 ]
             );
 
-            $message = "{$student->full_name} checked in for {$this->tripLabel($validated['trip'])} successfully.";
+            $message = "{$student->full_name} - {$expected['label']} marked successfully.";
         } else {
-            if (! $attendance || ! $attendance->isCheckedIn()) {
-                return back()->withErrors(['check_out' => "{$student->full_name} must check in before checking out."]);
+            $record = $validated['trip'] === Attendance::TRIP_SCHOOL_TO_HOME ? $school : $home;
+
+            if (! $record || ! $record->isCheckedIn()) {
+                return back()->withErrors(['check_out' => "{$student->full_name} must be checked in before checking out."]);
             }
 
-            if ($attendance->isCheckedOut()) {
-                return back()->withErrors(['check_out' => "{$student->full_name} is already checked out."]);
-            }
-
-            $attendance->update([
+            $record->update([
                 'check_out_at' => now(),
                 'marked_by' => Auth::id(),
             ]);
 
-            $message = "{$student->full_name} checked out for {$this->tripLabel($validated['trip'])} successfully.";
+            $message = "{$student->full_name} - {$expected['label']} marked successfully.";
         }
 
         return redirect()
@@ -264,6 +254,98 @@ class AttendanceController extends Controller
     private function tripLabel(string $trip): string
     {
         return Attendance::trips()[$trip] ?? $trip;
+    }
+
+    /**
+     * Build the 4-stage daily attendance state for a student and the next valid action.
+     *
+     * Stages follow the strict sequence: Picked Up from Home -> Dropped at School
+     * -> Picked Up from School -> Dropped at Home -> Completed.
+     *
+     * @return array{
+     *     stages: array<int, array{key: string, label: string, done: bool, at: \Illuminate\Support\Carbon|null}>,
+     *     next_action: array{action: string, trip: string, label: string}|null,
+     *     completed: bool,
+     * }
+     */
+    private function stagesForStudent(?Attendance $home, ?Attendance $school): array
+    {
+        $pickedUpHome = $home?->isCheckedIn() ?? false;
+        $droppedAtSchool = $home?->isCheckedOut() ?? false;
+        $pickedUpSchool = $school?->isCheckedIn() ?? false;
+        $droppedAtHome = $school?->isCheckedOut() ?? false;
+
+        $stages = [
+            ['key' => 'picked_up_home', 'label' => 'Picked Up from Home', 'done' => $pickedUpHome, 'at' => $home?->check_in_at],
+            ['key' => 'dropped_at_school', 'label' => 'Dropped at School', 'done' => $droppedAtSchool, 'at' => $home?->check_out_at],
+            ['key' => 'picked_up_school', 'label' => 'Picked Up from School', 'done' => $pickedUpSchool, 'at' => $school?->check_in_at],
+            ['key' => 'dropped_at_home', 'label' => 'Dropped at Home', 'done' => $droppedAtHome, 'at' => $school?->check_out_at],
+        ];
+
+        if (! $pickedUpHome) {
+            $nextAction = ['action' => 'check_in', 'trip' => Attendance::TRIP_HOME_TO_SCHOOL, 'label' => 'Pick Up'];
+        } elseif (! $droppedAtSchool) {
+            $nextAction = ['action' => 'check_out', 'trip' => Attendance::TRIP_HOME_TO_SCHOOL, 'label' => 'Drop at School'];
+        } elseif (! $pickedUpSchool) {
+            $nextAction = ['action' => 'check_in', 'trip' => Attendance::TRIP_SCHOOL_TO_HOME, 'label' => 'Pick Up from School'];
+        } elseif (! $droppedAtHome) {
+            $nextAction = ['action' => 'check_out', 'trip' => Attendance::TRIP_SCHOOL_TO_HOME, 'label' => 'Drop at Home'];
+        } else {
+            $nextAction = null;
+        }
+
+        return [
+            'stages' => $stages,
+            'next_action' => $nextAction,
+            'completed' => $nextAction === null,
+        ];
+    }
+
+    /**
+     * Build the queue state for each of the 4 daily stages so the UI can show
+     * every button at once: the current stage is active, previous stages are
+     * done, and future stages stay locked until their turn arrives.
+     *
+     * @param  array<int, array{key: string, label: string, done: bool, at: \Illuminate\Support\Carbon|null}>  $stages
+     * @param  array{action: string, trip: string, label: string}|null  $nextAction
+     * @return array<int, array{
+     *     key: string,
+     *     label: string,
+     *     button_label: string,
+     *     done: bool,
+     *     at: \Illuminate\Support\Carbon|null,
+     *     enabled: bool,
+     *     action: string,
+     *     trip: string,
+     * }>
+     */
+    private function stageButtons(array $stages, ?array $nextAction): array
+    {
+        $meta = [
+            'picked_up_home' => ['action' => 'check_in', 'trip' => Attendance::TRIP_HOME_TO_SCHOOL, 'label' => 'Pick Up'],
+            'dropped_at_school' => ['action' => 'check_out', 'trip' => Attendance::TRIP_HOME_TO_SCHOOL, 'label' => 'Drop at School'],
+            'picked_up_school' => ['action' => 'check_in', 'trip' => Attendance::TRIP_SCHOOL_TO_HOME, 'label' => 'Pick Up from School'],
+            'dropped_at_home' => ['action' => 'check_out', 'trip' => Attendance::TRIP_SCHOOL_TO_HOME, 'label' => 'Drop at Home'],
+        ];
+
+        return collect($stages)->map(function (array $stage) use ($nextAction, $meta) {
+            $stageMeta = $meta[$stage['key']] ?? ['action' => null, 'trip' => null, 'label' => $stage['label']];
+
+            $enabled = $nextAction
+                && $stageMeta['action'] === $nextAction['action']
+                && $stageMeta['trip'] === $nextAction['trip'];
+
+            return [
+                'key' => $stage['key'],
+                'label' => $stage['label'],
+                'button_label' => $stageMeta['label'],
+                'done' => $stage['done'],
+                'at' => $stage['at'],
+                'enabled' => $enabled,
+                'action' => $stageMeta['action'],
+                'trip' => $stageMeta['trip'],
+            ];
+        })->values()->all();
     }
 
     /**
