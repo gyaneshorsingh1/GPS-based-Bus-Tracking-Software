@@ -13,7 +13,7 @@ class NotificationController extends Controller
         $notifications = Auth::user()
             ->notifications()
             ->latest()
-            ->paginate(20);
+            ->paginate(10);
 
         $unreadCount = Auth::user()
             ->unreadNotifications()
