@@ -401,4 +401,183 @@ class DriverAttendanceTest extends TestCase
         ])
             ->assertNotFound();
     }
+
+    public function test_driver_can_view_attendance_history_for_assigned_bus(): void
+    {
+        $student = $this->makeStudent();
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'home_to_school',
+            'date' => now(),
+            'check_in_at' => now()->setTime(7, 15, 0),
+            'check_out_at' => now()->setTime(8, 0, 0),
+            'marked_by' => $this->driverUser->id,
+        ]);
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'school_to_home',
+            'date' => now(),
+            'check_in_at' => now()->setTime(15, 30, 0),
+            'check_out_at' => now()->setTime(16, 10, 0),
+            'marked_by' => $this->driverUser->id,
+        ]);
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances/history?bus_id='.$this->bus->id)
+            ->assertOk()
+            ->assertJsonPath('data.total_records', 2)
+            ->assertJsonCount(2, 'data.records')
+            ->assertJsonPath('data.records.0.trip_label', 'School to Home (Drop)')
+            ->assertJsonPath('data.records.0.status', 'completed')
+            ->assertJsonPath('data.records.0.student.full_name', 'Sita Sharma')
+            ->assertJsonPath('data.records.0.marked_by.name', $this->driverUser->name)
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'bus' => ['id', 'bus_number', 'registration_number', 'status'],
+                    'from',
+                    'to',
+                    'total_records',
+                    'records' => [
+                        '*' => [
+                            'id',
+                            'date',
+                            'trip',
+                            'trip_label',
+                            'check_in_at',
+                            'check_out_at',
+                            'status',
+                            'student',
+                            'marked_by',
+                        ],
+                    ],
+                    'pagination' => ['current_page', 'per_page', 'last_page', 'total', 'from', 'to'],
+                ],
+            ]);
+    }
+
+    public function test_history_requires_bus_id(): void
+    {
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances/history')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('bus_id');
+    }
+
+    public function test_cannot_view_history_for_another_drivers_bus(): void
+    {
+        $otherDriverUser = User::factory()->create();
+        $otherDriver = Driver::create([
+            'school_id' => $this->school->id,
+            'user_id' => $otherDriverUser->id,
+            'employee_id' => 'DR-API-5',
+            'first_name' => 'Fifth',
+            'last_name' => 'Driver',
+            'gender' => 'Male',
+            'date_of_birth' => '1986-01-01',
+            'phone' => '9800000005',
+            'address' => 'Kathmandu',
+            'license_number' => 'LIC-API-5',
+            'license_type' => 'Bus',
+            'license_issue_date' => '2020-01-01',
+            'license_expiry_date' => '2030-01-01',
+            'joining_date' => '2024-01-01',
+            'status' => 'Active',
+            'created_by' => $otherDriverUser->id,
+        ]);
+
+        $otherBus = Bus::create([
+            'school_id' => $this->school->id,
+            'driver_id' => $otherDriver->id,
+            'bus_number' => 'API-BUS-5',
+            'registration_number' => 'BA API-BUS-5',
+            'capacity' => 40,
+            'status' => 'Active',
+        ]);
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances/history?bus_id='.$otherBus->id)
+            ->assertNotFound();
+    }
+
+    public function test_history_respects_from_and_to_date_filters(): void
+    {
+        $student = $this->makeStudent();
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'home_to_school',
+            'date' => now()->subDays(45),
+            'check_in_at' => now()->subDays(45)->setTime(7, 15, 0),
+            'check_out_at' => now()->subDays(45)->setTime(8, 0, 0),
+            'marked_by' => $this->driverUser->id,
+        ]);
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'home_to_school',
+            'date' => now()->subDays(3),
+            'check_in_at' => now()->subDays(3)->setTime(7, 15, 0),
+            'check_out_at' => now()->subDays(3)->setTime(8, 0, 0),
+            'marked_by' => $this->driverUser->id,
+        ]);
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances/history?bus_id='.$this->bus->id)
+            ->assertOk()
+            ->assertJsonPath('data.total_records', 1);
+
+        $this->getJson('/api/v1/driver/attendances/history?bus_id='.$this->bus->id
+            .'&from='.now()->subDays(50)->toDateString().'&to='.now()->toDateString())
+            ->assertOk()
+            ->assertJsonPath('data.total_records', 2);
+
+        $this->getJson('/api/v1/driver/attendances/history?bus_id='.$this->bus->id
+            .'&from='.now()->subDays(10)->toDateString().'&to='.now()->subDays(5)->toDateString())
+            ->assertOk()
+            ->assertJsonPath('data.total_records', 0);
+    }
+
+    public function test_history_rejects_invalid_date_range(): void
+    {
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances/history?bus_id='.$this->bus->id
+            .'&from='.now()->toDateString().'&to='.now()->subDays(5)->toDateString())
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('to');
+    }
+
+    public function test_history_works_for_inactive_bus(): void
+    {
+        $this->bus->update(['status' => 'Inactive']);
+
+        $student = $this->makeStudent();
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'home_to_school',
+            'date' => now(),
+            'check_in_at' => now()->setTime(7, 15, 0),
+            'check_out_at' => now()->setTime(8, 0, 0),
+            'marked_by' => $this->driverUser->id,
+        ]);
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances/history?bus_id='.$this->bus->id)
+            ->assertOk()
+            ->assertJsonPath('data.total_records', 1);
+    }
 }

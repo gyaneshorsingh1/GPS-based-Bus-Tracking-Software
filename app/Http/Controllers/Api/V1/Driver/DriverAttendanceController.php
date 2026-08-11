@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class DriverAttendanceController extends Controller
 {
@@ -71,6 +72,99 @@ class DriverAttendanceController extends Controller
                         'phone' => $student->parent->phone,
                     ] : null,
                 ]),
+            ],
+        ]);
+    }
+
+    public function history(Request $request)
+    {
+        $driver = $request->user()->driver;
+
+        if (!$driver) {
+            return response()->json([
+                'message' => 'Driver profile not found.'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'bus_id' => ['required', 'integer'],
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date', 'after_or_equal:from'],
+        ]);
+
+        $bus = $driver->buses()
+            ->with('route')
+            ->find($validated['bus_id']);
+
+        if (!$bus) {
+            return response()->json([
+                'message' => 'Bus not found for this driver.'
+            ], 404);
+        }
+
+        $from = !empty($validated['from'])
+            ? Carbon::parse($validated['from'])->startOfDay()
+            : now()->subDays(30)->startOfDay();
+
+        $to = !empty($validated['to'])
+            ? Carbon::parse($validated['to'])->endOfDay()
+            : now()->endOfDay();
+
+        $records = Attendance::query()
+            ->with(['student', 'markedBy'])
+            ->where('bus_id', $bus->id)
+            ->whereBetween('date', [$from, $to])
+            ->orderByDesc('date')
+            ->orderByDesc('id')
+            ->paginate(50);
+
+        return response()->json([
+            'message' => 'Driver bus attendance history.',
+            'data' => [
+                'bus' => [
+                    'id' => $bus->id,
+                    'bus_number' => $bus->bus_number,
+                    'registration_number' => $bus->registration_number,
+                    'status' => $bus->status,
+                    'route' => $bus->route ? [
+                        'id' => $bus->route->id,
+                        'name' => $bus->route->name,
+                    ] : null,
+                ],
+                'from' => $from->toDateString(),
+                'to' => $to->toDateString(),
+                'total_records' => $records->total(),
+                'records' => $records->map(fn (Attendance $record) => [
+                    'id' => $record->id,
+                    'date' => $record->date?->toDateString(),
+                    'trip' => $record->trip,
+                    'trip_label' => $record->tripLabel(),
+                    'check_in_at' => $record->check_in_at?->toIso8601String(),
+                    'check_out_at' => $record->check_out_at?->toIso8601String(),
+                    'status' => $record->isCheckedOut()
+                        ? 'completed'
+                        : ($record->isCheckedIn() ? 'checked_in' : 'not_checked_in'),
+                    'student' => $record->student ? [
+                        'id' => $record->student->id,
+                        'admission_no' => $record->student->admission_no,
+                        'full_name' => $record->student->full_name,
+                        'grade' => $record->student->grade,
+                        'section' => $record->student->section,
+                        'photo' => $record->student->photo ? asset('storage/' . $record->student->photo) : null,
+                    ] : null,
+                    'marked_by' => $record->markedBy ? [
+                        'id' => $record->markedBy->id,
+                        'name' => $record->markedBy->name,
+                    ] : null,
+                ]),
+                'pagination' => [
+                    'current_page' => $records->currentPage(),
+                    'per_page' => $records->perPage(),
+                    'last_page' => $records->lastPage(),
+                    'total' => $records->total(),
+                    'from' => $records->firstItem(),
+                    'to' => $records->lastItem(),
+                ],
             ],
         ]);
     }

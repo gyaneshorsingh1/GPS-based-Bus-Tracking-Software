@@ -27,6 +27,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('attendances')->group(function () {
                 Route::get('/', [DriverAttendanceController::class, 'index']);
+                Route::get('/history', [DriverAttendanceController::class, 'history']);
                 Route::post('/mark', [DriverAttendanceController::class, 'markAttendance']);
             });
         });
