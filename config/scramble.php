@@ -145,8 +145,6 @@ return [
         'web',
         RestrictedDocsAccess::class,
     ],
-    // 'security_strategy' => \Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy::class,
-    'security_strategy' => MiddlewareAuthSecurityStrategy::class,
 
     'extensions' => [],
 
@@ -172,6 +170,5 @@ return [
      *     ],
      * ],
      */
-    // 'security_strategy' => \Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy::class,
-    'security_strategy' => null,
+    'security_strategy' => MiddlewareAuthSecurityStrategy::class,
 ];
