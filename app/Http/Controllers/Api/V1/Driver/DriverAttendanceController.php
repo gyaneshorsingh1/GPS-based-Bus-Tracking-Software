@@ -9,9 +9,7 @@ class DriverAttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-
-        $driver = $user->driver;
+        $driver = $request->user()->driver;
 
         if (!$driver) {
             return response()->json([
@@ -19,72 +17,60 @@ class DriverAttendanceController extends Controller
             ], 404);
         }
 
-        $attendances = $driver->attendances()
-            ->with(['bus.school', 'student', 'markedBy'])
+        $validated = $request->validate([
+            'bus_id' => ['required', 'integer'],
+        ]);
+
+        $bus = $driver->buses()
+            ->with(['route', 'students.parent.user'])
+            ->find($validated['bus_id']);
+
+        if (!$bus) {
+            return response()->json([
+                'message' => 'Bus not found for this driver.'
+            ], 404);
+        }
+
+        $students = $bus->students()
+            ->orderBy('grade')
+            ->orderBy('roll_no')
             ->get();
 
         return response()->json([
-            'message' => 'Driver attendance data.',
+            'message' => 'Students for driver bus.',
             'data' => [
-                'driver' => [
-                    'id' => $driver->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $driver->phone,
-                    'school' => $driver->school ? [
-                        'id' => $driver->school->id,
-                        'name' => $driver->school->name,
-                        'address' => $driver->school->address,
+                'bus' => [
+                    'id' => $bus->id,
+                    'bus_number' => $bus->bus_number,
+                    'registration_number' => $bus->registration_number,
+                    'status' => $bus->status,
+                    'route' => $bus->route ? [
+                        'id' => $bus->route->id,
+                        'name' => $bus->route->name,
                     ] : null,
                 ],
-                'attendances' => $attendances,
+                'total_students' => $students->count(),
+                'students' => $students->map(fn ($student) => [
+                    'id' => $student->id,
+                    'admission_no' => $student->admission_no,
+                    'first_name' => $student->first_name,
+                    'last_name' => $student->last_name,
+                    'full_name' => $student->full_name,
+                    'gender' => $student->gender,
+                    'grade' => $student->grade,
+                    'section' => $student->section,
+                    'roll_no' => $student->roll_no,
+                    'photo' => $student->photo ? asset('storage/' . $student->photo) : null,
+                    'pickup_location' => $student->pickup_location,
+                    'drop_location' => $student->drop_location,
+                    'parent' => $student->parent ? [
+                        'id' => $student->parent->id,
+                        'name' => $student->parent->user->name ?? $student->parent->father_name,
+                        'phone' => $student->parent->phone,
+                    ] : null,
+                ]),
             ],
         ]);
     }
 
-    public function show(Request $request, $id)
-    {
-        $user = $request->user();
-
-        $driver = $user->driver;
-
-        if (!$driver) {
-            return response()->json([
-                'message' => 'Driver profile not found.'
-            ], 404);
-        }
-
-        $attendance = $driver->attendances()
-            ->with(['bus.school', 'student', 'markedBy'])
-            ->find($id);
-
-        if (!$attendance) {
-            return response()->json([
-                'message' => 'Attendance record not found.'
-            ], 404);
-        }
-
-        return response()->json([
-            'message' => 'Driver attendance record.',
-            'data' => [
-                'id' => $attendance->id,
-                'student_id' => $attendance->student_id,
-                'bus_id' => $attendance->bus_id,
-                'trip' => $attendance->trip,
-                'date' => $attendance->date?->toDateString(),
-                'check_in_at' => $attendance->check_in_at?->toIso8601String(),
-                'check_out_at' => $attendance->check_out_at?->toIso8601String(),
-                'status' => $attendance->isCheckedOut() ? 'checked_out' : ($attendance->isCheckedIn() ? 'checked_in' : 'not_checked_in'),
-                'bus' => $attendance->bus ? [
-                    'id' => $attendance->bus->id,
-                    'bus_number' => $attendance->bus->bus_number,
-                    'registration_number' => $attendance->bus->registration_number,
-                ] : null,
-                'student' => $attendance->student ? [
-                    'id' => $attendance->student->id,
-                    'name' => $attendance->student->full_name,
-                ] : null,
-            ],
-        ]);
-    }
 }
