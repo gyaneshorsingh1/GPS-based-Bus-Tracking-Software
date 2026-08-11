@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Auth\ApiAuthController;
 use App\Http\Controllers\Api\V1\Driver\DriverAttendanceController;
 use App\Http\Controllers\Api\V1\Driver\DriverBusController;
 use App\Http\Controllers\Api\V1\Driver\DriverDashboardController;
+use App\Http\Controllers\Api\V1\Driver\DriverLiveTrackingController;
 use App\Http\Controllers\Api\V1\Driver\DriverProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/buses', [DriverBusController::class, 'index']);
             Route::get('/buses/{bus}', [DriverBusController::class, 'show']);
             Route::get('/buses/{bus}/students', [DriverBusController::class, 'students']);
+            Route::get('/live-tracking', [DriverLiveTrackingController::class, 'index']);
 
         Route::prefix('attendances')->group(function () {
                 Route::get('/', [DriverAttendanceController::class, 'index']);
