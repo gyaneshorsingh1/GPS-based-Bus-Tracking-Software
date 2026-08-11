@@ -41,8 +41,13 @@ class User extends Authenticatable
         ];
     }
 
-    public function drivers()
+    // public function drivers()
+    // {
+    //     return $this->hasMany(Driver::class, 'created_by');
+    // }
+
+    public function driver()
     {
-        return $this->hasMany(Driver::class, 'created_by');
+        return $this->hasOne(Driver::class);
     }
 }

@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1\Driver;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class DriverDashboardController extends Controller
+{
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+
+        $driver = $user->driver;
+
+        if (!$driver) {
+            return response()->json([
+                'message' => 'Driver profile not found.'
+            ], 404);
+        }
+
+        $buses = $driver->buses()
+            ->with('school')
+            ->get();
+
+        return response()->json([
+            'driver' => [
+                'id' => $driver->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'buses' => $buses,
+        ]);
+    }
+}
