@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1\Driver;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
+use App\Models\Student;
 use Illuminate\Http\Request;
 
 class DriverAttendanceController extends Controller
@@ -69,6 +71,125 @@ class DriverAttendanceController extends Controller
                         'phone' => $student->parent->phone,
                     ] : null,
                 ]),
+            ],
+        ]);
+    }
+
+    public function markAttendance(Request $request)
+    {
+        $driver = $request->user()->driver;
+
+        if (!$driver) {
+            return response()->json([
+                'message' => 'Driver profile not found.'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'bus_id' => ['required', 'integer'],
+            'student_id' => ['required', 'integer'],
+        ]);
+
+        $bus = $driver->buses()->find($validated['bus_id']);
+
+        if (!$bus) {
+            return response()->json([
+                'message' => 'Bus not found for this driver.'
+            ], 404);
+        }
+
+        if ($bus->status !== 'Active') {
+            return response()->json([
+                'message' => 'Attendance can only be marked on active buses.'
+            ], 422);
+        }
+
+        $student = Student::where('id', $validated['student_id'])
+            ->where('bus_id', $bus->id)
+            ->first();
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found on this bus.'
+            ], 422);
+        }
+
+        $date = now();
+
+        $records = Attendance::query()
+            ->where('student_id', $student->id)
+            ->whereDate('date', $date)
+            ->get()
+            ->keyBy('trip');
+
+        $home = $records->get(Attendance::TRIP_HOME_TO_SCHOOL);
+        $school = $records->get(Attendance::TRIP_SCHOOL_TO_HOME);
+
+        $action = null;
+
+        if (!$home || !$home->isCheckedIn()) {
+            $attendance = Attendance::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'date' => $date,
+                    'trip' => Attendance::TRIP_HOME_TO_SCHOOL,
+                ],
+                [
+                    'bus_id' => $bus->id,
+                    'check_in_at' => $date,
+                    'marked_by' => $request->user()->id,
+                ]
+            );
+
+            $action = ['key' => 'picked_up_home', 'message' => "{$student->full_name} picked up from home."];
+        } elseif (!$home->isCheckedOut()) {
+            $home->update([
+                'check_out_at' => $date,
+                'marked_by' => $request->user()->id,
+            ]);
+
+            $attendance = $home;
+            $action = ['key' => 'dropped_at_school', 'message' => "{$student->full_name} dropped at school."];
+        } elseif (!$school || !$school->isCheckedIn()) {
+            $attendance = Attendance::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'date' => $date,
+                    'trip' => Attendance::TRIP_SCHOOL_TO_HOME,
+                ],
+                [
+                    'bus_id' => $bus->id,
+                    'check_in_at' => $date,
+                    'marked_by' => $request->user()->id,
+                ]
+            );
+
+            $action = ['key' => 'picked_up_school', 'message' => "{$student->full_name} picked up from school."];
+        } elseif (!$school->isCheckedOut()) {
+            $school->update([
+                'check_out_at' => $date,
+                'marked_by' => $request->user()->id,
+            ]);
+
+            $attendance = $school;
+            $action = ['key' => 'dropped_at_home', 'message' => "{$student->full_name} dropped at home."];
+        } else {
+            return response()->json([
+                'message' => "{$student->full_name}'s attendance is already completed for today.",
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => $action['message'],
+            'data' => [
+                'id' => $attendance->id,
+                'student_id' => $attendance->student_id,
+                'bus_id' => $attendance->bus_id,
+                'trip' => $attendance->trip,
+                'date' => $attendance->date?->toDateString(),
+                'check_in_at' => $attendance->check_in_at?->toIso8601String(),
+                'check_out_at' => $attendance->check_out_at?->toIso8601String(),
+                'marked_by' => $attendance->marked_by,
             ],
         ]);
     }

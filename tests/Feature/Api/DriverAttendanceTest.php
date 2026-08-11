@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Attendance;
 use App\Models\Bus;
 use App\Models\Driver;
 use App\Models\ParentProfile;
@@ -187,6 +188,217 @@ class DriverAttendanceTest extends TestCase
         Sanctum::actingAs($parentUser);
 
         $this->getJson('/api/v1/driver/attendances?bus_id='.$this->bus->id)
+            ->assertNotFound();
+    }
+
+    public function test_driver_can_mark_full_attendance_sequence(): void
+    {
+        $student = $this->makeStudent();
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Sita Sharma picked up from home.')
+            ->assertJsonPath('data.trip', 'home_to_school')
+            ->assertJsonStructure(['data' => ['check_in_at']]);
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Sita Sharma dropped at school.')
+            ->assertJsonStructure(['data' => ['check_out_at']]);
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Sita Sharma picked up from school.')
+            ->assertJsonPath('data.trip', 'school_to_home');
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Sita Sharma dropped at home.')
+            ->assertJsonPath('data.trip', 'school_to_home');
+
+        $this->assertDatabaseCount('attendances', 2);
+
+        $home = Attendance::where('student_id', $student->id)
+            ->where('trip', 'home_to_school')
+            ->whereDate('date', now())
+            ->first();
+        $this->assertNotNull($home->check_in_at);
+        $this->assertNotNull($home->check_out_at);
+
+        $school = Attendance::where('student_id', $student->id)
+            ->where('trip', 'school_to_home')
+            ->whereDate('date', now())
+            ->first();
+        $this->assertNotNull($school->check_in_at);
+        $this->assertNotNull($school->check_out_at);
+    }
+
+    public function test_fifth_mark_is_rejected_when_day_completed(): void
+    {
+        $student = $this->makeStudent();
+
+        Sanctum::actingAs($this->driverUser);
+
+        foreach (range(1, 4) as $i) {
+            $this->postJson('/api/v1/driver/attendances/mark', [
+                'bus_id' => $this->bus->id,
+                'student_id' => $student->id,
+            ])->assertOk();
+        }
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'Sita Sharma\'s attendance is already completed for today.');
+    }
+
+    public function test_school_to_home_is_not_reached_until_home_to_school_is_completed(): void
+    {
+        $student = $this->makeStudent();
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'home_to_school',
+            'date' => now(),
+            'check_in_at' => now()->subHours(2),
+        ]);
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Sita Sharma dropped at school.')
+            ->assertJsonPath('data.trip', 'home_to_school')
+            ->assertJsonStructure(['data' => ['check_out_at']]);
+    }
+
+    public function test_cannot_mark_student_not_assigned_to_bus(): void
+    {
+        $otherDriverUser = User::factory()->create();
+        $otherDriver = Driver::create([
+            'school_id' => $this->school->id,
+            'user_id' => $otherDriverUser->id,
+            'employee_id' => 'DR-API-3',
+            'first_name' => 'Third',
+            'last_name' => 'Driver',
+            'gender' => 'Male',
+            'date_of_birth' => '1988-01-01',
+            'phone' => '9800000003',
+            'address' => 'Kathmandu',
+            'license_number' => 'LIC-API-3',
+            'license_type' => 'Bus',
+            'license_issue_date' => '2020-01-01',
+            'license_expiry_date' => '2030-01-01',
+            'joining_date' => '2024-01-01',
+            'status' => 'Active',
+            'created_by' => $otherDriverUser->id,
+        ]);
+
+        $otherBus = Bus::create([
+            'school_id' => $this->school->id,
+            'driver_id' => $otherDriver->id,
+            'bus_number' => 'API-BUS-3',
+            'registration_number' => 'BA API-BUS-3',
+            'capacity' => 40,
+            'status' => 'Active',
+        ]);
+
+        $student = $this->makeStudent(['bus_id' => $otherBus->id]);
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'Student not found on this bus.');
+    }
+
+    public function test_cannot_mark_on_inactive_bus(): void
+    {
+        $this->bus->update(['status' => 'Inactive']);
+
+        $student = $this->makeStudent();
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $this->bus->id,
+            'student_id' => $student->id,
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'Attendance can only be marked on active buses.');
+    }
+
+    public function test_mark_requires_bus_id_and_student_id(): void
+    {
+        Sanctum::actingAs($this->driverUser);
+
+        $this->postJson('/api/v1/driver/attendances/mark')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['bus_id', 'student_id']);
+    }
+
+    public function test_cannot_mark_on_another_drivers_bus(): void
+    {
+        $otherDriverUser = User::factory()->create();
+        $otherDriver = Driver::create([
+            'school_id' => $this->school->id,
+            'user_id' => $otherDriverUser->id,
+            'employee_id' => 'DR-API-4',
+            'first_name' => 'Fourth',
+            'last_name' => 'Driver',
+            'gender' => 'Male',
+            'date_of_birth' => '1987-01-01',
+            'phone' => '9800000004',
+            'address' => 'Kathmandu',
+            'license_number' => 'LIC-API-4',
+            'license_type' => 'Bus',
+            'license_issue_date' => '2020-01-01',
+            'license_expiry_date' => '2030-01-01',
+            'joining_date' => '2024-01-01',
+            'status' => 'Active',
+            'created_by' => $otherDriverUser->id,
+        ]);
+
+        $otherBus = Bus::create([
+            'school_id' => $this->school->id,
+            'driver_id' => $otherDriver->id,
+            'bus_number' => 'API-BUS-4',
+            'registration_number' => 'BA API-BUS-4',
+            'capacity' => 40,
+            'status' => 'Active',
+        ]);
+
+        $student = $this->makeStudent();
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->postJson('/api/v1/driver/attendances/mark', [
+            'bus_id' => $otherBus->id,
+            'student_id' => $student->id,
+        ])
             ->assertNotFound();
     }
 }
