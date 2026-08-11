@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Auth\ApiAuthController;
+use App\Http\Controllers\Api\V1\Driver\DriverBusController;
 use App\Http\Controllers\Api\V1\Driver\DriverDashboardController;
 use App\Http\Controllers\Api\V1\Driver\DriverProfileController;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('driver')->group(function () {
             Route::get('/dashboard', [DriverDashboardController::class, 'index']);
             Route::get('/profile', [DriverProfileController::class, 'show']);
+            Route::get('/buses', [DriverBusController::class, 'index']);
         });
     });
 });

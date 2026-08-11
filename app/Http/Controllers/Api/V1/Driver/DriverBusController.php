@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Api\V1\Driver;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class DriverDashboardController extends Controller
+class DriverBusController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
 
         $driver = $user->driver;
 
@@ -25,16 +24,12 @@ class DriverDashboardController extends Controller
             ->get();
 
         return response()->json([
+            'message' => 'Driver buses data.',
             'data' => [
-
-                'id' => $driver->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $driver->phone,
-                'school' => [
-                    'id' => $driver->school->id,
-                    'name' => $driver->school->name,
-                    'address' => $driver->school->address
+                'driver' => [
+                    'id' => $driver->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
                 ],
                 'buses' => $buses,
             ],
