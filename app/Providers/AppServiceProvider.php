@@ -30,6 +30,13 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('Super Admin');
         });
 
+        // The Parent Mobile API is restricted to the Parent role only. Used by
+        // the `can:access-parent-api` route middleware on every /api/parent/*
+        // route. Drivers, School Admins and Super Admins receive a 403.
+        Gate::define('access-parent-api', function ($user) {
+            return $user->hasRole('Parent');
+        });
+
         // Provide real notification data (badge count + dropdown list) to the
         // header bell on every authenticated page.
         View::composer('partials.header', HeaderComposer::class);
