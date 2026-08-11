@@ -580,4 +580,91 @@ class DriverAttendanceTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.total_records', 1);
     }
+
+    public function test_index_includes_today_attendance_status_for_students(): void
+    {
+        $student = $this->makeStudent();
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'home_to_school',
+            'date' => now(),
+            'check_in_at' => now()->setTime(7, 15, 0),
+            'check_out_at' => now()->setTime(8, 0, 0),
+            'marked_by' => $this->driverUser->id,
+        ]);
+
+        Attendance::create([
+            'student_id' => $student->id,
+            'bus_id' => $this->bus->id,
+            'trip' => 'school_to_home',
+            'date' => now(),
+            'check_in_at' => now()->setTime(15, 30, 0),
+            'marked_by' => $this->driverUser->id,
+        ]);
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances?bus_id='.$this->bus->id)
+            ->assertOk()
+            ->assertJsonPath('data.students.0.today_attendance.home_to_school.status', 'completed')
+            ->assertJsonPath('data.students.0.today_attendance.school_to_home.status', 'checked_in')
+            ->assertJsonPath('data.students.0.today_attendance.completed', false)
+            ->assertJsonPath('data.students.0.today_attendance.next_action.key', 'dropped_at_home')
+            ->assertJsonStructure([
+                'data' => [
+                    'students' => [
+                        '*' => [
+                            'today_attendance' => [
+                                'home_to_school' => ['check_in_at', 'check_out_at', 'status'],
+                                'school_to_home' => ['check_in_at', 'check_out_at', 'status'],
+                                'completed',
+                                'next_action',
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_index_shows_not_started_when_student_has_no_records(): void
+    {
+        $this->makeStudent();
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances?bus_id='.$this->bus->id)
+            ->assertOk()
+            ->assertJsonPath('data.students.0.today_attendance.home_to_school.status', 'not_checked_in')
+            ->assertJsonPath('data.students.0.today_attendance.school_to_home.status', 'not_checked_in')
+            ->assertJsonPath('data.students.0.today_attendance.completed', false)
+            ->assertJsonPath('data.students.0.today_attendance.next_action.key', 'picked_up_home');
+    }
+
+    public function test_index_shows_completed_when_all_four_stages_done(): void
+    {
+        $student = $this->makeStudent();
+
+        foreach (['home_to_school', 'school_to_home'] as $trip) {
+            Attendance::create([
+                'student_id' => $student->id,
+                'bus_id' => $this->bus->id,
+                'trip' => $trip,
+                'date' => now(),
+                'check_in_at' => now()->setTime(7, 15, 0),
+                'check_out_at' => now()->setTime(16, 0, 0),
+                'marked_by' => $this->driverUser->id,
+            ]);
+        }
+
+        Sanctum::actingAs($this->driverUser);
+
+        $this->getJson('/api/v1/driver/attendances?bus_id='.$this->bus->id)
+            ->assertOk()
+            ->assertJsonPath('data.students.0.today_attendance.home_to_school.status', 'completed')
+            ->assertJsonPath('data.students.0.today_attendance.school_to_home.status', 'completed')
+            ->assertJsonPath('data.students.0.today_attendance.completed', true)
+            ->assertJsonPath('data.students.0.today_attendance.next_action', null);
+    }
 }

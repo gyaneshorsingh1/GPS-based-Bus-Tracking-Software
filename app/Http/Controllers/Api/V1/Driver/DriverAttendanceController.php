@@ -39,6 +39,12 @@ class DriverAttendanceController extends Controller
             ->orderBy('roll_no')
             ->get();
 
+        $todayRecords = Attendance::query()
+            ->whereIn('student_id', $students->pluck('id'))
+            ->whereDate('date', now())
+            ->get()
+            ->keyBy(fn ($record) => $record->student_id.'-'.$record->trip);
+
         return response()->json([
             'message' => 'Students for driver bus.',
             'data' => [
@@ -71,9 +77,47 @@ class DriverAttendanceController extends Controller
                         'name' => $student->parent->user->name ?? $student->parent->father_name,
                         'phone' => $student->parent->phone,
                     ] : null,
+                    'today_attendance' => $this->todayAttendanceFor(
+                        $todayRecords->get($student->id.'-'.Attendance::TRIP_HOME_TO_SCHOOL),
+                        $todayRecords->get($student->id.'-'.Attendance::TRIP_SCHOOL_TO_HOME),
+                    ),
                 ]),
             ],
         ]);
+    }
+
+    private function todayAttendanceFor(?Attendance $home, ?Attendance $school): array
+    {
+        $tripStatus = fn (?Attendance $record) => $record === null
+            ? 'not_checked_in'
+            : ($record->isCheckedOut() ? 'completed' : 'checked_in');
+
+        $nextAction = null;
+
+        if (!$home || !$home->isCheckedIn()) {
+            $nextAction = ['key' => 'picked_up_home', 'label' => 'Pick Up'];
+        } elseif (!$home->isCheckedOut()) {
+            $nextAction = ['key' => 'dropped_at_school', 'label' => 'Drop at School'];
+        } elseif (!$school || !$school->isCheckedIn()) {
+            $nextAction = ['key' => 'picked_up_school', 'label' => 'Pick Up from School'];
+        } elseif (!$school->isCheckedOut()) {
+            $nextAction = ['key' => 'dropped_at_home', 'label' => 'Drop at Home'];
+        }
+
+        return [
+            'home_to_school' => [
+                'check_in_at' => $home?->check_in_at?->toIso8601String(),
+                'check_out_at' => $home?->check_out_at?->toIso8601String(),
+                'status' => $tripStatus($home),
+            ],
+            'school_to_home' => [
+                'check_in_at' => $school?->check_in_at?->toIso8601String(),
+                'check_out_at' => $school?->check_out_at?->toIso8601String(),
+                'status' => $tripStatus($school),
+            ],
+            'completed' => $nextAction === null,
+            'next_action' => $nextAction,
+        ];
     }
 
     public function history(Request $request)
