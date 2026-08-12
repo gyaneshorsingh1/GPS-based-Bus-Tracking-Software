@@ -348,7 +348,7 @@ class StudentCrudTest extends TestCase
             ->assertOk()
             ->assertJsonPath('message', 'Student deleted successfully.');
 
-        $this->assertDatabaseMissing('students', ['id' => $student->id]);
+        $this->assertSoftDeleted('students', ['id' => $student->id]);
 
         $this->getJson('/api/v1/students/'.$student->id)
             ->assertNotFound()
