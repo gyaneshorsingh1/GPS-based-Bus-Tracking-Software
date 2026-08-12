@@ -50,4 +50,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Driver::class);
     }
+
+    public function parent()
+    {
+        return $this->hasOne(ParentProfile::class);
+    }
 }

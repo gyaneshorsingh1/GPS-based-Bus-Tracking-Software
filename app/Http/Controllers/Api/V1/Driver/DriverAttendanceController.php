@@ -43,7 +43,7 @@ class DriverAttendanceController extends Controller
             ->whereIn('student_id', $students->pluck('id'))
             ->whereDate('date', now())
             ->get()
-            ->keyBy(fn ($record) => $record->student_id.'-'.$record->trip);
+            ->keyBy(fn($record) => $record->student_id . '-' . $record->trip);
 
         return response()->json([
             'message' => 'Students for driver bus.',
@@ -59,7 +59,7 @@ class DriverAttendanceController extends Controller
                     ] : null,
                 ],
                 'total_students' => $students->count(),
-                'students' => $students->map(fn ($student) => [
+                'students' => $students->map(fn($student) => [
                     'id' => $student->id,
                     'admission_no' => $student->admission_no,
                     'first_name' => $student->first_name,
@@ -78,8 +78,8 @@ class DriverAttendanceController extends Controller
                         'phone' => $student->parent->phone,
                     ] : null,
                     'today_attendance' => $this->todayAttendanceFor(
-                        $todayRecords->get($student->id.'-'.Attendance::TRIP_HOME_TO_SCHOOL),
-                        $todayRecords->get($student->id.'-'.Attendance::TRIP_SCHOOL_TO_HOME),
+                        $todayRecords->get($student->id . '-' . Attendance::TRIP_HOME_TO_SCHOOL),
+                        $todayRecords->get($student->id . '-' . Attendance::TRIP_SCHOOL_TO_HOME),
                     ),
                 ]),
             ],
@@ -88,7 +88,7 @@ class DriverAttendanceController extends Controller
 
     private function todayAttendanceFor(?Attendance $home, ?Attendance $school): array
     {
-        $tripStatus = fn (?Attendance $record) => $record === null
+        $tripStatus = fn(?Attendance $record) => $record === null
             ? 'not_checked_in'
             : ($record->isCheckedOut() ? 'completed' : 'checked_in');
 
@@ -178,7 +178,7 @@ class DriverAttendanceController extends Controller
                 'from' => $from->toDateString(),
                 'to' => $to->toDateString(),
                 'total_records' => $records->total(),
-                'records' => $records->map(fn (Attendance $record) => [
+                'records' => $records->map(fn(Attendance $record) => [
                     'id' => $record->id,
                     'date' => $record->date?->toDateString(),
                     'trip' => $record->trip,
@@ -331,5 +331,4 @@ class DriverAttendanceController extends Controller
             ],
         ]);
     }
-
 }
