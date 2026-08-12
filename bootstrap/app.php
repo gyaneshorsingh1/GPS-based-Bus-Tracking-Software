@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -48,5 +49,13 @@ return Application::configure(basePath: dirname(__DIR__))
             };
 
             return response()->json(['message' => $message], 404);
+        });
+
+        $exceptions->render(function (UnauthorizedException $e, Request $request) {
+            if (! $request->is('api/*')) {
+                return;
+            }
+
+            return response()->json(['message' => 'You are not authorized to access this resource.'], 403);
         });
     })->create();

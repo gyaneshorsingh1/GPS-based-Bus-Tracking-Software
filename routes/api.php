@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Parent\ParentBusController;
 use App\Http\Controllers\Api\V1\Parent\ParentChildController;
 use App\Http\Controllers\Api\V1\Parent\ParentDashboardController;
 use App\Http\Controllers\Api\V1\Parent\ParentLiveTrackingController;
+use App\Http\Controllers\Api\V1\Principal\PrincipalDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -47,6 +48,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/children/{student}/bus', [ParentBusController::class, 'show']);
             Route::get('/children/{student}/live-tracking', [ParentLiveTrackingController::class, 'show']);
             Route::get('/live-tracking', [ParentLiveTrackingController::class, 'index']);
+        });
+
+        Route::prefix('principal')->middleware(['role:School Admin', 'permission:dashboard.view'])->group(function () {
+            Route::get('/dashboard', [PrincipalDashboardController::class, 'index']);
+            Route::get('/profile', [PrincipalDashboardController::class, 'profile']);
         });
     });
 });
