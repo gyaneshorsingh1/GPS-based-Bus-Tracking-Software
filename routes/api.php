@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Parent\ParentChildController;
 use App\Http\Controllers\Api\V1\Parent\ParentDashboardController;
 use App\Http\Controllers\Api\V1\Parent\ParentLiveTrackingController;
 use App\Http\Controllers\Api\V1\Principal\PrincipalDashboardController;
+use App\Http\Controllers\Api\V1\Principal\StudentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -53,6 +54,14 @@ Route::prefix('v1')->group(function () {
         Route::prefix('principal')->middleware(['role:School Admin', 'permission:dashboard.view'])->group(function () {
             Route::get('/dashboard', [PrincipalDashboardController::class, 'index']);
             Route::get('/profile', [PrincipalDashboardController::class, 'profile']);
+        });
+
+        Route::middleware('role:School Admin')->prefix('students')->group(function () {
+            Route::get('/', [StudentController::class, 'index'])->middleware('permission:student.view');
+            Route::post('/', [StudentController::class, 'store'])->middleware('permission:student.create');
+            Route::get('/{student}', [StudentController::class, 'show'])->middleware('permission:student.view');
+            Route::put('/{student}', [StudentController::class, 'update'])->middleware('permission:student.update');
+            Route::delete('/{student}', [StudentController::class, 'destroy'])->middleware('permission:student.delete');
         });
     });
 });
