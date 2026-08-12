@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\Driver\DriverProfileController;
 use App\Http\Controllers\Api\V1\Parent\ParentBusController;
 use App\Http\Controllers\Api\V1\Parent\ParentChildController;
 use App\Http\Controllers\Api\V1\Parent\ParentDashboardController;
+use App\Http\Controllers\Api\V1\Parent\ParentLiveTrackingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -44,6 +45,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/children/{student}', [ParentChildController::class, 'show']);
             Route::get('/children/{student}/history', [ParentChildController::class, 'history']);
             Route::get('/children/{student}/bus', [ParentBusController::class, 'show']);
+            Route::get('/children/{student}/live-tracking', [ParentLiveTrackingController::class, 'show']);
+            Route::get('/live-tracking', [ParentLiveTrackingController::class, 'index']);
         });
     });
 });
