@@ -62,6 +62,18 @@ class Driver extends Model
         return $this->hasMany(Bus::class);
     }
 
+    public function attendances()
+    {
+        return $this->hasManyThrough(
+            Attendance::class,
+            Bus::class,
+            'driver_id', // FK on buses
+            'bus_id',    // FK on attendances
+            'id',        // local key on drivers
+            'id',        // local key on buses
+        );
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
